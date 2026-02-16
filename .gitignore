@@ -1,0 +1,9 @@
+# Environment and secrets (Backend/Node has its own .gitignore; this covers root)
+.env
+.env.local
+.env.*.local
+
+# OS and editors
+.DS_Store
+.idea
+*.log
