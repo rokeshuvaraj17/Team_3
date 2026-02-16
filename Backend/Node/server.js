@@ -14,7 +14,57 @@ function saltedPassword(password) {
   return PASSWORD_SALT + password
 }
 
-const pool = DATABASE_URL ? new Pool({ connectionString: DATABASE_URL }) : null
+/** Map database errors to HTTP status and safe user message. Logs details server-side only. */
+function handleDbError(err, res, context) {
+  const code = err.code || (err.errno && String(err.errno))
+  const syscall = err.syscall
+  const message = err.message || ''
+
+  // Connection / network errors → 503 Service Unavailable
+  if (code === 'ENOTFOUND' || code === 'ENOENT' || message.includes('getaddrinfo')) {
+    console.error(`${context}: Database host not found (check DATABASE_URL and network)`, err.message)
+    return res.status(503).json({ error: 'Database unavailable. Check connection settings and network.' })
+  }
+  if (code === 'ECONNREFUSED' || code === 'ECONNRESET' || code === 'ETIMEDOUT') {
+    console.error(`${context}: Database connection failed`, err.message)
+    return res.status(503).json({ error: 'Database unavailable. Cannot reach the database server.' })
+  }
+  if (code === 'EADDRNOTAVAIL' || code === 'ENETUNREACH') {
+    console.error(`${context}: Database network error`, err.message)
+    return res.status(503).json({ error: 'Database unavailable. Network or SSL configuration issue.' })
+  }
+  // Auth / SSL
+  if (code === '28P01' || message.includes('password')) {
+    console.error(`${context}: Database authentication failed`, err.message)
+    return res.status(503).json({ error: 'Database configuration error. Check credentials.' })
+  }
+
+  // Application-level DB errors (already handled in routes where needed)
+  if (code === '23505') return res.status(409).json({ error: 'An account with this email already exists' })
+  if (code === '23503') return res.status(400).json({ error: 'User not found' })
+
+  // Unknown
+  console.error(`${context}:`, err)
+  return res.status(500).json({ error: 'Something went wrong. Please try again.' })
+}
+
+// Remote Postgres (Supabase, etc.) requires SSL; localhost typically does not
+const isRemoteDb =
+  DATABASE_URL &&
+  !/@(localhost|127\.0\.0\.1)(:\d+)?\//.test(DATABASE_URL)
+const poolConfig = DATABASE_URL
+  ? {
+      connectionString: DATABASE_URL,
+      ...(isRemoteDb ? { ssl: { rejectUnauthorized: false } } : {}),
+    }
+  : null
+const pool = poolConfig ? new Pool(poolConfig) : null
+
+if (pool) {
+  pool.on('error', (err) => {
+    console.error('Database pool error:', err.message)
+  })
+}
 
 // Allow Vite dev server and production frontend origins
 const allowedOrigins = [
@@ -34,6 +84,19 @@ app.use(express.json())
 // Health check (for proxy and monitoring)
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, message: 'Backend is running', timestamp: new Date().toISOString() })
+})
+
+// Database health check – returns 503 if DB is unreachable
+app.get('/api/health/db', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ ok: false, error: 'Database not configured' })
+  }
+  try {
+    await pool.query('select 1')
+    res.json({ ok: true, message: 'Database connected' })
+  } catch (err) {
+    return handleDbError(err, res, 'Health check')
+  }
 })
 
 // Sign up: create user in public.users (name, email, password_hash, email_verified)
@@ -84,11 +147,7 @@ app.post('/api/signup', async (req, res) => {
       },
     })
   } catch (err) {
-    if (err.code === '23505') {
-      return res.status(409).json({ error: 'An account with this email already exists' })
-    }
-    console.error('Signup error:', err)
-    res.status(500).json({ error: 'Registration failed. Please try again.' })
+    return handleDbError(err, res, 'Signup')
   }
 })
 
@@ -125,8 +184,7 @@ app.post('/api/login', async (req, res) => {
       },
     })
   } catch (err) {
-    console.error('Login error:', err)
-    res.status(500).json({ error: 'Login failed. Please try again.' })
+    return handleDbError(err, res, 'Login')
   }
 })
 
@@ -144,8 +202,7 @@ app.get('/api/profile', async (req, res) => {
     if (!rows[0]) return res.status(404).json({ error: 'Profile not found' })
     res.json(rows[0])
   } catch (err) {
-    console.error('Profile get error:', err)
-    res.status(500).json({ error: 'Failed to load profile' })
+    return handleDbError(err, res, 'Profile get')
   }
 })
 
@@ -201,9 +258,7 @@ app.put('/api/profile', async (req, res) => {
     )
     res.json(rows[0])
   } catch (err) {
-    if (err.code === '23503') return res.status(400).json({ error: 'User not found' })
-    console.error('Profile put error:', err)
-    res.status(500).json({ error: 'Failed to save profile' })
+    return handleDbError(err, res, 'Profile put')
   }
 })
 
