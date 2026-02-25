@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home,
-  User,
   Settings,
   LogOut,
   Menu,
@@ -11,11 +10,14 @@ import {
   ChevronRight,
   BarChart3,
   FileText,
+  FileOutput,
   Bell,
   Search,
   HelpCircle,
+  PenLine,
 } from 'lucide-react'
 import { getStoredUser, clearStoredUser } from '@/lib/auth'
+import { apiUrl } from '@/lib/api'
 
 interface NavigationItem {
   id: string
@@ -27,10 +29,11 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   { id: 'dashboard', name: 'Dashboard', icon: Home, href: '/app' },
+  { id: 'generate-resume', name: 'Generate Resume', icon: FileOutput, href: '/app/generate-resume' },
+  { id: 'generate-cover-letter', name: 'Generate Cover Letter', icon: PenLine, href: '/app/generate-cover-letter' },
   { id: 'analytics', name: 'Analytics', icon: BarChart3, href: '/app/analytics' },
   { id: 'documents', name: 'Documents', icon: FileText, href: '/app/documents', badge: '3' },
   { id: 'notifications', name: 'Notifications', icon: Bell, href: '/app/notifications', badge: '12' },
-  { id: 'profile', name: 'Profile', icon: User, href: '/app/profile' },
   { id: 'settings', name: 'Settings', icon: Settings, href: '/app/settings' },
   { id: 'help', name: 'Help & Support', icon: HelpCircle, href: '/app/help' },
 ]
@@ -45,8 +48,15 @@ export function Sidebar({ className = '' }: SidebarProps) {
   const user = getStoredUser()
   const [isOpen, setIsOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [profileName, setProfileName] = useState<string | null>(null)
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null)
 
-  const activeItem = navigationItems.find((item) => location.pathname === item.href)?.id ?? 'dashboard'
+  const activeItem =
+    navigationItems.find((item) => {
+      if (item.href === '/app') return location.pathname === '/app'
+      return location.pathname === item.href || location.pathname.startsWith(item.href + '/')
+    })?.id ?? 'dashboard'
+  const isProfile = location.pathname === '/app/profile'
 
   useEffect(() => {
     const handleResize = () => {
@@ -57,6 +67,17 @@ export function Sidebar({ className = '' }: SidebarProps) {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  useEffect(() => {
+    if (!user?.id) return
+    fetch(apiUrl('/api/profile'), { headers: { 'x-user-id': user.id } })
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.display_name) setProfileName(data.display_name)
+        if (data?.profile_image_url) setProfileImageUrl(data.profile_image_url)
+      })
+      .catch(() => {})
+  }, [user?.id])
 
   const toggleSidebar = () => setIsOpen(!isOpen)
   const toggleCollapse = () => setIsCollapsed(!isCollapsed)
@@ -100,19 +121,33 @@ export function Sidebar({ className = '' }: SidebarProps) {
       >
         <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-slate-50/60">
           {!isCollapsed && (
-            <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-base">T</span>
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {profileImageUrl ? (
+                  <img src={profileImageUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-slate-600 font-semibold text-sm">
+                    {(profileName || user?.name || user?.email || 'U').slice(0, 2).toUpperCase()}
+                  </span>
+                )}
               </div>
-              <div className="flex flex-col">
-                <span className="font-semibold text-slate-800 text-base">Team3</span>
-                <span className="text-xs text-slate-500">Job Portal</span>
+              <div className="flex flex-col min-w-0">
+                <span className="font-semibold text-slate-800 text-sm truncate">
+                  {profileName || user?.name || 'User'}
+                </span>
+                <span className="text-xs text-slate-500 truncate">Job Portal</span>
               </div>
             </div>
           )}
           {isCollapsed && (
-            <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center mx-auto shadow-sm">
-              <span className="text-white font-bold text-base">T</span>
+            <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden mx-auto flex-shrink-0">
+              {profileImageUrl ? (
+                <img src={profileImageUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-slate-600 font-semibold text-xs">
+                  {(profileName || user?.name || user?.email || 'U').slice(0, 2).toUpperCase()}
+                </span>
+              )}
             </div>
           )}
           <button
@@ -204,29 +239,44 @@ export function Sidebar({ className = '' }: SidebarProps) {
         <div className="mt-auto border-t border-slate-200">
           <div className={`border-b border-slate-200 bg-slate-50/30 ${isCollapsed ? 'py-3 px-2' : 'p-3'}`}>
             {!isCollapsed ? (
-              <div className="flex items-center px-3 py-2 rounded-md bg-white hover:bg-slate-50 transition-colors duration-200">
-                <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
+              <Link
+                to="/app/profile"
+                onClick={closeOnMobile}
+                className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${
+                  isProfile ? 'bg-blue-50 ring-1 ring-blue-200' : 'bg-white hover:bg-slate-50'
+                }`}
+              >
+                <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                   <span className="text-slate-700 font-medium text-sm">
                     {(user?.name ?? user?.email ?? 'U').slice(0, 2).toUpperCase()}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0 ml-2.5">
-                  <p className="text-sm font-medium text-slate-800 truncate">{user?.name ?? 'User'}</p>
+                  <p className={`text-sm font-medium truncate ${isProfile ? 'text-blue-700' : 'text-slate-800'}`}>
+                    {user?.name ?? 'User'}
+                  </p>
                   <p className="text-xs text-slate-500 truncate">{user?.email ?? ''}</p>
                 </div>
-                <div className="w-2 h-2 bg-green-500 rounded-full ml-2" title="Online" />
-              </div>
+                <div className="w-2 h-2 bg-green-500 rounded-full ml-2 flex-shrink-0" title="Online" />
+              </Link>
             ) : (
-              <div className="flex justify-center">
+              <Link
+                to="/app/profile"
+                onClick={closeOnMobile}
+                className="flex justify-center"
+                title="Profile"
+              >
                 <div className="relative">
-                  <div className="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center overflow-hidden ${
+                    isProfile ? 'ring-2 ring-blue-500 ring-offset-2' : 'bg-slate-200'
+                  }`}>
                     <span className="text-slate-700 font-medium text-sm">
                       {(user?.name ?? user?.email ?? 'U').slice(0, 2).toUpperCase()}
                     </span>
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
                 </div>
-              </div>
+              </Link>
             )}
           </div>
 

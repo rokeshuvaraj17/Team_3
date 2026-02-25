@@ -50,6 +50,7 @@ export function OnboardingPage() {
     headline: '',
     location: '',
     location_country: '',
+    state: '',
     summary: '',
     phone: '',
     website_url: '',
@@ -74,6 +75,7 @@ export function OnboardingPage() {
             headline: data.headline ?? '',
             location: data.location ?? '',
             location_country: data.location_country ?? '',
+            state: data.state ?? '',
             summary: data.summary ?? '',
             phone: data.phone ?? '',
             website_url: data.website_url ?? '',
@@ -131,19 +133,24 @@ export function OnboardingPage() {
       await saveStep({
         location: (profile.location ?? '').trim() || null,
         location_country: (profile.location_country ?? '').trim() || null,
+        state: (profile.state ?? '').trim() || null,
       })
       setStep(4)
     } else if (step === 4) {
       await saveStep({ summary: (profile.summary ?? '').trim() || null })
       setStep(5)
     } else if (step === 5) {
-      const phone = (profile.phone ?? '').trim()
+      const phone = (profile.phone ?? '').trim().replace(/\D/g, '')
       if (!phone) {
         setError('Phone number is required')
         return
       }
+      if (phone.length < 10) {
+        setError('Phone number must be at least 10 digits')
+        return
+      }
       const ok = await saveStep({
-        phone,
+        phone: (profile.phone ?? '').trim(),
         website_url: (profile.website_url ?? '').trim() || null,
         linkedin_url: (profile.linkedin_url ?? '').trim() || null,
       })
@@ -274,6 +281,11 @@ export function OnboardingPage() {
                   onChange={(e) => setProfile((p) => ({ ...p, location: e.target.value }))}
                   autoFocus
                 />
+                <Input
+                  placeholder="State / Province (optional)"
+                  value={profile.state ?? ''}
+                  onChange={(e) => setProfile((p) => ({ ...p, state: e.target.value }))}
+                />
                 <select
                   value={profile.location_country ?? ''}
                   onChange={(e) => setProfile((p) => ({ ...p, location_country: e.target.value || null }))}
@@ -314,7 +326,7 @@ export function OnboardingPage() {
               >
                 <Input
                   type="tel"
-                  placeholder="Phone number"
+                  placeholder="Phone number (min 10 digits)"
                   value={profile.phone ?? ''}
                   onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))}
                   autoFocus
@@ -338,7 +350,10 @@ export function OnboardingPage() {
           <div className="flex items-center justify-between gap-3 mt-8">
             <button
               type="button"
-              onClick={() => setStep((s) => Math.max(1, s - 1))}
+              onClick={() => {
+                setError(null)
+                setStep((s) => Math.max(1, s - 1))
+              }}
               disabled={step === 1}
               className={cn(
                 'flex items-center gap-1 text-sm text-white/60 hover:text-white transition-colors',

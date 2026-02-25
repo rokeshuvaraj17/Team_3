@@ -4,6 +4,10 @@ import { SignUpCard } from '@/components/ui/sign-up-card'
 import { WelcomePage } from '@/pages/WelcomePage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
 import { ProfilePage } from '@/pages/ProfilePage'
+import { GenerateResumePage } from '@/pages/GenerateResumePage'
+import { GenerateCoverLetterPage } from '@/pages/GenerateCoverLetterPage'
+import { JobBasedResumePage } from '@/pages/JobBasedResumePage'
+import { CustomResumePage } from '@/pages/CustomResumePage'
 import { AppLayout } from '@/layouts/AppLayout'
 
 function App() {
@@ -16,6 +20,10 @@ function App() {
         <Route path="/app" element={<AppLayout />}>
           <Route index element={<WelcomePage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="generate-resume" element={<GenerateResumePage />} />
+          <Route path="generate-resume/job-based" element={<JobBasedResumePage />} />
+          <Route path="generate-resume/custom" element={<CustomResumePage />} />
+          <Route path="generate-cover-letter" element={<GenerateCoverLetterPage />} />
           <Route path="*" element={<Navigate to="/app" replace />} />
         </Route>
       </Routes>

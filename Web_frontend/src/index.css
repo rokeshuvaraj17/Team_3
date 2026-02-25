@@ -19,3 +19,66 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+/* Job description typography (sanitized HTML from APIs) */
+.job-description {
+  line-height: 1.65;
+}
+.job-description p {
+  margin-bottom: 0.75rem;
+}
+.job-description p:last-child {
+  margin-bottom: 0;
+}
+.job-description h2,
+.job-description h3,
+.job-description h4 {
+  font-weight: 600;
+  color: rgb(30 41 59);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: inherit;
+}
+.job-description h2:first-child,
+.job-description h3:first-child,
+.job-description h4:first-child {
+  margin-top: 0;
+}
+.job-description ul,
+.job-description ol {
+  margin: 0.5rem 0 0.75rem 1.25rem;
+  padding-left: 1.25rem;
+}
+.job-description li {
+  margin-bottom: 0.25rem;
+}
+.job-description strong,
+.job-description b {
+  font-weight: 600;
+  color: rgb(51 65 85);
+}
+.job-description a {
+  color: rgb(37 99 235);
+  text-decoration: underline;
+}
+.job-description a:hover {
+  color: rgb(29 78 216);
+}
+.job-description blockquote {
+  border-left: 3px solid rgb(203 213 225);
+  padding-left: 0.75rem;
+  margin: 0.75rem 0;
+  color: rgb(71 85 105);
+}
+
+.job-description-structured .job-description-section h3 {
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+.job-description-list {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+}
+.job-description-list li {
+  margin-bottom: 0.25rem;
+}

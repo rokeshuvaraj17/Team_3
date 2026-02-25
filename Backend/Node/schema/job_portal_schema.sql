@@ -87,6 +87,7 @@ CREATE TABLE user_profiles (
   summary            text,
   location           text,
   location_country   text,             -- ISO 3166-1 alpha-2; text + CHECK avoids char(n) padding
+  state             text,              -- State / province / region
   profile_image_url  text,
   phone             text,
   website_url       text,

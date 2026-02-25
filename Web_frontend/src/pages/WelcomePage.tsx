@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { getStoredUser, setStoredUser } from '@/lib/auth'
 import { apiUrl } from '@/lib/api'
+import { DashboardJobList } from '@/components/DashboardJobList'
 
 type User = { id: string; name?: string; email?: string; email_verified?: boolean }
 
@@ -52,25 +53,17 @@ export function WelcomePage() {
   if (!user?.id) return null
   if (checking) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
-        <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-        <p className="text-white/50 mt-4 text-sm">Loading...</p>
+      <div className="min-h-full flex flex-col items-center justify-center p-4">
+        <div className="w-8 h-8 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
+        <p className="text-slate-500 mt-4 text-sm">Loading...</p>
       </div>
     )
   }
   if (!ready) return null
 
   return (
-    <div className="p-6 max-w-2xl">
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-semibold text-slate-800 mb-2">
-          Welcome, {user.name ?? user.email}
-        </h1>
-        {user.email_verified === false && (
-          <p className="text-amber-600 text-sm mb-4">Your email is not verified yet.</p>
-        )}
-        <p className="text-slate-600 text-sm">Use the sidebar to open Profile, Settings, and more.</p>
-      </div>
+    <div className="flex flex-1 min-h-0 w-full">
+      <DashboardJobList />
     </div>
   )
 }
