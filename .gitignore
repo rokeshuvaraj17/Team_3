@@ -3,6 +3,9 @@
 .env.local
 .env.*.local
 
+# Local deployment notes (do not publish)
+DEPLOYMENT.md
+
 # OS and editors
 .DS_Store
 .idea

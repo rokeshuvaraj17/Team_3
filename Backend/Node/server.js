@@ -117,12 +117,17 @@ if (pool) {
   })
 }
 
-// Allow Vite dev server and production frontend origins
-const allowedOrigins = [
-  'http://localhost:5173',  // Vite default
+// Allow Vite dev server and production frontend origins (set ALLOWED_ORIGINS or FRONTEND_URL on Render)
+const defaultOrigins = [
+  'http://localhost:5173',
   'http://127.0.0.1:5173',
-  'http://localhost:4173',  // Vite preview
+  'http://localhost:4173',
 ]
+const envOrigins = (process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+const allowedOrigins = [...defaultOrigins, ...envOrigins]
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true)
