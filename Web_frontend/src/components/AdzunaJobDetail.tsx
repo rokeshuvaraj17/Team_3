@@ -21,7 +21,7 @@ const SOURCE_LABEL: Record<string, string> = {
   reed: 'Reed',
 }
 
-export function AdzunaJobDetail({ job, saved, onSave, onHide, onClose, className = '' }: AdzunaJobDetailProps) {
+export function AdzunaJobDetail({ job, saved, onSave, onHide: _onHide, onClose: _onClose, className = '' }: AdzunaJobDetailProps) {
   const [displayDescription, setDisplayDescription] = useState('')
   const [translating, setTranslating] = useState(false)
   const translationCache = useRef<Map<string, string>>(new Map())

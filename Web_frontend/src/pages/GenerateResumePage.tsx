@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { FileOutput, Briefcase, User } from 'lucide-react'
+import { Briefcase, User } from 'lucide-react'
 
 export function GenerateResumePage() {
   return (

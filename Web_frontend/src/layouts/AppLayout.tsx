@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Sidebar } from '@/components/ui/modern-side-bar'
 import { getStoredUser } from '@/lib/auth'

@@ -206,11 +206,6 @@ export function CustomResumePage() {
     }
   }
 
-  const getEditorContent = () => {
-    if (resumeEditorRef.current) return resumeEditorRef.current.innerHTML
-    return generatedContent || ''
-  }
-
   const handleSaveResume = async (asPrimary: boolean, name: string) => {
     if (!user?.id) return
     setSaving(true)
