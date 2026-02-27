@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team 3</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app" id="appRoot">
+    <header class="header">
+      <span class="logo">Team 3</span>
+      <div class="header-actions">
+        <button type="button" id="themeToggleBtn" class="theme-toggle-btn" title="Toggle light/dark">☾</button>
+        <button type="button" id="settingsBtn" class="icon-btn" title="API Settings">&#9881;</button>
+        <button type="button" id="minimizeBtn" class="icon-btn" title="Minimize sidebar">−</button>
+      </div>
+    </header>
+    <div id="minimizedBar" class="minimized-bar">
+      <span class="minimized-logo">T</span>
+      <button type="button" id="expandBtn" class="btn btn-sm btn-ghost">Expand</button>
+    </div>
+
+    <div id="settingsPanel" class="settings-panel hidden">
+      <h3>Cover letter API</h3>
+      <p class="settings-desc">Use a stored connection or your own Gemini key.</p>
+      <div id="storedKeysList" class="stored-keys-list"></div>
+      <div class="settings-custom">
+        <button type="button" id="customKeyBtn" class="btn btn-ghost btn-full">Custom Gemini key + model</button>
+        <div id="customKeyForm" class="hidden">
+          <label for="apiKey">Gemini API key</label>
+          <input type="password" id="apiKey" placeholder="AIza..." />
+          <label for="modelSelect">Model</label>
+          <select id="modelSelect">
+            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash</option>
+            <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro</option>
+          </select>
+          <button type="button" id="saveCustomKey" class="btn btn-sm btn-primary">Save custom key</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="panelMain">
+    <nav class="tabs">
+      <button type="button" class="tab active" data-tab="account">Account</button>
+      <button type="button" class="tab" data-tab="scraper">Scraper</button>
+      <button type="button" class="tab" data-tab="resume">Resume</button>
+      <button type="button" class="tab" data-tab="generate">Cover Letter</button>
+      <button type="button" class="tab" data-tab="autofill">Autofill</button>
+    </nav>
+
+    <main class="content">
+      <!-- Account & Profile (combined) -->
+      <section id="tab-account" class="tab-content active">
+        <div id="loginView">
+          <h2 class="section-header">Team 3 Login</h2>
+          <form id="loginForm">
+            <div class="input-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" required autocomplete="email" />
+            </div>
+            <div class="input-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" required autocomplete="current-password" />
+            </div>
+            <button type="submit" id="submitBtn" class="btn btn-primary btn-full">Log in</button>
+          </form>
+          <div id="status" role="status"></div>
+        </div>
+        <div id="loggedInView" class="hidden">
+          <div class="logged-in-header">
+            <img id="profileImage" alt="" style="display:none;" />
+            <div id="profileInitials" class="avatar-initials" style="display:none;"></div>
+            <div>
+              <div id="profileName" class="logged-in-name"></div>
+              <div id="profileEmail" class="logged-in-email"></div>
+            </div>
+          </div>
+          <div class="profile-scroll account-profile-section">
+            <p class="profile-copy-hint">Click any block below to copy. Use this profile to fill applications.</p>
+            <div id="profileCard" class="profile-card hidden">
+              <div class="profile-header">
+                <h2 id="profileDisplayName" class="profile-name"></h2>
+                <div class="profile-actions">
+                  <button type="button" id="profileRefreshBtn" class="profile-link-btn" title="Refresh">↻</button>
+                  <a id="profileEditLink" href="#" target="_blank" rel="noopener" class="profile-link-btn" title="Edit in web app">✎</a>
+                </div>
+              </div>
+              <div class="profile-avatar-row">
+                <div id="profileAvatar" class="profile-avatar"></div>
+                <div class="profile-contact">
+                  <p id="profileLocation" class="profile-contact-line"></p>
+                  <p id="profileCardEmail" class="profile-contact-line"></p>
+                  <p id="profilePhone" class="profile-contact-line"></p>
+                </div>
+              </div>
+              <div id="profileHeadline" class="profile-block hidden"></div>
+              <div id="profileSummary" class="profile-block hidden"></div>
+              <div id="profileLinksSection" class="profile-section hidden">
+                <h3 class="profile-section-title">Links</h3>
+                <div id="profileLinks" class="profile-links"></div>
+              </div>
+              <div id="profileUploadsSection" class="profile-section">
+                <h3 class="profile-section-title">Uploads</h3>
+                <div id="profileResumes" class="profile-uploads"></div>
+                <div id="profileCoverLetters" class="profile-uploads"></div>
+              </div>
+              <div id="profileEducationSection" class="profile-section hidden">
+                <h3 class="profile-section-title">Education</h3>
+                <div id="profileEducation" class="profile-tags"></div>
+              </div>
+              <div id="profileExperienceSection" class="profile-section hidden">
+                <h3 class="profile-section-title">Experience</h3>
+                <div id="profileExperience" class="profile-list"></div>
+              </div>
+              <div id="profileSkillsSection" class="profile-section hidden">
+                <h3 class="profile-section-title">Skills</h3>
+                <div id="profileSkills" class="profile-tags"></div>
+              </div>
+              <div id="profileLanguagesSection" class="profile-section hidden">
+                <h3 class="profile-section-title">Languages</h3>
+                <div id="profileLanguages" class="profile-tags"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" id="logoutBtn" class="btn btn-ghost btn-full">Log out</button>
+          <div class="account-option input-group" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border, #e2e8f0);">
+            <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="useSidebarCheckbox" />
+              <span>Open in side panel (sidebar)</span>
+            </label>
+            <p class="settings-desc" style="margin-top: 0.25rem; margin-bottom: 0;">When enabled, clicking the extension icon opens the panel on the right side of the browser instead of this popup.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Resume -->
+      <section id="tab-resume" class="tab-content">
+        <div class="section-header">
+          <h2>Resume</h2>
+          <span id="resumeStatus" class="status-badge">None selected</span>
+        </div>
+        <p class="section-desc">Job description is used for both resume and cover letter. Load it in the Scraper tab.</p>
+        <div class="btn-row" style="margin-bottom: 0.75rem;">
+          <button type="button" id="resumeListBtn" class="btn btn-primary flex-1">List of resumes</button>
+          <button type="button" id="resumeCustomBtn" class="btn btn-ghost flex-1">Custom resume</button>
+        </div>
+        <div id="resumeListPanel" class="resume-panel hidden">
+          <label class="resume-source-label">Select a resume</label>
+          <div id="resumeAccountList" class="resume-list"></div>
+          <p id="resumeAccountHint" class="settings-desc hidden">Log in to see resumes from your account.</p>
+        </div>
+        <div id="resumeCustomPanel" class="resume-panel hidden">
+          <label class="resume-source-label">Paste your resume</label>
+          <div id="resumeEditArea">
+            <textarea id="resumeInput" rows="6" placeholder="Paste full resume..."></textarea>
+            <div class="btn-row">
+              <button type="button" id="saveResume" class="btn btn-primary">Save</button>
+              <button type="button" id="clearResume" class="btn btn-ghost">Clear</button>
+            </div>
+          </div>
+          <div id="resumePreview" class="preview-box hidden">
+            <button type="button" id="editResume" class="btn btn-sm btn-ghost">Edit</button>
+            <pre id="resumePreviewText"></pre>
+          </div>
+        </div>
+        <div class="input-group" style="margin-top: 0.75rem;">
+          <p id="resumeJDHint" class="settings-desc">Load a job description in the Scraper tab to enable.</p>
+          <p id="resumeNoTextWarning" class="settings-desc toast-error hidden">Could not load resume text (e.g. scanned PDF). Use Custom resume and paste your text.</p>
+          <button type="button" id="resumeGenerateWebBtn" class="btn btn-primary btn-full" disabled>Generate resume (open in website)</button>
+        </div>
+      </section>
+
+      <!-- Scraper -->
+      <section id="tab-scraper" class="tab-content">
+        <div class="section-header"><h2>Job Scraper</h2></div>
+        <p class="section-desc">Open a job page, then click Scrape. Or paste manually below.</p>
+        <div class="site-badges">
+          <span class="site-badge">LinkedIn</span>
+          <span class="site-badge">Indeed</span>
+          <span class="site-badge">Greenhouse</span>
+          <span class="site-badge">Lever</span>
+          <span class="site-badge">Workday</span>
+          <span class="site-badge">Glassdoor</span>
+        </div>
+        <button type="button" id="scrapeBtn" class="btn btn-primary btn-full">Scrape This Page</button>
+        <div id="scrapeResult" class="hidden">
+          <div class="scraped-meta">
+            <div class="meta-item"><label>Title</label><span id="scrapedTitle">—</span></div>
+            <div class="meta-item"><label>Company</label><span id="scrapedCompany">—</span></div>
+            <div class="meta-item"><label>Location</label><span id="scrapedLocation">—</span></div>
+            <div class="meta-item"><label>Source</label><span id="scrapedSource">—</span></div>
+          </div>
+          <div class="input-group">
+            <label for="jobDescription">Job Description</label>
+            <textarea id="jobDescription" rows="6" placeholder="Or paste manually..."></textarea>
+          </div>
+          <button type="button" id="saveJDBtn" class="btn btn-primary btn-full">Save</button>
+        </div>
+        <div class="divider"><span>or paste manually</span></div>
+        <div class="input-group">
+          <label for="manualJD">Paste JD</label>
+          <textarea id="manualJD" rows="5" placeholder="Paste job description..."></textarea>
+        </div>
+        <button type="button" id="saveManualJDBtn" class="btn btn-primary btn-full">Save</button>
+      </section>
+
+      <!-- Generate -->
+      <section id="tab-generate" class="tab-content">
+        <div class="section-header"><h2>Cover Letter</h2></div>
+        <div id="generateChecklist" class="checklist">
+          <div class="check-item" id="checkResume">Resume saved</div>
+          <div class="check-item" id="checkJD">Job description loaded</div>
+          <div class="check-item" id="checkAPI">API key set</div>
+        </div>
+        <div class="input-group">
+          <label for="additionalNotes">Extra instructions (optional)</label>
+          <textarea id="additionalNotes" rows="2" placeholder="e.g. Emphasize leadership..."></textarea>
+        </div>
+        <div class="input-group">
+          <label for="toneSelect">Tone</label>
+          <select id="toneSelect">
+            <option value="professional">Professional</option>
+            <option value="enthusiastic">Enthusiastic</option>
+            <option value="confident">Confident</option>
+          </select>
+        </div>
+        <button type="button" id="generateBtn" class="btn btn-primary btn-full" disabled>Generate Cover Letter</button>
+        <div class="input-group" style="margin-top: 0.75rem;">
+          <button type="button" id="coverLetterWebBtn" class="btn btn-ghost btn-full" disabled>Cover letter (templates &amp; LaTeX) → Open in website</button>
+        </div>
+        <div class="input-group" style="margin-top: 0.25rem;">
+          <button type="button" id="updateResumeBtn" class="btn btn-ghost btn-full" disabled>Update resume for this job → Open in website</button>
+        </div>
+        <div id="loadingIndicator" class="loading hidden"><div class="spinner"></div><span>Generating...</span></div>
+        <div id="generatedResult" class="hidden">
+          <div class="result-header">
+            <h3>Result</h3>
+            <div>
+              <button type="button" id="copyResult" class="btn btn-sm btn-ghost">Copy</button>
+              <button type="button" id="regenerateBtn" class="btn btn-sm btn-ghost">Regenerate</button>
+            </div>
+          </div>
+          <div id="coverLetterOutput" class="output-box"></div>
+        </div>
+      </section>
+
+      <!-- Autofill -->
+      <section id="tab-autofill" class="tab-content">
+        <div class="section-header"><h2>Autofill</h2></div>
+        <p class="section-desc">
+          Fill application forms using your profile, a selected resume, and cover letter. Works for text fields, dropdowns, dates, and skills.
+        </p>
+        <div class="input-group">
+          <label class="resume-source-label">Resume (for text areas &amp; paste)</label>
+          <select id="autofillResumeSelect" class="autofill-select">
+            <option value="">None</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="resume-source-label">Cover letter (for text areas)</label>
+          <select id="autofillCoverLetterSelect" class="autofill-select">
+            <option value="">None</option>
+          </select>
+          <p class="settings-desc" style="margin-top: 4px;">Cover letter file uploads on the page must be done manually (download from Documents).</p>
+        </div>
+        <div class="input-group">
+          <p class="settings-desc">
+            Open a job application form, then click below. We fill: name, email, phone, dropdowns (e.g. country, state), date of birth, resume/cover letter text areas, and skill tags where possible.
+          </p>
+          <button type="button" id="autofillBtn" class="btn btn-primary btn-full">
+            Autofill current page
+          </button>
+          <button type="button" id="jobTrackerToggleBtn" class="btn btn-ghost btn-full" style="margin-top: 0.5rem;">
+            Job Tracker
+          </button>
+        </div>
+        <p class="settings-desc">
+          Shortcut: <strong>Ctrl + Shift + F</strong> on the page (uses profile + last selected resume/cover letter).
+        </p>
+
+        <div id="jobTrackerPanel" class="job-tracker-panel hidden">
+          <h3 class="job-tracker-title">Save job to tracker</h3>
+          <p class="job-tracker-desc">Save interesting jobs in your tracker while you autofill applications.</p>
+          <form id="jobTrackerForm" class="job-tracker-form">
+            <div class="job-tracker-row">
+              <div class="input-group">
+                <label for="jtCompany">Company</label>
+                <input type="text" id="jtCompany" placeholder="Company name" />
+              </div>
+              <div class="input-group">
+                <label for="jtPosition">Position title</label>
+                <input type="text" id="jtPosition" placeholder="Job title" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="jtLocation">Location</label>
+              <input type="text" id="jtLocation" placeholder="e.g. City, State, Country" />
+            </div>
+            <div class="job-tracker-row">
+              <div class="input-group">
+                <label for="jtMinSalary">Min. salary ($)</label>
+                <input type="number" id="jtMinSalary" min="0" step="1" />
+              </div>
+              <div class="input-group">
+                <label for="jtMaxSalary">Max. salary ($)</label>
+                <input type="number" id="jtMaxSalary" min="0" step="1" />
+              </div>
+            </div>
+            <div class="job-tracker-row">
+              <div class="input-group">
+                <label for="jtCurrency">Currency</label>
+                <select id="jtCurrency">
+                  <option value="USD">US Dollar (USD)</option>
+                  <option value="EUR">Euro (EUR)</option>
+                  <option value="GBP">British Pound (GBP)</option>
+                  <option value="INR">Indian Rupee (INR)</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="jtPeriod">Period</label>
+                <select id="jtPeriod">
+                  <option value="Hourly">Hourly</option>
+                  <option value="Monthly">Monthly</option>
+                  <option value="Annually">Annually</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="jtJobType">Job type</label>
+                <select id="jtJobType">
+                  <option value="Full-Time">Full-Time</option>
+                  <option value="Part-Time">Part-Time</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Internship">Internship</option>
+                  <option value="Temporary">Temporary</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="jtStatus">Application status</label>
+              <select id="jtStatus">
+                <option value="not_applied">I have not yet applied</option>
+                <option value="applied">Applied</option>
+                <option value="interviewing">Interviewing</option>
+                <option value="offer">Offer received</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="jtUrl">Job posting URL</label>
+              <input type="url" id="jtUrl" placeholder="https://..." />
+            </div>
+            <div class="input-group">
+              <label for="jtDescription">Job description</label>
+              <textarea id="jtDescription" rows="3" placeholder="Paste or type job description"></textarea>
+            </div>
+            <div class="input-group">
+              <label for="jtNotes">Notes</label>
+              <textarea id="jtNotes" rows="2" placeholder="Optional notes"></textarea>
+            </div>
+            <div class="job-tracker-actions">
+              <button type="submit" id="jobTrackerSaveBtn" class="btn btn-primary btn-full">
+                Save job to tracker
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+    </main>
+    </div>
+  </div>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -31,7 +31,7 @@ const DEFAULT_FILTERS: JobFiltersState = {
   salary_max: '',
   job_type: 'all',
   sort: 'relevance',
-  country: 'in',
+  country: 'us',
 }
 
 function buildAdzunaParams(filters: JobFiltersState, page: number): URLSearchParams {
@@ -229,7 +229,7 @@ export function DashboardJobList() {
 
   return (
     <div className="flex flex-1 min-h-0 w-full gap-0 flex-col">
-      {/* Job source dropdown + Support Ukraine when Jooble */}
+      {/* Job source dropdown */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <label htmlFor="job-source-select" className="text-sm font-medium text-slate-600">
           Job source:
@@ -246,16 +246,6 @@ export function DashboardJobList() {
             </option>
           ))}
         </select>
-        {jobSource === 'jooble' && (
-          <a
-            href="https://www.unicef.org/emergencies/ukraine"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-amber-700 hover:text-amber-800 font-medium inline-flex items-center gap-1"
-          >
-            Support Ukraine during the Russian invasion
-          </a>
-        )}
       </div>
 
       <div className="flex flex-1 min-h-0 w-full gap-0">

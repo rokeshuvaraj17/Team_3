@@ -5,6 +5,7 @@
 
 # Local deployment notes (do not publish)
 DEPLOYMENT.md
+VERCEL_RENDER_CHECKLIST.md
 
 # OS and editors
 .DS_Store

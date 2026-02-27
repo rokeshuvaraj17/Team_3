@@ -12,9 +12,13 @@ import {
   FileText,
   FileOutput,
   Bell,
+  KeyRound,
   Search,
   HelpCircle,
   PenLine,
+  Puzzle,
+  BookmarkCheck,
+  FormInput,
 } from 'lucide-react'
 import { getStoredUser, clearStoredUser } from '@/lib/auth'
 import { apiUrl } from '@/lib/api'
@@ -32,8 +36,12 @@ const navigationItems: NavigationItem[] = [
   { id: 'generate-resume', name: 'Generate Resume', icon: FileOutput, href: '/app/generate-resume' },
   { id: 'generate-cover-letter', name: 'Generate Cover Letter', icon: PenLine, href: '/app/generate-cover-letter' },
   { id: 'analytics', name: 'Analytics', icon: BarChart3, href: '/app/analytics' },
-  { id: 'documents', name: 'Documents', icon: FileText, href: '/app/documents', badge: '3' },
+  { id: 'job-tracker', name: 'Job Tracker', icon: BookmarkCheck, href: '/app/job-tracker' },
+  { id: 'documents', name: 'Documents', icon: FileText, href: '/app/documents' },
   { id: 'notifications', name: 'Notifications', icon: Bell, href: '/app/notifications', badge: '12' },
+  { id: 'extension', name: 'Extension', icon: Puzzle, href: '/app/extension' },
+  { id: 'api-connection', name: 'API Connection', icon: KeyRound, href: '/app/api-connection' },
+  { id: 'autofill-form-fields', name: 'Autofill Form Fields', icon: FormInput, href: '/app/autofill-form-fields' },
   { id: 'settings', name: 'Settings', icon: Settings, href: '/app/settings' },
   { id: 'help', name: 'Help & Support', icon: HelpCircle, href: '/app/help' },
 ]
@@ -95,10 +103,10 @@ export function Sidebar({ className = '' }: SidebarProps) {
     <>
       <button
         onClick={toggleSidebar}
-        className="fixed top-6 left-6 z-50 p-3 rounded-lg bg-white shadow-md border border-slate-100 md:hidden hover:bg-slate-50 transition-all duration-200"
+        className="fixed top-6 left-6 z-50 p-3 rounded-lg bg-white dark:bg-slate-800 shadow-md border border-slate-100 dark:border-slate-700 md:hidden hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200"
         aria-label="Toggle sidebar"
       >
-        {isOpen ? <X className="h-5 w-5 text-slate-600" /> : <Menu className="h-5 w-5 text-slate-600" />}
+        {isOpen ? <X className="h-5 w-5 text-slate-600 dark:text-slate-300" /> : <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" />}
       </button>
 
       {isOpen && (
@@ -111,7 +119,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
 
       <aside
         className={`
-          flex flex-col flex-shrink-0 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out
+          flex flex-col flex-shrink-0 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 ease-in-out
           h-screen fixed top-0 left-0 z-40
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           ${isCollapsed ? 'w-28' : 'w-72'}
@@ -119,46 +127,34 @@ export function Sidebar({ className = '' }: SidebarProps) {
           ${className}
         `}
       >
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-slate-50/60">
+        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/80">
           {!isCollapsed && (
             <div className="flex items-center space-x-2.5 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-                {profileImageUrl ? (
-                  <img src={profileImageUrl} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-slate-600 font-semibold text-sm">
-                    {(profileName || user?.name || user?.email || 'U').slice(0, 2).toUpperCase()}
-                  </span>
-                )}
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm ring-2 ring-white dark:ring-slate-700">
+                <span className="text-white font-bold text-lg leading-none">T</span>
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="font-semibold text-slate-800 text-sm truncate">
-                  {profileName || user?.name || 'User'}
+                <span className="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate">
+                  Team 3
                 </span>
-                <span className="text-xs text-slate-500 truncate">Job Portal</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 truncate">Job Portal</span>
               </div>
             </div>
           )}
           {isCollapsed && (
-            <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden mx-auto flex-shrink-0">
-              {profileImageUrl ? (
-                <img src={profileImageUrl} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-slate-600 font-semibold text-xs">
-                  {(profileName || user?.name || user?.email || 'U').slice(0, 2).toUpperCase()}
-                </span>
-              )}
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mx-auto flex-shrink-0 shadow-sm ring-2 ring-white dark:ring-slate-700">
+              <span className="text-white font-bold text-lg leading-none">T</span>
             </div>
           )}
           <button
             onClick={toggleCollapse}
-            className="hidden md:flex p-1.5 rounded-md hover:bg-slate-100 transition-all duration-200"
+            className="hidden md:flex p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {isCollapsed ? (
-              <ChevronRight className="h-4 w-4 text-slate-500" />
+              <ChevronRight className="h-4 w-4 text-slate-500 dark:text-slate-400" />
             ) : (
-              <ChevronLeft className="h-4 w-4 text-slate-500" />
+              <ChevronLeft className="h-4 w-4 text-slate-500 dark:text-slate-400" />
             )}
           </button>
         </div>
@@ -170,7 +166,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
           </div>
@@ -189,14 +185,14 @@ export function Sidebar({ className = '' }: SidebarProps) {
                     className={`
                       relative
                       w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-md text-left transition-all duration-200 group
-                      ${isActive ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}
+                      ${isActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100'}
                       ${isCollapsed ? 'justify-center px-2' : ''}
                     `}
                     title={isCollapsed ? item.name : undefined}
                   >
                     <div className="flex items-center justify-center min-w-[24px]">
                       <Icon
-                        className={`h-4.5 w-4.5 flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-slate-700'}`}
+                        className={`h-4.5 w-4.5 flex-shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200'}`}
                       />
                     </div>
                     {!isCollapsed && (
@@ -205,7 +201,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
                         {item.badge && (
                           <span
                             className={`px-1.5 py-0.5 text-xs font-medium rounded-full ${
-                              isActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                              isActive ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
                             }`}
                           >
                             {item.badge}
@@ -236,26 +232,30 @@ export function Sidebar({ className = '' }: SidebarProps) {
           </ul>
         </nav>
 
-        <div className="mt-auto border-t border-slate-200">
-          <div className={`border-b border-slate-200 bg-slate-50/30 ${isCollapsed ? 'py-3 px-2' : 'p-3'}`}>
+        <div className="mt-auto border-t border-slate-200 dark:border-slate-700">
+          <div className={`border-b border-slate-200 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/50 ${isCollapsed ? 'py-3 px-2' : 'p-3'}`}>
             {!isCollapsed ? (
               <Link
                 to="/app/profile"
                 onClick={closeOnMobile}
                 className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${
-                  isProfile ? 'bg-blue-50 ring-1 ring-blue-200' : 'bg-white hover:bg-slate-50'
+                  isProfile ? 'bg-blue-50 dark:bg-blue-900/30 ring-1 ring-blue-200 dark:ring-blue-800' : 'bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
-                <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-                  <span className="text-slate-700 font-medium text-sm">
-                    {(user?.name ?? user?.email ?? 'U').slice(0, 2).toUpperCase()}
-                  </span>
+                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {profileImageUrl ? (
+                    <img src={profileImageUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-slate-700 dark:text-slate-200 font-medium text-sm">
+                      {(profileName || (user?.name ?? user?.email ?? 'U')).slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0 ml-2.5">
-                  <p className={`text-sm font-medium truncate ${isProfile ? 'text-blue-700' : 'text-slate-800'}`}>
-                    {user?.name ?? 'User'}
+                  <p className={`text-sm font-medium truncate ${isProfile ? 'text-blue-700 dark:text-blue-300' : 'text-slate-800 dark:text-slate-100'}`}>
+                    {(profileName || user?.name) ?? 'User'}
                   </p>
-                  <p className="text-xs text-slate-500 truncate">{user?.email ?? ''}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email ?? ''}</p>
                 </div>
                 <div className="w-2 h-2 bg-green-500 rounded-full ml-2 flex-shrink-0" title="Online" />
               </Link>
@@ -268,13 +268,17 @@ export function Sidebar({ className = '' }: SidebarProps) {
               >
                 <div className="relative">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center overflow-hidden ${
-                    isProfile ? 'ring-2 ring-blue-500 ring-offset-2' : 'bg-slate-200'
+                    isProfile ? 'ring-2 ring-blue-500 ring-offset-2' : 'bg-slate-200 dark:bg-slate-600'
                   }`}>
-                    <span className="text-slate-700 font-medium text-sm">
-                      {(user?.name ?? user?.email ?? 'U').slice(0, 2).toUpperCase()}
-                    </span>
+                    {profileImageUrl ? (
+                      <img src={profileImageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-slate-700 dark:text-slate-200 font-medium text-sm">
+                        {(profileName || (user?.name ?? user?.email ?? 'U')).slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-slate-800" />
                 </div>
               </Link>
             )}

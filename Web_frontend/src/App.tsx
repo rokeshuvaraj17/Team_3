@@ -8,6 +8,16 @@ import { GenerateResumePage } from '@/pages/GenerateResumePage'
 import { GenerateCoverLetterPage } from '@/pages/GenerateCoverLetterPage'
 import { JobBasedResumePage } from '@/pages/JobBasedResumePage'
 import { CustomResumePage } from '@/pages/CustomResumePage'
+import { ResumakeBuilderPage } from '@/pages/ResumakeBuilderPage'
+import { NotificationsPage } from '@/pages/NotificationsPage'
+import { ApiConnectionPage } from '@/pages/ApiConnectionPage'
+import { AutofillFormFieldsPage } from '@/pages/AutofillFormFieldsPage'
+import { DocumentsPage } from '@/pages/DocumentsPage'
+import { AnalyticsPage } from '@/pages/AnalyticsPage'
+import { JobTrackerPage } from '@/pages/JobTrackerPage'
+import { ExtensionPage } from '@/pages/ExtensionPage'
+import { SettingsPage } from '@/pages/SettingsPage'
+import { HelpPage } from '@/pages/HelpPage'
 import { AppLayout } from '@/layouts/AppLayout'
 
 function App() {
@@ -23,7 +33,17 @@ function App() {
           <Route path="generate-resume" element={<GenerateResumePage />} />
           <Route path="generate-resume/job-based" element={<JobBasedResumePage />} />
           <Route path="generate-resume/custom" element={<CustomResumePage />} />
+          <Route path="generate-resume/builder" element={<ResumakeBuilderPage />} />
           <Route path="generate-cover-letter" element={<GenerateCoverLetterPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="documents" element={<DocumentsPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="job-tracker" element={<JobTrackerPage />} />
+          <Route path="extension" element={<ExtensionPage />} />
+          <Route path="api-connection" element={<ApiConnectionPage />} />
+          <Route path="autofill-form-fields" element={<AutofillFormFieldsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="help" element={<HelpPage />} />
           <Route path="*" element={<Navigate to="/app" replace />} />
         </Route>
       </Routes>

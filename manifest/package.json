@@ -1,0 +1,13 @@
+{
+  "name": "team3-extension",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc && node -e \"const fs=require('fs'); fs.copyFileSync('manifest.json', 'dist/manifest.json'); fs.copyFileSync('content.css', 'dist/content.css'); fs.mkdirSync('dist/popup', {recursive:true}); fs.copyFileSync('popup/popup.html', 'dist/popup/popup.html'); fs.copyFileSync('popup/popup.css', 'dist/popup/popup.css'); fs.mkdirSync('dist/icons', {recursive:true}); ['icon16.png','icon48.png','icon128.png'].forEach(function(f){ try { fs.copyFileSync('icons/'+f, 'dist/icons/'+f); } catch(e) {} });\"",
+    "compile": "tsc"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "typescript": "^5.3.0"
+  }
+}

@@ -109,7 +109,7 @@ export function JobSearchFilters({ filters, onChange, onSearch, loading }: JobSe
             salary_max: '',
             job_type: 'all',
             sort: 'relevance',
-            country: 'in',
+            country: 'us',
           })}
           className="text-sm text-slate-600 hover:text-slate-800 font-medium"
         >

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: add .dark to html to apply dark: variants */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -18,6 +21,10 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+}
+
+.dark body {
+  background-color: rgb(15 23 42);
 }
 
 /* Job description typography (sanitized HTML from APIs) */

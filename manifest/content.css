@@ -1,0 +1,90 @@
+#team3-job-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: #2563eb;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4), 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 200ms ease;
+}
+#team3-job-fab:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(37, 99, 235, 0.5), 0 4px 12px rgba(0,0,0,0.2);
+}
+#team3-job-fab:active { transform: translateY(0); }
+#team3-job-fab svg { flex-shrink: 0; }
+#team3-job-fab.team3-fab-success {
+  background: #15803d;
+  box-shadow: 0 4px 20px rgba(21, 128, 61, 0.4);
+}
+
+/* Simplify-style floating icon strip on the right */
+.team3-sidebar-strip {
+  position: fixed !important;
+  top: 50% !important;
+  right: 0 !important;
+  transform: translateY(-50%) !important;
+  z-index: 2147483647 !important;
+  min-width: 60px !important;
+  min-height: 120px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  background: rgba(248, 250, 252, 0.95);
+  border-radius: 16px 0 0 16px;
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.team3-sidebar-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #2563eb;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.team3-sidebar-icon:hover {
+  transform: scale(1.06);
+  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.35);
+}
+
+.team3-sidebar-icon:active {
+  transform: scale(0.98);
+}
+
+.team3-sidebar-icon-letter {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2563eb;
+  line-height: 1;
+}
+
+.team3-sidebar-icon-circle-svg {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #2563eb;
+  border-radius: 50%;
+  background: transparent;
+  display: block;
+}

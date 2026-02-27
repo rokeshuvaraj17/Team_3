@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: jobflow-backend
+    env: node
+    rootDir: Backend/Node
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      # Set these in the Render dashboard or via the blueprint UI.
+      - key: DATABASE_URL
+        sync: false
+      - key: PASSWORD_SALT
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: FREE_JOB_API_KEY
+        sync: false
+      - key: ADZUNA_APP_ID
+        sync: false
+      - key: ADZUNA_APP_KEY
+        sync: false
+      - key: JOOBLE_API_KEY
+        sync: false
+      - key: REED_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
