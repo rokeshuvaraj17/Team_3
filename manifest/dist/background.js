@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'https://team-3-lvlf.onrender.com';
 const SIDEBAR_PREF_KEY = 'useSidebar';
 async function applySidebarPreference() {
     const stored = await chrome.storage.local.get([SIDEBAR_PREF_KEY]);

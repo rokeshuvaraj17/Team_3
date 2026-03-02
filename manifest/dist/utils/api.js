@@ -1,4 +1,4 @@
-export const API_BASE = 'http://localhost:3000';
+export const API_BASE = 'https://team-3-lvlf.onrender.com';
 /**
  * Reusable fetch wrapper. Optionally attaches stored auth (x-user-id).
  * Handles JSON parsing and error handling.

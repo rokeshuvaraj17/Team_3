@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Team 3 login and autofill profile data",
   "permissions": ["storage", "activeTab", "scripting", "sidePanel","tabs"],
-  "host_permissions": ["http://localhost:3000/*", "<all_urls>"],
+  "host_permissions": ["https://team-3-lvlf.onrender.com/*", "http://localhost:3000/*", "<all_urls>"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     { "matches": ["<all_urls>"], "js": ["content.js"], "css": ["content.css"], "run_at": "document_idle" }

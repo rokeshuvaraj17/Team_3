@@ -1,4 +1,4 @@
-export const API_BASE = 'http://localhost:3000';
+export const API_BASE = 'https://team-3-lvlf.onrender.com';
 
 export interface ApiResponse<T> {
   data?: T;
