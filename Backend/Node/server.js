@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const path = require('path')
+const fs = require('fs')
 const multer = require('multer')
 const { Pool } = require('pg')
 const bcrypt = require('bcrypt')
@@ -821,6 +822,28 @@ app.get('/api/extension/job-resume-context', async (req, res) => {
   const data = extensionJobResumeContext.get(userId)
   extensionJobResumeContext.delete(userId)
   return res.json(data || { resume: '', job_description: '' })
+})
+
+// Extension: download zip of manifest (stream binary so proxy doesn't corrupt it)
+app.get('/api/extension/download', (req, res) => {
+  const candidates = [
+    path.join(__dirname, '../../Web_frontend/public/team3-extension.zip'),
+    path.join(process.cwd(), 'Web_frontend/public/team3-extension.zip'),
+    path.join(process.cwd(), 'public/team3-extension.zip'),
+  ]
+  const zipPath = candidates.find((p) => fs.existsSync(p))
+  if (!zipPath) {
+    return res.status(404).json({
+      error: 'Extension zip not built. From project root run: cd Web_frontend && npm run extension:zip',
+    })
+  }
+  res.setHeader('Content-Type', 'application/zip')
+  res.setHeader('Content-Disposition', 'attachment; filename="team3-extension.zip"')
+  const stream = fs.createReadStream(zipPath)
+  stream.on('error', (err) => {
+    if (!res.headersSent) res.status(500).json({ error: 'Failed to read extension zip' })
+  })
+  stream.pipe(res)
 })
 
 // Extension: store resume + job description for cover letter web page

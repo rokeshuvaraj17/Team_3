@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "cd ../manifest && npm install && npm run build && cd ../Web_frontend && npm run extension:zip && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "extension:zip": "zip -r public/team3-extension.zip ../manifest/dist -x '*.DS_Store'"
+    "extension:zip": "cd ../manifest/dist && zip -r ../../Web_frontend/public/team3-extension.zip . -x '*.DS_Store'"
   },
   "dependencies": {
     "clsx": "^2.1.1",
