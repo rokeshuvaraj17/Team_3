@@ -1,7 +1,11 @@
 import { apiFetch, API_BASE } from '../utils/api.js';
 
-// Web app base URL for Job Tracker and profile edit (dev: same host, frontend port)
-const FRONTEND_BASE = API_BASE.replace(/:3000\/?$/, ':5173');
+// Web app base URL for Job Tracker and profile edit.
+// Dev: when API_BASE is http://localhost:3000 use http://localhost:5173.
+// Prod: default to deployed frontend at https://team-3-two.vercel.app.
+const FRONTEND_BASE = API_BASE.includes('localhost:3000')
+  ? API_BASE.replace(/:3000\/?$/, ':5173')
+  : 'https://team-3-two.vercel.app';
 import { scrapeJobPage } from '../scraper.js';
 
 const THEME_KEY = 'team3-extension-theme';
@@ -130,6 +134,7 @@ interface StoredApiKey {
   provider_name: string;
   label: string | null;
   api_key_masked?: string;
+  is_default?: boolean;
 }
 
 interface AccountResume {
@@ -716,6 +721,12 @@ async function loadStoredKeys() {
   const res = await apiFetch<StoredApiKey[]>('/api/api-keys', { token: userId });
   const keys = res.ok && Array.isArray(res.data) ? res.data : [];
   state.storedKeys = keys;
+  const defaultKey = keys.find((k) => k.is_default === true);
+  if (state.selectedApiKeyId == null && defaultKey) {
+    state.selectedApiKeyId = defaultKey.id;
+    state.useCustom = false;
+    await chrome.storage.local.set({ selectedApiKeyId: defaultKey.id, useCustom: false });
+  }
   if (keys.length === 0) {
     const p = document.createElement('p');
     p.className = 'settings-desc';
@@ -728,7 +739,8 @@ async function loadStoredKeys() {
     btn.type = 'button';
     btn.className = 'btn btn-ghost btn-full';
     if (state.selectedApiKeyId === k.id && !state.useCustom) btn.classList.add('selected');
-    btn.textContent = k.label ? `${k.provider_name} — ${k.label}` : k.provider_name;
+    const label = k.label ? `${k.provider_name} — ${k.label}` : k.provider_name;
+    btn.textContent = k.is_default ? `${label} (Default)` : label;
     btn.dataset.keyId = k.id;
     btn.addEventListener('click', async () => {
       state.selectedApiKeyId = k.id;
@@ -1048,7 +1060,8 @@ Write a cover letter that addresses the job requirements and maps the candidate'
 generateBtn.addEventListener('click', () => generateCoverLetter());
 regenerateBtn.addEventListener('click', () => generateCoverLetter());
 
-const WEB_APP_BASE = 'http://localhost:5173';
+// Web app (same as FRONTEND_BASE for local; change if frontend is elsewhere in prod)
+const WEB_APP_BASE = FRONTEND_BASE;
 
 function getResumeTextFromHtml(html: string): string {
   const div = document.createElement('div');
@@ -1326,6 +1339,16 @@ async function loadState() {
     const r = await apiFetch<AccountResume[]>('/api/resumes', { token: data.userId as string });
     if (r.ok && Array.isArray(r.data)) state.storedResumes = r.data;
   }
+  if (data.userId && state.selectedApiKeyId == null) {
+    const defaultRes = await apiFetch<{ id?: string }>('/api/api-keys/default', { token: data.userId as string });
+    if (defaultRes.ok && defaultRes.data?.id) {
+      state.selectedApiKeyId = defaultRes.data.id;
+      state.useCustom = false;
+      await chrome.storage.local.set({ selectedApiKeyId: defaultRes.data.id, useCustom: false });
+      updateChecklist();
+      renderStoredKeyButtons();
+    }
+  }
   const savedTab = data.activeTab === 'profile' ? 'account' : data.activeTab;
   if (savedTab && ['account', 'scraper', 'resume', 'generate', 'autofill'].includes(savedTab)) {
     switchToTab(savedTab);
@@ -1415,7 +1438,9 @@ async function loadState() {
           const text = await getCoverLetterText(userId, state.autofillCoverLetterId);
           if (text) coverLetterText = text.slice(0, MAX_COVER_CHARS);
         }
-        const payload = { fields: mergedFields, excluded, userId, apiBase: API_BASE, resumeText, coverLetterText };
+        const selectedResume = state.autofillResumeId ? state.autofillResumes.find((r) => r.id === state.autofillResumeId) : null;
+        const resumeFileUrl = selectedResume?.file_url ?? undefined;
+        const payload = { fields: mergedFields, excluded, userId, apiBase: API_BASE, api_key_id: state.selectedApiKeyId ?? undefined, resumeText, coverLetterText, resumeFileUrl };
 
         const sendAutofill = (): Promise<void> =>
           new Promise((resolve, reject) => {

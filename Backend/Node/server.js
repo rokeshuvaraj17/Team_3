@@ -62,6 +62,9 @@ const JOOBLE_API_KEY = process.env.JOOBLE_API_KEY || ''
 const REED_API_KEY = process.env.REED_API_KEY || ''
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''
 const GEMINI_URL = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+// Custom LLM for autofill (optional). If set, used instead of Gemini.
+const AUTOFILL_LLM_URL = (process.env.AUTOFILL_LLM_URL || '').trim()
+const AUTOFILL_LLM_API_KEY = (process.env.AUTOFILL_LLM_API_KEY || '').trim()
 
 /** Combine salt + password for hashing (same order must be used in signup and login) */
 function saltedPassword(password) {
@@ -482,9 +485,92 @@ app.put('/api/autofill', express.json(), async (req, res) => {
   }
 })
 
-// Server-side Gemini for autofill semantic matching (uses GEMINI_API_KEY; no user key required).
+// Server-side LLM for autofill: uses custom API if AUTOFILL_LLM_URL is set, else Gemini.
+async function autofillLlmGenerate(prompt, systemInstruction) {
+  const timeoutMs = 25000
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    // 1) Custom API (your own endpoint)
+    if (AUTOFILL_LLM_URL) {
+      const headers = { 'Content-Type': 'application/json' }
+      if (AUTOFILL_LLM_API_KEY) headers.Authorization = 'Bearer ' + AUTOFILL_LLM_API_KEY
+      const body = { prompt, system: systemInstruction || '' }
+      const resp = await fetch(AUTOFILL_LLM_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      })
+      clearTimeout(timeoutId)
+      const data = await resp.json().catch(() => ({}))
+      if (!resp.ok) {
+        console.warn('Autofill custom API error:', resp.status, data?.error || data?.message)
+        return null
+      }
+      const text = data?.text ?? data?.content ?? data?.choices?.[0]?.message?.content ?? data?.result ?? data?.output
+      return typeof text === 'string' ? text.trim() : null
+    }
+
+    // 2) Fallback: Gemini (only if no custom URL and key is set)
+    if (!GEMINI_API_KEY) {
+      console.warn('Autofill: no AUTOFILL_LLM_URL and no GEMINI_API_KEY')
+      return null
+    }
+    const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+    const body = {
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
+    }
+    if (systemInstruction) body.systemInstruction = { parts: [{ text: systemInstruction }] }
+    const url = GEMINI_URL(model) + '?key=' + encodeURIComponent(GEMINI_API_KEY)
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    })
+    clearTimeout(timeoutId)
+    const data = await resp.json()
+    if (!resp.ok) {
+      console.warn('Gemini API error:', data?.error?.message || resp.status)
+      return null
+    }
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+    return text ? text.trim() : null
+  } catch (err) {
+    clearTimeout(timeoutId)
+    console.warn('Autofill LLM request failed:', err.message)
+    return null
+  }
+}
+
+// Use user's stored API key (e.g. OpenRouter) for autofill when api_key_id + userId provided; else server env (AUTOFILL_LLM_URL / Gemini).
+async function autofillGenerate(prompt, systemInstruction, userId, apiKeyId) {
+  if (userId && apiKeyId && pool) {
+    try {
+      const keyRow = await pool.query(
+        `select k.api_key_enc, p.slug as provider_slug from public.user_api_keys k
+         join public.api_key_providers p on p.id = k.provider_id
+         where k.user_id = $1 and k.id = $2`,
+        [userId, apiKeyId]
+      )
+      if (keyRow.rows && keyRow.rows[0]) {
+        const { api_key_enc, provider_slug } = keyRow.rows[0]
+        const text = await generateWithUserKey(prompt, systemInstruction, provider_slug, api_key_enc, null)
+        return text ? text.trim() : null
+      }
+    } catch (err) {
+      console.warn('Autofill user API key failed:', err.message)
+    }
+  }
+  return await autofillLlmGenerate(prompt, systemInstruction)
+}
+
+// Gemini-only helper for non-autofill features (e.g. translation) when no custom API is used there.
 async function geminiGenerate(prompt, systemInstruction) {
-  if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not configured')
+  if (!GEMINI_API_KEY) return null
   const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
   const body = {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -492,23 +578,30 @@ async function geminiGenerate(prompt, systemInstruction) {
   }
   if (systemInstruction) body.systemInstruction = { parts: [{ text: systemInstruction }] }
   const url = GEMINI_URL(model) + '?key=' + encodeURIComponent(GEMINI_API_KEY)
-  const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-  const data = await resp.json()
-  if (!resp.ok) throw new Error(data?.error?.message || 'Gemini API error')
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
-  return text ? text.trim() : null
+  try {
+    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const data = await resp.json()
+    if (!resp.ok) return null
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+    return text ? text.trim() : null
+  } catch {
+    return null
+  }
 }
 
-// POST /api/autofill/semantic-match – LLM picks best key for a form field label. Optional x-user-id.
+// POST /api/autofill/semantic-match – LLM picks best key for a form field label. Optional x-user-id, api_key_id (or use default).
 app.post('/api/autofill/semantic-match', express.json(), async (req, res) => {
   const fieldMeta = typeof req.body?.fieldMeta === 'string' ? req.body.fieldMeta.trim().slice(0, 500) : ''
   const availableKeys = Array.isArray(req.body?.availableKeys) ? req.body.availableKeys.filter((k) => typeof k === 'string').slice(0, 100) : []
+  let apiKeyId = typeof req.body?.api_key_id === 'string' ? req.body.api_key_id.trim() || null : null
+  const userId = (req.headers['x-user-id'] || '').toString().trim()
+  if (!apiKeyId && userId) apiKeyId = await getDefaultApiKeyId(userId)
   if (!fieldMeta || availableKeys.length === 0) return res.status(400).json({ error: 'fieldMeta and availableKeys required' })
   try {
     const list = availableKeys.join(', ')
     const prompt = `Form field label/description: "${fieldMeta}". Which ONE of these keys best matches it? Reply with exactly one key from this list, nothing else: ${list}`
     const system = 'You are a form field mapper. Reply with only the single key from the given list that best matches the field. No explanation, no quotes.'
-    const out = await geminiGenerate(prompt, system)
+    const out = await autofillGenerate(prompt, system, userId, apiKeyId)
     const matched = out && availableKeys.find((k) => out.toLowerCase().includes(k.toLowerCase()))
     return res.json({ matchedKey: matched || null })
   } catch (err) {
@@ -517,17 +610,20 @@ app.post('/api/autofill/semantic-match', express.json(), async (req, res) => {
   }
 })
 
-// POST /api/autofill/semantic-option-match – LLM picks best dropdown option for a value. Optional x-user-id.
+// POST /api/autofill/semantic-option-match – LLM picks best dropdown option for a value. Optional x-user-id, api_key_id (or use default).
 app.post('/api/autofill/semantic-option-match', express.json(), async (req, res) => {
   const fieldLabel = typeof req.body?.fieldLabel === 'string' ? req.body.fieldLabel.trim().slice(0, 300) : ''
   const value = typeof req.body?.value === 'string' ? req.body.value.trim().slice(0, 200) : ''
   const options = Array.isArray(req.body?.options) ? req.body.options.filter((o) => typeof o === 'string').slice(0, 50) : []
+  let apiKeyId = typeof req.body?.api_key_id === 'string' ? req.body.api_key_id.trim() || null : null
+  const userId = (req.headers['x-user-id'] || '').toString().trim()
+  if (!apiKeyId && userId) apiKeyId = await getDefaultApiKeyId(userId)
   if (!value || options.length === 0) return res.status(400).json({ error: 'value and options required' })
   try {
     const optsList = options.map((o) => `"${o.replace(/"/g, '\\"')}"`).join(', ')
     const prompt = `Field: "${fieldLabel}". User value: "${value}". Which ONE option best matches? Reply with the exact option text from: ${optsList}. Reply only that option, nothing else.`
     const system = 'You are a form option matcher. Reply with exactly one of the given options that best matches the user value. No explanation.'
-    const out = await geminiGenerate(prompt, system)
+    const out = await autofillGenerate(prompt, system, userId, apiKeyId)
     const outLower = out && out.trim().toLowerCase()
     const best = outLower && options.find((o) => outLower.includes(o.trim().toLowerCase()) || o.trim().toLowerCase().includes(outLower))
     return res.json({ bestOption: best || null })
@@ -545,6 +641,9 @@ app.post('/api/autofill/match-fields', express.json(), async (req, res) => {
   const resumeText = typeof req.body?.resumeText === 'string' ? req.body.resumeText.trim().slice(0, 10000) : ''
   const coverLetterText = typeof req.body?.coverLetterText === 'string' ? req.body.coverLetterText.trim().slice(0, 6000) : ''
   const includeDebug = req.body?.includeDebug === true
+  let apiKeyId = typeof req.body?.api_key_id === 'string' ? req.body.api_key_id.trim() || null : null
+  const userId = (req.headers['x-user-id'] || '').toString().trim()
+  if (!apiKeyId && userId) apiKeyId = await getDefaultApiKeyId(userId)
   if (fields.length === 0) return res.status(400).json({ error: 'fields array required' })
   const metas = fields.map((f) => (typeof f?.meta === 'string' ? f.meta.trim().slice(0, 300) : ''))
   const types = fields.map((f) => (typeof f?.type === 'string' ? f.type : 'text'))
@@ -560,8 +659,8 @@ app.post('/api/autofill/match-fields', express.json(), async (req, res) => {
     }
     const system = `You are a form autofill mapper. Given form field descriptions and the user's stored data (key: value), output a JSON array of values to fill. The array must have exactly ${metas.length} elements, one per field, in the same order. Prefer user data when a key matches the field. For job title, company, experience, skills, or long-form message fields, you may extract from the resume or cover letter text if provided. Keep each value concise (single line or short phrase unless the field clearly asks for a paragraph). Consider synonyms: zip_code = postal code, phone = telephone, current_job_title = job title, current_company = company. If no good match or key is excluded, use "". Do not invent data not in user data or the resume/cover letter. Output only a valid JSON array of strings, no markdown, no explanation.${excludedStr}`
     const prompt = `Field descriptions (one per line, in order):\n${metas.map((m, i) => `${i + 1}. ${m || '(empty)'}`).join('\n')}\n\nUser data (key: value):\n${userDataStr}${contextBlocks}\n\nReturn a JSON array of ${metas.length} strings, in the same order as the fields. Use "" for no match.`
-    console.log('[Autofill match-fields] Field count:', metas.length, '| Metas:', metas.slice(0, 20))
-    const out = await geminiGenerate(prompt, system)
+    console.log('[Autofill match-fields] Field count:', metas.length, '| api_key_id:', apiKeyId || 'none', '| Metas:', metas.slice(0, 20))
+    const out = await autofillGenerate(prompt, system, userId, apiKeyId)
     if (includeDebug && out) console.log('[Autofill match-fields] Raw model output (first 1500 chars):', out.slice(0, 1500))
     let values = []
     if (out) {
@@ -580,6 +679,7 @@ app.post('/api/autofill/match-fields', express.json(), async (req, res) => {
     const normalized = values.slice(0, metas.length).map((v) => (v != null && typeof v !== 'string' ? String(v) : (v || '')))
     console.log('[Autofill match-fields] Returning values (first 15):', normalized.slice(0, 15).map((v) => (v ? v.slice(0, 30) + (v.length > 30 ? '…' : '') : '(empty)')))
     const response = { values: normalized }
+    if (!out || normalized.every((v) => !v)) response.fallback = true
     if (includeDebug) {
       response.debug = {
         fieldCount: metas.length,
@@ -591,7 +691,9 @@ app.post('/api/autofill/match-fields', express.json(), async (req, res) => {
     return res.json(response)
   } catch (err) {
     console.error('Autofill match-fields:', err.message)
-    return res.status(502).json({ error: err.message || 'Match fields failed', values: metas.map(() => '') })
+    // Return 200 with empty values + fallback so extension can use client-side fill instead of showing 502
+    const emptyValues = metas.map(() => '')
+    return res.status(200).json({ values: emptyValues, fallback: true, error: err.message || 'Match fields failed' })
   }
 })
 
@@ -1031,14 +1133,15 @@ app.get('/api/extension/cover-letter-context', async (req, res) => {
   return res.json(data || { resume: '', job_description: '' })
 })
 
-// POST /api/ai/skill-suggestions – body: { job_description: string, api_key_id: string }
-// Suggests skills/keywords from job description using user's API key. If api_key_id is missing, returns [] (e.g. custom resume form).
+// POST /api/ai/skill-suggestions – body: { job_description: string, api_key_id?: string }
+// Suggests skills/keywords from job description. Uses api_key_id or user's default API key.
 app.post('/api/ai/skill-suggestions', express.json(), async (req, res) => {
   const userId = req.headers['x-user-id']
   if (!userId) return res.status(401).json({ error: 'User ID required' })
   const body = req.body || {}
   const jobDescription = (typeof body.job_description === 'string' ? body.job_description.trim() : '') || (typeof body.query === 'string' ? body.query.trim() : '')
-  const apiKeyId = body.api_key_id
+  let apiKeyId = typeof body.api_key_id === 'string' ? body.api_key_id.trim() || null : null
+  if (!apiKeyId) apiKeyId = await getDefaultApiKeyId(userId)
   if (!jobDescription) return res.status(400).json({ error: 'job_description required' })
   if (!apiKeyId) return res.json({ suggestions: [] })
   if (!pool) return res.status(503).json({ error: 'Database not configured' })
@@ -1093,7 +1196,8 @@ app.post('/api/ai/generate-cover-letter', express.json(), async (req, res) => {
   if (!userId) return res.status(401).json({ error: 'User ID required' })
   if (!pool) return res.status(503).json({ error: 'Database not configured' })
   const body = req.body || {}
-  const apiKeyId = body.api_key_id
+  let apiKeyId = typeof body.api_key_id === 'string' ? body.api_key_id.trim() || null : null
+  if (!apiKeyId) apiKeyId = await getDefaultApiKeyId(userId)
   const resume = typeof body.resume === 'string' ? body.resume.trim() : ''
   const jobDescription = typeof body.job_description === 'string' ? body.job_description.trim() : ''
   const companyName = typeof body.company_name === 'string' ? body.company_name.trim() : ''
@@ -1104,7 +1208,7 @@ app.post('/api/ai/generate-cover-letter', express.json(), async (req, res) => {
   const template = typeof body.template === 'string' ? body.template.trim() : 'professional'
   const keywords = Array.isArray(body.keywords) ? body.keywords.filter((k) => typeof k === 'string').map((k) => String(k).trim()) : []
   const wantLatex = body.want_latex === true || body.want_latex === 'true'
-  if (!apiKeyId) return res.status(400).json({ error: 'api_key_id required' })
+  if (!apiKeyId) return res.status(400).json({ error: 'No API key selected. Set a default in API Connection or pass api_key_id.' })
   if (!resume || !jobDescription) return res.status(400).json({ error: 'resume and job_description required' })
   try {
     const keyRow = await pool.query(
@@ -1265,14 +1369,15 @@ function extractJsonObject (str) {
   return null
 }
 
-// POST /api/ai/generate-resume – body: api_key_id, personal, summary, education, experience, skills, languages, certifications, page_limit, template, primary_resume_html (optional)
+// POST /api/ai/generate-resume – body: api_key_id? (or use default), personal, summary, education, experience, skills, etc.
 // Or for job-based: resume_text, job_description, skills (array), page_limit, template
 app.post('/api/ai/generate-resume', express.json(), async (req, res) => {
   const userId = req.headers['x-user-id']
   if (!userId) return res.status(401).json({ error: 'User ID required' })
   const body = req.body || {}
-  const apiKeyId = body.api_key_id
-  if (!apiKeyId) return res.status(400).json({ error: 'Please select an API key. Add one in API Connection if you have none.' })
+  let apiKeyId = typeof body.api_key_id === 'string' ? body.api_key_id.trim() || null : null
+  if (!apiKeyId) apiKeyId = await getDefaultApiKeyId(userId)
+  if (!apiKeyId) return res.status(400).json({ error: 'No API key selected. Set a default in API Connection or add one.' })
   if (!pool) return res.status(503).json({ error: 'Database not configured' })
   try {
     const keyRow = await pool.query(
@@ -2173,6 +2278,21 @@ function maskApiKey(key) {
   return trimmed.slice(0, 4) + '••••••••' + trimmed.slice(-4)
 }
 
+/** Get the user's default API key id (is_default = true). Returns null if none or DB has no is_default column. */
+async function getDefaultApiKeyId(userId) {
+  if (!pool || !userId) return null
+  try {
+    const { rows } = await pool.query(
+      'select id from public.user_api_keys where user_id = $1 and is_default = true and is_active = true limit 1',
+      [userId]
+    )
+    return rows[0] ? rows[0].id : null
+  } catch (e) {
+    if (e.code === '42703') return null // column is_default may not exist yet
+    throw e
+  }
+}
+
 // Default API key providers (seed when table is empty)
 const DEFAULT_API_KEY_PROVIDERS = [
   { slug: 'openai', name: 'OpenAI', description: 'GPT-4, GPT-3.5, and other OpenAI models', base_url: 'https://api.openai.com/v1', display_order: 10 },
@@ -2243,19 +2363,46 @@ app.get('/api/api-keys', async (req, res) => {
   if (!userId) return res.status(401).json({ error: 'User ID required' })
   try {
     const { rows } = await pool.query(
-      `select k.id, k.user_id, k.provider_id, k.label, k.is_active, k.last_used_at, k.created_at, k.updated_at,
+      `select k.id, k.user_id, k.provider_id, k.label, k.is_active, k.is_default, k.last_used_at, k.created_at, k.updated_at,
               k.api_key_enc, p.slug as provider_slug, p.name as provider_name
        from public.user_api_keys k
        join public.api_key_providers p on p.id = k.provider_id
        where k.user_id = $1
-       order by p.display_order, p.name, k.created_at`,
+       order by (k.is_default = true) desc nulls last, p.display_order, p.name, k.created_at`,
       [userId]
     )
     res.json(
-      rows.map(({ api_key_enc, ...rest }) => ({ ...rest, api_key_masked: maskApiKey(api_key_enc) }))
+      rows.map(({ api_key_enc, ...rest }) => ({ ...rest, is_default: !!rest.is_default, api_key_masked: maskApiKey(api_key_enc) }))
     )
   } catch (err) {
+    if (err.code === '42703') {
+      // is_default column may not exist; return without it
+      const { rows } = await pool.query(
+        `select k.id, k.user_id, k.provider_id, k.label, k.is_active, k.last_used_at, k.created_at, k.updated_at,
+                k.api_key_enc, p.slug as provider_slug, p.name as provider_name
+         from public.user_api_keys k
+         join public.api_key_providers p on p.id = k.provider_id
+         where k.user_id = $1
+         order by p.display_order, p.name, k.created_at`,
+        [userId]
+      )
+      return res.json(rows.map(({ api_key_enc, ...rest }) => ({ ...rest, is_default: false, api_key_masked: maskApiKey(api_key_enc) })))
+    }
     return handleDbError(err, res, 'API keys list')
+  }
+})
+
+// GET /api/api-keys/default – return the user's default API key id (for extension and web to sync)
+app.get('/api/api-keys/default', async (req, res) => {
+  if (!pool) return res.status(503).json({ error: 'Database not configured' })
+  const userId = req.headers['x-user-id']
+  if (!userId) return res.status(401).json({ error: 'User ID required' })
+  try {
+    const id = await getDefaultApiKeyId(userId)
+    if (!id) return res.status(404).json({ error: 'No default API key set. Set one in API Connection.' })
+    return res.json({ id })
+  } catch (err) {
+    return handleDbError(err, res, 'API keys default')
   }
 })
 
@@ -2333,15 +2480,25 @@ app.post('/api/api-keys', async (req, res) => {
   }
 })
 
-// Update user API key (key, label, or is_active)
+// Update user API key (key, label, is_active, or is_default)
 app.patch('/api/api-keys/:id', async (req, res) => {
   if (!pool) return res.status(503).json({ error: 'Database not configured' })
   const userId = req.headers['x-user-id']
   if (!userId) return res.status(401).json({ error: 'User ID required' })
   const { id } = req.params
-  const { api_key, label, is_active } = req.body || {}
+  const { api_key, label, is_active, is_default } = req.body || {}
 
   try {
+    if (is_default === true) {
+      try {
+        await pool.query(
+          'update public.user_api_keys set is_default = false, updated_at = now() where user_id = $1',
+          [userId]
+        )
+      } catch (e) {
+        if (e.code !== '42703') throw e
+      }
+    }
     const updates = []
     const values = []
     let idx = 1
@@ -2357,17 +2514,48 @@ app.patch('/api/api-keys/:id', async (req, res) => {
       updates.push(`is_active = $${idx++}`)
       values.push(is_active)
     }
+    if (typeof is_default === 'boolean') {
+      updates.push(`is_default = $${idx++}`)
+      values.push(is_default)
+    }
     updates.push('updated_at = now()')
     values.push(id, userId)
     const idParam = idx
     const userIdParam = idx + 1
     const { rows } = await pool.query(
-      `update public.user_api_keys set ${updates.join(', ')} where id = $${idParam} and user_id = $${userIdParam} returning id, provider_id, label, is_active, updated_at`,
+      `update public.user_api_keys set ${updates.join(', ')} where id = $${idParam} and user_id = $${userIdParam} returning id, provider_id, label, is_active, is_default, updated_at`,
       values
     )
     if (!rows[0]) return res.status(404).json({ error: 'API key not found' })
-    res.json(rows[0])
+    const row = rows[0]
+    res.json({ ...row, is_default: !!row.is_default })
   } catch (err) {
+    if (err.code === '42703') {
+      // is_default column may not exist; retry without it
+      const updates = []
+      const values = []
+      let idx = 1
+      if (typeof api_key === 'string' && api_key.trim()) {
+        updates.push(`api_key_enc = $${idx++}`)
+        values.push(api_key.trim())
+      }
+      if (label !== undefined) {
+        updates.push(`label = $${idx++}`)
+        values.push(typeof label === 'string' ? label.trim() || null : null)
+      }
+      if (typeof is_active === 'boolean') {
+        updates.push(`is_active = $${idx++}`)
+        values.push(is_active)
+      }
+      updates.push('updated_at = now()')
+      values.push(id, userId)
+      const { rows } = await pool.query(
+        `update public.user_api_keys set ${updates.join(', ')} where id = $${idx} and user_id = $${idx + 1} returning id, provider_id, label, is_active, updated_at`,
+        values
+      )
+      if (!rows[0]) return res.status(404).json({ error: 'API key not found' })
+      return res.json(rows[0])
+    }
     return handleDbError(err, res, 'API key update')
   }
 })

@@ -430,19 +430,21 @@ export function CustomResumePage() {
     if (!user?.id) return
     try {
       const keysRes = await fetch(apiUrl('/api/api-keys'), { headers: { 'x-user-id': user.id } })
-      const keys: { id: string; provider_name: string; label: string | null; is_active?: boolean }[] = keysRes.ok ? await keysRes.json() : []
+      const keys: { id: string; provider_name: string; label: string | null; is_active?: boolean; is_default?: boolean }[] = keysRes.ok ? await keysRes.json() : []
       const activeKeys = Array.isArray(keys) ? keys.filter((k) => k.is_active !== false) : []
       if (activeKeys.length === 0) {
         setApiKeyModal('add')
         return
       }
+      const defaultKey = activeKeys.find((k) => k.is_default)
+      const preferredId = defaultKey ? defaultKey.id : activeKeys[0].id
       if (activeKeys.length === 1) {
-        setSelectedApiKeyId(activeKeys[0].id)
+        setSelectedApiKeyId(preferredId)
         setApiKeyModal('options')
         return
       }
       setUserApiKeys(activeKeys)
-      setSelectedApiKeyId(activeKeys[0].id)
+      setSelectedApiKeyId(preferredId)
       setApiKeyModal('choose')
     } catch {
       setApiKeyModal('add')

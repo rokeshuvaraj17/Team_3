@@ -20,10 +20,14 @@ export interface AutofillTablePayload {
   /** For AI semantic-match fallback (content script calls backend). */
   userId?: string;
   apiBase?: string;
+  /** User's selected API key id (from account) for match-fields / semantic-match. */
+  api_key_id?: string | null;
   /** Resume text (e.g. from GET /api/resumes/:id/text) for AI to use when matching/filling. */
   resumeText?: string;
   /** Cover letter text (e.g. from GET /api/cover-letters/:id/text) for AI to use for message/cover fields. */
   coverLetterText?: string;
+  /** Resume PDF/file URL for auto-upload into file inputs or draggable fallback. */
+  resumeFileUrl?: string;
 }
 
 /** Payload for PDF-based autofill or shortcut. Shortcut sends no payload and content uses GET_PROFILE. */

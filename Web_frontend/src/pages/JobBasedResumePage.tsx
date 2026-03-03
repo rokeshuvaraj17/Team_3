@@ -145,10 +145,13 @@ export function JobBasedResumePage() {
     if (!user?.id) return
     fetch(apiUrl('/api/api-keys'), { headers: { 'x-user-id': user.id } })
       .then((r) => (r.ok ? r.json() : []))
-      .then((keys: { id: string; provider_name: string; label: string | null; is_active?: boolean }[]) => {
+      .then((keys: { id: string; provider_name: string; label: string | null; is_active?: boolean; is_default?: boolean }[]) => {
         const active = Array.isArray(keys) ? keys.filter((k) => k.is_active !== false) : []
         setApiKeys(active)
-        if (active.length && !selectedApiKeyId) setSelectedApiKeyId(active[0].id)
+        if (active.length && !selectedApiKeyId) {
+          const defaultKey = active.find((k) => k.is_default)
+          setSelectedApiKeyId(defaultKey ? defaultKey.id : active[0].id)
+        }
       })
       .catch(() => {})
   }, [user?.id])

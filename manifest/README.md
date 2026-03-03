@@ -1,8 +1,18 @@
 # Team 3 Chrome Extension (Manifest v3)
 
-## Port
+## Port (local testing)
 
-The extension talks to the backend at **http://localhost:3000**. Start your backend first (e.g. `cd Backend/Node && npm run dev` or `node server.js`).
+The extension is configured for **local** backend and frontend:
+
+- **Backend:** `http://localhost:3000` (set in `utils/api.ts` and `background.ts`)
+- **Frontend / web app:** `http://localhost:5173` (derived from API_BASE; used for “Open in Team 3”, profile, generate resume/cover letter links)
+
+Start both before testing:
+
+1. **Backend:** `cd Backend/Node && npm run dev` (or `node server.js`)
+2. **Frontend:** `cd Web_frontend && npm run dev` (Vite on 5173)
+
+Load the extension from the **`dist`** folder. For production, change `API_BASE` in `utils/api.ts` and `background.ts` to your production URL (e.g. `https://team-3-lvlf.onrender.com`) and run `npm run build` again.
 
 ## Build
 

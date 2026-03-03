@@ -11,6 +11,7 @@ import {
   Eye,
   EyeOff,
   Shield,
+  Star,
 } from 'lucide-react'
 
 const inputClass =
@@ -43,6 +44,7 @@ type UserApiKey = {
   provider_name: string
   label: string | null
   is_active: boolean
+  is_default?: boolean
   api_key_masked: string
   created_at: string
   updated_at: string
@@ -92,7 +94,8 @@ export function ApiConnectionPage() {
         if (keysRes.ok) {
           try {
             const data = await keysRes.json()
-            setKeys(Array.isArray(data) ? data : [])
+            const list = Array.isArray(data) ? data : []
+            setKeys(list.map((k: UserApiKey) => ({ ...k, is_default: !!k.is_default })))
           } catch {
             setKeys([])
           }
@@ -162,6 +165,30 @@ export function ApiConnectionPage() {
       setError('Failed to save API key')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleSetDefault = async (id: string) => {
+    if (!user?.id) return
+    setError(null)
+    setSuccess(null)
+    try {
+      const res = await fetch(apiUrl(`/api/api-keys/${id}`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': user.id },
+        body: JSON.stringify({ is_default: true }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data.error || 'Failed to set default')
+        return
+      }
+      setKeys((prev) =>
+        prev.map((k) => ({ ...k, is_default: k.id === id }))
+      )
+      setSuccess('Default API key updated. The extension and all AI features will use this key when none is selected.')
+    } catch {
+      setError('Failed to set default')
     }
   }
 
@@ -324,7 +351,7 @@ export function ApiConnectionPage() {
         <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-4">
           <h2 className="text-lg font-semibold text-slate-800">Connected keys</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Manage API keys by provider. You can have one key per provider (or use labels to store multiple).
+            Set a default key to use for resume and cover letter generation across the website and extension. You can have one key per provider (or use labels to store multiple).
           </p>
         </div>
         {keys.length === 0 ? (
@@ -340,6 +367,7 @@ export function ApiConnectionPage() {
                   <th className="text-left font-medium text-slate-700 px-6 py-3">Label</th>
                   <th className="text-left font-medium text-slate-700 px-6 py-3">Key</th>
                   <th className="text-left font-medium text-slate-700 px-6 py-3">Status</th>
+                  <th className="text-left font-medium text-slate-700 px-6 py-3">Default</th>
                   <th className="text-right font-medium text-slate-700 px-6 py-3">Actions</th>
                 </tr>
               </thead>
@@ -357,6 +385,24 @@ export function ApiConnectionPage() {
                       >
                         {k.is_active ? 'Active' : 'Inactive'}
                       </span>
+                    </td>
+                    <td className="px-6 py-3">
+                      {k.is_default ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                          <Star className="h-3.5 w-3.5 fill-amber-500" />
+                          Default
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSetDefault(k.id)}
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-slate-600 hover:bg-slate-100 text-xs font-medium"
+                          aria-label={`Set ${k.provider_name} as default`}
+                        >
+                          <Star className="h-3.5 w-3.5" />
+                          Set as default
+                        </button>
+                      )}
                     </td>
                     <td className="px-6 py-3 text-right">
                       <button

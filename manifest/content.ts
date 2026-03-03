@@ -2,6 +2,9 @@ import type { AutofillProfile, AutofillPayload } from './types';
 import { scrapeJobPage } from './scraper';
 
 const ATTR = 'data-team3-autofilled';
+const DATA_UPLOADED = 'data-team3-uploaded';
+
+type TablePayload = { fields: Record<string, string>; excluded: string[]; userId?: string; apiBase?: string; api_key_id?: string | null; resumeText?: string; coverLetterText?: string; resumeFileUrl?: string };
 
 // Safe sendResponse: avoid "Unchecked runtime.lastError" when tab is bfcached or port closed
 function safeSendResponse(
@@ -20,7 +23,7 @@ function safeSendResponse(
 chrome.runtime.onMessage.addListener((message: { type?: string; data?: AutofillPayload }, _sender, sendResponse) => {
   if (message?.type === 'APPLY_AUTOFILL') {
     if (message.data?.fields && Array.isArray(message.data.excluded)) {
-      applyAutofillEngineRef(message.data as { fields: Record<string, string>; excluded: string[] });
+      applyAutofillEngineRef(message.data as TablePayload);
     } else if (message.data && (message.data.resumeText !== undefined || message.data.profile !== undefined)) {
       applyFullAutofillRef(message.data);
     } else {
@@ -33,7 +36,7 @@ chrome.runtime.onMessage.addListener((message: { type?: string; data?: AutofillP
 });
 
 // Refs set below so listener can stay at top
-let applyAutofillEngineRef: (payload: { fields: Record<string, string>; excluded: string[] }) => void = () => {};
+let applyAutofillEngineRef: (payload: TablePayload) => void = () => {};
 let applyFullAutofillRef: (payload: AutofillPayload) => void = () => {};
 let onShortcutRef: () => void = () => {};
 
@@ -303,16 +306,19 @@ async function semanticMatch(
   meta: string,
   availableKeys: string[],
   apiBase: string,
-  userId: string
+  userId: string,
+  apiKeyId?: string | null
 ): Promise<string | null> {
   const cacheKey = `${window.location.hostname}:${meta}`;
   if (cacheKey in semanticCache) return semanticCache[cacheKey];
   try {
     const url = `${apiBase.replace(/\/$/, '')}/api/autofill/semantic-match`;
+    const body: { fieldMeta: string; availableKeys: string[]; api_key_id?: string } = { fieldMeta: meta, availableKeys };
+    if (apiKeyId) body.api_key_id = apiKeyId;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-      body: JSON.stringify({ fieldMeta: meta, availableKeys }),
+      body: JSON.stringify(body),
     });
     const json = await res.json().catch(() => ({}));
     const matched = json?.matchedKey && availableKeys.includes(json.matchedKey) ? json.matchedKey : null;
@@ -329,16 +335,19 @@ async function semanticOptionMatch(
   value: string,
   options: string[],
   apiBase: string,
-  userId: string
+  userId: string,
+  apiKeyId?: string | null
 ): Promise<string | null> {
   const cacheKey = `${window.location.hostname}:opt:${fieldLabel}:${value}`;
   if (cacheKey in semanticCache) return semanticCache[cacheKey];
   try {
     const url = `${apiBase.replace(/\/$/, '')}/api/autofill/semantic-option-match`;
+    const body: { fieldLabel: string; value: string; options: string[]; api_key_id?: string } = { fieldLabel, value, options };
+    if (apiKeyId) body.api_key_id = apiKeyId;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-      body: JSON.stringify({ fieldLabel, value, options }),
+      body: JSON.stringify(body),
     });
     const json = await res.json().catch(() => ({}));
     const best = json?.bestOption && options.includes(json.bestOption) ? json.bestOption : null;
@@ -390,12 +399,13 @@ async function runAutofillEngineViaAPI(payload: TablePayload, root: Document | S
 
   try {
     const url = `${apiBase.replace(/\/$/, '')}/api/autofill/match-fields`;
-    const body: { fields: { meta: string; type: string }[]; userData: Record<string, string>; excluded: string[]; resumeText?: string; coverLetterText?: string; includeDebug?: boolean } = {
+    const body: { fields: { meta: string; type: string }[]; userData: Record<string, string>; excluded: string[]; api_key_id?: string; resumeText?: string; coverLetterText?: string; includeDebug?: boolean } = {
       fields,
       userData: payload.fields,
       excluded: payload.excluded,
       includeDebug: true,
     };
+    if (payload.api_key_id) body.api_key_id = payload.api_key_id;
     if (payload.resumeText && payload.resumeText.trim()) body.resumeText = payload.resumeText.trim();
     if (payload.coverLetterText && payload.coverLetterText.trim()) body.coverLetterText = payload.coverLetterText.trim();
     const res = await fetch(url, {
@@ -405,15 +415,20 @@ async function runAutofillEngineViaAPI(payload: TablePayload, root: Document | S
     });
     const json = await res.json().catch(() => ({}));
     const values: string[] = Array.isArray(json?.values) ? json.values : [];
+    const useFallback = json?.fallback === true;
 
     if (AUTOFILL_DEBUG) {
-      console.log('[Team3 Autofill] API status:', res.status, '| values count:', values.length, '| expected:', elements.length);
+      console.log('[Team3 Autofill] API status:', res.status, '| values count:', values.length, '| expected:', elements.length, useFallback ? '| fallback requested' : '');
       console.log('[Team3 Autofill] Values returned:', values.map((v, i) => `${i + 1}. ${v === '' ? '(empty)' : `"${String(v).slice(0, 50)}${String(v).length > 50 ? '…' : ''}"`}`));
       if (json?.debug) console.log('[Team3 Autofill] Debug from server:', json.debug);
+      if (json?.error) console.log('[Team3 Autofill] API message:', json.error);
     }
 
-    if (values.length !== elements.length) {
-      if (AUTOFILL_DEBUG) console.warn('[Team3 Autofill] Length mismatch: API returned', values.length, 'values for', elements.length, 'fields. Aborting fill.');
+    if (useFallback || values.length !== elements.length) {
+      if (AUTOFILL_DEBUG && useFallback) console.log('[Team3 Autofill] Using client-side fill (API returned fallback).');
+      if (values.length !== elements.length && !useFallback) {
+        if (AUTOFILL_DEBUG) console.warn('[Team3 Autofill] Length mismatch: API returned', values.length, 'values for', elements.length, 'fields.');
+      }
       return false;
     }
 
@@ -577,8 +592,6 @@ async function fillFieldByType(
   }
 }
 
-type TablePayload = { fields: Record<string, string>; excluded: string[]; userId?: string; apiBase?: string; resumeText?: string; coverLetterText?: string };
-
 let lastTablePayload: TablePayload | null = null;
 let autofillMutationObserver: MutationObserver | null = null;
 let autofillDebounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -627,7 +640,7 @@ async function runAutofillEngineAsync(payload: TablePayload, root: Document | Sh
     let matchKey = findMatchingKey(meta, payload.fields);
     if (!matchKey && meta.length > 4 && apiBase && userId) {
       const keys = Object.keys(payload.fields);
-      if (keys.length) matchKey = (await semanticMatch(meta, keys, apiBase, userId)) ?? null;
+      if (keys.length) matchKey = (await semanticMatch(meta, keys, apiBase, userId, payload.api_key_id)) ?? null;
     }
     if (!matchKey || payload.excluded.includes(matchKey)) continue;
     const rawValue = payload.fields[matchKey];
@@ -642,7 +655,7 @@ async function runAutofillEngineAsync(payload: TablePayload, root: Document | Sh
       if (!filled && apiBase && userId) {
         const options = Array.from(select.options).map((o) => (o.textContent || o.value || '').trim()).filter(Boolean);
         if (options.length >= 2) {
-          const bestOption = await semanticOptionMatch(meta, String(cleanedValue), options, apiBase, userId);
+          const bestOption = await semanticOptionMatch(meta, String(cleanedValue), options, apiBase, userId, payload.api_key_id);
           if (bestOption) filled = fillSelectEngine(select, bestOption);
         }
       }
@@ -674,6 +687,9 @@ function scheduleEngineRun(): void {
       });
     } else {
       runAutofillEngine(lastTablePayload, document).then(() => {});
+    }
+    if (lastTablePayload.resumeFileUrl) {
+      setTimeout(() => runResumeUploadAndFallback(document, lastTablePayload!.resumeFileUrl!), 600);
     }
   }, AUTOFILL_DEBOUNCE_MS);
 }
@@ -709,6 +725,10 @@ function applyAutofillEngine(payload: TablePayload): void {
       autofillMutationObserver = null;
     }
   }, keepAliveMs);
+
+  if (payload.resumeFileUrl) {
+    setTimeout(() => runResumeUploadAndFallback(document, payload.resumeFileUrl!), 500);
+  }
 }
 
 function fillField(
@@ -1093,12 +1113,108 @@ function applyFullAutofill(payload: AutofillPayload): void {
   tryFillResumeFileUpload(doc, payload.resumeFileUrl);
 }
 
-/** If page has a resume/CV file input, try to set it from the given PDF URL (fetch blob, set File on input). */
+/** Upload resume from URL into a single file input. Returns true if successful. */
+async function uploadResumeToInput(fileInput: HTMLInputElement, resumeFileUrl: string): Promise<boolean> {
+  if (fileInput.hasAttribute(DATA_UPLOADED)) return false;
+  try {
+    const response = await fetch(resumeFileUrl, { mode: 'cors' });
+    if (!response.ok) return false;
+    const blob = await response.blob();
+    const file = new File([blob], 'resume.pdf', { type: blob.type || 'application/pdf' });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    fileInput.files = dt.files;
+    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    fileInput.dispatchEvent(new Event('input', { bubbles: true }));
+    fileInput.setAttribute(DATA_UPLOADED, '1');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function removeDraggableResumeCard(): void {
+  const card = document.getElementById('team3-resume-drag');
+  if (card) card.remove();
+}
+
+/** Create floating draggable resume card for manual drop into portal dropzones (Workday, etc.). */
+async function createDraggableResumeCard(resumeFileUrl: string): Promise<void> {
+  removeDraggableResumeCard();
+  let file: File | null = null;
+  try {
+    const response = await fetch(resumeFileUrl, { mode: 'cors' });
+    if (!response.ok) return;
+    const blob = await response.blob();
+    file = new File([blob], 'resume.pdf', { type: blob.type || 'application/pdf' });
+  } catch {
+    return;
+  }
+  const card = document.createElement('div');
+  card.id = 'team3-resume-drag';
+  card.style.cssText =
+    'position:fixed;bottom:20px;right:20px;z-index:999999;background:#1f2937;color:#fff;padding:12px 36px 12px 12px;border-radius:8px;cursor:grab;font-family:system-ui,sans-serif;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);user-select:none;';
+  card.textContent = 'Drag Resume to Upload';
+  card.draggable = true;
+  card.setAttribute('aria-label', 'Drag resume to upload area');
+
+  const dismiss = document.createElement('button');
+  dismiss.type = 'button';
+  dismiss.textContent = '×';
+  dismiss.draggable = false;
+  dismiss.style.cssText = 'position:absolute;top:4px;right:6px;background:transparent;border:none;color:#9ca3af;cursor:pointer;font-size:18px;line-height:1;padding:0;';
+  dismiss.setAttribute('aria-label', 'Dismiss');
+  dismiss.addEventListener('click', (e) => {
+    e.preventDefault();
+    removeDraggableResumeCard();
+  });
+
+  card.addEventListener('dragstart', (e: DragEvent) => {
+    if (!e.dataTransfer || !file) return;
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('application/pdf', file.name);
+    e.dataTransfer.items.add(file);
+  });
+
+  card.appendChild(dismiss);
+  document.body.appendChild(card);
+}
+
+/** Try to auto-upload resume to file inputs; if none found or upload fails, show draggable card for manual drop. */
+async function runResumeUploadAndFallback(doc: Document, resumeFileUrl: string): Promise<void> {
+  removeDraggableResumeCard();
+  const fileInputs = Array.from(doc.querySelectorAll<HTMLInputElement>('input[type="file"]')).filter(
+    (el) => !el.hasAttribute(DATA_UPLOADED)
+  );
+  let anyUploaded = false;
+  for (const input of fileInputs) {
+    const name = (input.getAttribute('name') || '').toLowerCase();
+    const id = (input.getAttribute('id') || '').toLowerCase();
+    const accept = (input.getAttribute('accept') || '').toLowerCase();
+    const label = (input.getAttribute('aria-label') || '').toLowerCase();
+    const text = [name, id, accept, label].join(' ');
+    if (!/resume|cv|curriculum|attachment|upload|pdf/.test(text)) continue;
+    const ok = await uploadResumeToInput(input, resumeFileUrl);
+    if (ok) {
+      anyUploaded = true;
+      removeDraggableResumeCard();
+    }
+  }
+  const dropzone = doc.querySelector("[data-automation-id*='file'], [data-automation-id*='upload'], [role='button'][aria-label*='upload'], [role='button'][aria-label*='resume']");
+  const hasDropzone = !!dropzone;
+  const noFileInputs = fileInputs.length === 0;
+  if (!anyUploaded && (noFileInputs || hasDropzone)) {
+    await createDraggableResumeCard(resumeFileUrl);
+  }
+}
+
+
+/** If page has a resume/CV file input, try to set it from the given PDF URL (used by shortcut/full autofill path). */
 function tryFillResumeFileUpload(doc: Document, resumeFileUrl: string | undefined): void {
   if (!resumeFileUrl) return;
   const fileInputs = Array.from(doc.querySelectorAll<HTMLInputElement>('input[type="file"]'));
   for (const input of fileInputs) {
-    if (input.hasAttribute(ATTR)) continue;
+    if (input.hasAttribute(DATA_UPLOADED)) continue;
     const name = (input.getAttribute('name') || '').toLowerCase();
     const id = (input.getAttribute('id') || '').toLowerCase();
     const accept = (input.getAttribute('accept') || '').toLowerCase();
@@ -1106,20 +1222,8 @@ function tryFillResumeFileUpload(doc: Document, resumeFileUrl: string | undefine
     const text = [name, id, accept, label].join(' ');
     if (!/resume|cv|curriculum|attachment|upload|pdf/.test(text)) continue;
     (async () => {
-      try {
-        const response = await fetch(resumeFileUrl, { mode: 'cors' });
-        if (!response.ok) return;
-        const blob = await response.blob();
-        const file = new File([blob], 'resume.pdf', { type: blob.type || 'application/pdf' });
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        input.files = dt.files;
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.setAttribute(ATTR, '1');
-      } catch {
-        // CORS or network: skip
-      }
+      const ok = await uploadResumeToInput(input, resumeFileUrl);
+      if (ok) removeDraggableResumeCard();
     })();
     return;
   }

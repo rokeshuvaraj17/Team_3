@@ -1,4 +1,5 @@
-export const API_BASE = 'https://team-3-lvlf.onrender.com';
+// Local: backend 3000, frontend 5173. Production: set to https://team-3-lvlf.onrender.com
+export const API_BASE = 'http://localhost:3000';
 /**
  * Reusable fetch wrapper. Optionally attaches stored auth (x-user-id).
  * Handles JSON parsing and error handling.

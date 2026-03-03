@@ -111,6 +111,7 @@
 
   // content.ts
   var ATTR = "data-team3-autofilled";
+  var DATA_UPLOADED = "data-team3-uploaded";
   function safeSendResponse(sendResponse, response) {
     try {
       sendResponse(response);
@@ -408,15 +409,17 @@
     el.blur();
   }
   var semanticCache = {};
-  async function semanticMatch(meta, availableKeys, apiBase, userId) {
+  async function semanticMatch(meta, availableKeys, apiBase, userId, apiKeyId) {
     const cacheKey = `${window.location.hostname}:${meta}`;
     if (cacheKey in semanticCache) return semanticCache[cacheKey];
     try {
       const url = `${apiBase.replace(/\/$/, "")}/api/autofill/semantic-match`;
+      const body = { fieldMeta: meta, availableKeys };
+      if (apiKeyId) body.api_key_id = apiKeyId;
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-user-id": userId },
-        body: JSON.stringify({ fieldMeta: meta, availableKeys })
+        body: JSON.stringify(body)
       });
       const json = await res.json().catch(() => ({}));
       const matched = json?.matchedKey && availableKeys.includes(json.matchedKey) ? json.matchedKey : null;
@@ -427,15 +430,17 @@
       return null;
     }
   }
-  async function semanticOptionMatch(fieldLabel, value, options, apiBase, userId) {
+  async function semanticOptionMatch(fieldLabel, value, options, apiBase, userId, apiKeyId) {
     const cacheKey = `${window.location.hostname}:opt:${fieldLabel}:${value}`;
     if (cacheKey in semanticCache) return semanticCache[cacheKey];
     try {
       const url = `${apiBase.replace(/\/$/, "")}/api/autofill/semantic-option-match`;
+      const body = { fieldLabel, value, options };
+      if (apiKeyId) body.api_key_id = apiKeyId;
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-user-id": userId },
-        body: JSON.stringify({ fieldLabel, value, options })
+        body: JSON.stringify(body)
       });
       const json = await res.json().catch(() => ({}));
       const best = json?.bestOption && options.includes(json.bestOption) ? json.bestOption : null;
@@ -485,6 +490,7 @@
         excluded: payload.excluded,
         includeDebug: true
       };
+      if (payload.api_key_id) body.api_key_id = payload.api_key_id;
       if (payload.resumeText && payload.resumeText.trim()) body.resumeText = payload.resumeText.trim();
       if (payload.coverLetterText && payload.coverLetterText.trim()) body.coverLetterText = payload.coverLetterText.trim();
       const res = await fetch(url, {
@@ -494,13 +500,18 @@
       });
       const json = await res.json().catch(() => ({}));
       const values = Array.isArray(json?.values) ? json.values : [];
+      const useFallback = json?.fallback === true;
       if (AUTOFILL_DEBUG) {
-        console.log("[Team3 Autofill] API status:", res.status, "| values count:", values.length, "| expected:", elements.length);
+        console.log("[Team3 Autofill] API status:", res.status, "| values count:", values.length, "| expected:", elements.length, useFallback ? "| fallback requested" : "");
         console.log("[Team3 Autofill] Values returned:", values.map((v, i) => `${i + 1}. ${v === "" ? "(empty)" : `"${String(v).slice(0, 50)}${String(v).length > 50 ? "\u2026" : ""}"`}`));
         if (json?.debug) console.log("[Team3 Autofill] Debug from server:", json.debug);
+        if (json?.error) console.log("[Team3 Autofill] API message:", json.error);
       }
-      if (values.length !== elements.length) {
-        if (AUTOFILL_DEBUG) console.warn("[Team3 Autofill] Length mismatch: API returned", values.length, "values for", elements.length, "fields. Aborting fill.");
+      if (useFallback || values.length !== elements.length) {
+        if (AUTOFILL_DEBUG && useFallback) console.log("[Team3 Autofill] Using client-side fill (API returned fallback).");
+        if (values.length !== elements.length && !useFallback) {
+          if (AUTOFILL_DEBUG) console.warn("[Team3 Autofill] Length mismatch: API returned", values.length, "values for", elements.length, "fields.");
+        }
         return false;
       }
       for (let i = 0; i < elements.length; i++) {
@@ -687,7 +698,7 @@
       let matchKey = findMatchingKey(meta, payload.fields);
       if (!matchKey && meta.length > 4 && apiBase && userId) {
         const keys = Object.keys(payload.fields);
-        if (keys.length) matchKey = await semanticMatch(meta, keys, apiBase, userId) ?? null;
+        if (keys.length) matchKey = await semanticMatch(meta, keys, apiBase, userId, payload.api_key_id) ?? null;
       }
       if (!matchKey || payload.excluded.includes(matchKey)) continue;
       const rawValue = payload.fields[matchKey];
@@ -701,7 +712,7 @@
         if (!filled && apiBase && userId) {
           const options = Array.from(select.options).map((o) => (o.textContent || o.value || "").trim()).filter(Boolean);
           if (options.length >= 2) {
-            const bestOption = await semanticOptionMatch(meta, String(cleanedValue), options, apiBase, userId);
+            const bestOption = await semanticOptionMatch(meta, String(cleanedValue), options, apiBase, userId, payload.api_key_id);
             if (bestOption) filled = fillSelectEngine(select, bestOption);
           }
         }
@@ -733,6 +744,9 @@
       } else {
         runAutofillEngine(lastTablePayload, document).then(() => {
         });
+      }
+      if (lastTablePayload.resumeFileUrl) {
+        setTimeout(() => runResumeUploadAndFallback(document, lastTablePayload.resumeFileUrl), 600);
       }
     }, AUTOFILL_DEBOUNCE_MS);
   }
@@ -769,6 +783,9 @@
         autofillMutationObserver = null;
       }
     }, keepAliveMs);
+    if (payload.resumeFileUrl) {
+      setTimeout(() => runResumeUploadAndFallback(document, payload.resumeFileUrl), 500);
+    }
   }
   function fillField(doc, selectors, value) {
     if (!value) return false;
@@ -1090,11 +1107,95 @@
     else showFileUploadHint(void 0);
     tryFillResumeFileUpload(doc, payload.resumeFileUrl);
   }
+  async function uploadResumeToInput(fileInput, resumeFileUrl) {
+    if (fileInput.hasAttribute(DATA_UPLOADED)) return false;
+    try {
+      const response = await fetch(resumeFileUrl, { mode: "cors" });
+      if (!response.ok) return false;
+      const blob = await response.blob();
+      const file = new File([blob], "resume.pdf", { type: blob.type || "application/pdf" });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      fileInput.files = dt.files;
+      fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+      fileInput.dispatchEvent(new Event("input", { bubbles: true }));
+      fileInput.setAttribute(DATA_UPLOADED, "1");
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  function removeDraggableResumeCard() {
+    const card = document.getElementById("team3-resume-drag");
+    if (card) card.remove();
+  }
+  async function createDraggableResumeCard(resumeFileUrl) {
+    removeDraggableResumeCard();
+    let file = null;
+    try {
+      const response = await fetch(resumeFileUrl, { mode: "cors" });
+      if (!response.ok) return;
+      const blob = await response.blob();
+      file = new File([blob], "resume.pdf", { type: blob.type || "application/pdf" });
+    } catch {
+      return;
+    }
+    const card = document.createElement("div");
+    card.id = "team3-resume-drag";
+    card.style.cssText = "position:fixed;bottom:20px;right:20px;z-index:999999;background:#1f2937;color:#fff;padding:12px 36px 12px 12px;border-radius:8px;cursor:grab;font-family:system-ui,sans-serif;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);user-select:none;";
+    card.textContent = "Drag Resume to Upload";
+    card.draggable = true;
+    card.setAttribute("aria-label", "Drag resume to upload area");
+    const dismiss = document.createElement("button");
+    dismiss.type = "button";
+    dismiss.textContent = "\xD7";
+    dismiss.draggable = false;
+    dismiss.style.cssText = "position:absolute;top:4px;right:6px;background:transparent;border:none;color:#9ca3af;cursor:pointer;font-size:18px;line-height:1;padding:0;";
+    dismiss.setAttribute("aria-label", "Dismiss");
+    dismiss.addEventListener("click", (e) => {
+      e.preventDefault();
+      removeDraggableResumeCard();
+    });
+    card.addEventListener("dragstart", (e) => {
+      if (!e.dataTransfer || !file) return;
+      e.dataTransfer.effectAllowed = "copy";
+      e.dataTransfer.setData("application/pdf", file.name);
+      e.dataTransfer.items.add(file);
+    });
+    card.appendChild(dismiss);
+    document.body.appendChild(card);
+  }
+  async function runResumeUploadAndFallback(doc, resumeFileUrl) {
+    removeDraggableResumeCard();
+    const fileInputs = Array.from(doc.querySelectorAll('input[type="file"]')).filter(
+      (el) => !el.hasAttribute(DATA_UPLOADED)
+    );
+    let anyUploaded = false;
+    for (const input of fileInputs) {
+      const name = (input.getAttribute("name") || "").toLowerCase();
+      const id = (input.getAttribute("id") || "").toLowerCase();
+      const accept = (input.getAttribute("accept") || "").toLowerCase();
+      const label = (input.getAttribute("aria-label") || "").toLowerCase();
+      const text = [name, id, accept, label].join(" ");
+      if (!/resume|cv|curriculum|attachment|upload|pdf/.test(text)) continue;
+      const ok = await uploadResumeToInput(input, resumeFileUrl);
+      if (ok) {
+        anyUploaded = true;
+        removeDraggableResumeCard();
+      }
+    }
+    const dropzone = doc.querySelector("[data-automation-id*='file'], [data-automation-id*='upload'], [role='button'][aria-label*='upload'], [role='button'][aria-label*='resume']");
+    const hasDropzone = !!dropzone;
+    const noFileInputs = fileInputs.length === 0;
+    if (!anyUploaded && (noFileInputs || hasDropzone)) {
+      await createDraggableResumeCard(resumeFileUrl);
+    }
+  }
   function tryFillResumeFileUpload(doc, resumeFileUrl) {
     if (!resumeFileUrl) return;
     const fileInputs = Array.from(doc.querySelectorAll('input[type="file"]'));
     for (const input of fileInputs) {
-      if (input.hasAttribute(ATTR)) continue;
+      if (input.hasAttribute(DATA_UPLOADED)) continue;
       const name = (input.getAttribute("name") || "").toLowerCase();
       const id = (input.getAttribute("id") || "").toLowerCase();
       const accept = (input.getAttribute("accept") || "").toLowerCase();
@@ -1102,19 +1203,8 @@
       const text = [name, id, accept, label].join(" ");
       if (!/resume|cv|curriculum|attachment|upload|pdf/.test(text)) continue;
       (async () => {
-        try {
-          const response = await fetch(resumeFileUrl, { mode: "cors" });
-          if (!response.ok) return;
-          const blob = await response.blob();
-          const file = new File([blob], "resume.pdf", { type: blob.type || "application/pdf" });
-          const dt = new DataTransfer();
-          dt.items.add(file);
-          input.files = dt.files;
-          input.dispatchEvent(new Event("change", { bubbles: true }));
-          input.dispatchEvent(new Event("input", { bubbles: true }));
-          input.setAttribute(ATTR, "1");
-        } catch {
-        }
+        const ok = await uploadResumeToInput(input, resumeFileUrl);
+        if (ok) removeDraggableResumeCard();
       })();
       return;
     }
