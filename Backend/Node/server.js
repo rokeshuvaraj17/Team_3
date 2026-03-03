@@ -839,7 +839,7 @@ const OPENAI_COMPATIBLE_MODELS = {
   openai: 'gpt-4o-mini',
   anthropic: 'claude-3-haiku-20240307',
   openrouter: 'openai/gpt-4o-mini',
-  groq: 'llama-3.1-70b-versatile',
+  groq: 'llama-3.3-70b-versatile',
   together: 'meta-llama/Llama-3-70b-chat-hf',
   mistral: 'mistral-small-latest',
   cohere: 'command',
