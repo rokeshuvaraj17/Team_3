@@ -135,11 +135,15 @@ app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true)
     if (allowedOrigins.includes(origin)) return cb(null, true)
-    // Chrome extension: allow any chrome-extension:// origin
+    // Chrome extension popup/background: allow any chrome-extension:// origin
     if (origin.startsWith('chrome-extension://')) return cb(null, true)
+    // Content script runs in the page context (e.g. Workday, Greenhouse): allow any HTTPS and localhost so job portals can call our API
+    if (origin.startsWith('https://') || origin === 'http://localhost' || origin.startsWith('http://127.0.0.1')) return cb(null, true)
     cb(new Error('Not allowed by CORS'))
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id'],
 }))
 app.use(express.json())
 
@@ -475,6 +479,119 @@ app.put('/api/autofill', express.json(), async (req, res) => {
     res.json({ data: mergedData, excluded_field_keys: excludedCleaned, from_profile, custom_pairs: customPairsOut })
   } catch (err) {
     return handleDbError(err, res, 'Autofill put')
+  }
+})
+
+// Server-side Gemini for autofill semantic matching (uses GEMINI_API_KEY; no user key required).
+async function geminiGenerate(prompt, systemInstruction) {
+  if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not configured')
+  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
+  }
+  if (systemInstruction) body.systemInstruction = { parts: [{ text: systemInstruction }] }
+  const url = GEMINI_URL(model) + '?key=' + encodeURIComponent(GEMINI_API_KEY)
+  const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  const data = await resp.json()
+  if (!resp.ok) throw new Error(data?.error?.message || 'Gemini API error')
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+  return text ? text.trim() : null
+}
+
+// POST /api/autofill/semantic-match – LLM picks best key for a form field label. Optional x-user-id.
+app.post('/api/autofill/semantic-match', express.json(), async (req, res) => {
+  const fieldMeta = typeof req.body?.fieldMeta === 'string' ? req.body.fieldMeta.trim().slice(0, 500) : ''
+  const availableKeys = Array.isArray(req.body?.availableKeys) ? req.body.availableKeys.filter((k) => typeof k === 'string').slice(0, 100) : []
+  if (!fieldMeta || availableKeys.length === 0) return res.status(400).json({ error: 'fieldMeta and availableKeys required' })
+  try {
+    const list = availableKeys.join(', ')
+    const prompt = `Form field label/description: "${fieldMeta}". Which ONE of these keys best matches it? Reply with exactly one key from this list, nothing else: ${list}`
+    const system = 'You are a form field mapper. Reply with only the single key from the given list that best matches the field. No explanation, no quotes.'
+    const out = await geminiGenerate(prompt, system)
+    const matched = out && availableKeys.find((k) => out.toLowerCase().includes(k.toLowerCase()))
+    return res.json({ matchedKey: matched || null })
+  } catch (err) {
+    console.error('Autofill semantic-match:', err.message)
+    return res.status(502).json({ error: err.message || 'Semantic match failed', matchedKey: null })
+  }
+})
+
+// POST /api/autofill/semantic-option-match – LLM picks best dropdown option for a value. Optional x-user-id.
+app.post('/api/autofill/semantic-option-match', express.json(), async (req, res) => {
+  const fieldLabel = typeof req.body?.fieldLabel === 'string' ? req.body.fieldLabel.trim().slice(0, 300) : ''
+  const value = typeof req.body?.value === 'string' ? req.body.value.trim().slice(0, 200) : ''
+  const options = Array.isArray(req.body?.options) ? req.body.options.filter((o) => typeof o === 'string').slice(0, 50) : []
+  if (!value || options.length === 0) return res.status(400).json({ error: 'value and options required' })
+  try {
+    const optsList = options.map((o) => `"${o.replace(/"/g, '\\"')}"`).join(', ')
+    const prompt = `Field: "${fieldLabel}". User value: "${value}". Which ONE option best matches? Reply with the exact option text from: ${optsList}. Reply only that option, nothing else.`
+    const system = 'You are a form option matcher. Reply with exactly one of the given options that best matches the user value. No explanation.'
+    const out = await geminiGenerate(prompt, system)
+    const outLower = out && out.trim().toLowerCase()
+    const best = outLower && options.find((o) => outLower.includes(o.trim().toLowerCase()) || o.trim().toLowerCase().includes(outLower))
+    return res.json({ bestOption: best || null })
+  } catch (err) {
+    console.error('Autofill semantic-option-match:', err.message)
+    return res.status(502).json({ error: err.message || 'Semantic option match failed', bestOption: null })
+  }
+})
+
+// POST /api/autofill/match-fields – send form field descriptors + user autofill data + optional resume/cover letter, get back values to fill (AI-matched).
+app.post('/api/autofill/match-fields', express.json(), async (req, res) => {
+  const fields = Array.isArray(req.body?.fields) ? req.body.fields.slice(0, 150) : []
+  const userData = req.body?.userData && typeof req.body.userData === 'object' ? req.body.userData : {}
+  const excluded = Array.isArray(req.body?.excluded) ? req.body.excluded : []
+  const resumeText = typeof req.body?.resumeText === 'string' ? req.body.resumeText.trim().slice(0, 10000) : ''
+  const coverLetterText = typeof req.body?.coverLetterText === 'string' ? req.body.coverLetterText.trim().slice(0, 6000) : ''
+  const includeDebug = req.body?.includeDebug === true
+  if (fields.length === 0) return res.status(400).json({ error: 'fields array required' })
+  const metas = fields.map((f) => (typeof f?.meta === 'string' ? f.meta.trim().slice(0, 300) : ''))
+  const types = fields.map((f) => (typeof f?.type === 'string' ? f.type : 'text'))
+  try {
+    const userDataStr = JSON.stringify(userData)
+    const excludedStr = excluded.length ? ` Excluded keys (do not use): ${excluded.join(', ')}.` : ''
+    let contextBlocks = ''
+    if (resumeText) {
+      contextBlocks += `\n\nResume (use to infer job title, company, experience, skills, summary, education when not in user data; extract short answers):\n${resumeText}`
+    }
+    if (coverLetterText) {
+      contextBlocks += `\n\nCover letter (use for message, "why us", cover letter, or motivation fields; extract or shorten as needed):\n${coverLetterText}`
+    }
+    const system = `You are a form autofill mapper. Given form field descriptions and the user's stored data (key: value), output a JSON array of values to fill. The array must have exactly ${metas.length} elements, one per field, in the same order. Prefer user data when a key matches the field. For job title, company, experience, skills, or long-form message fields, you may extract from the resume or cover letter text if provided. Keep each value concise (single line or short phrase unless the field clearly asks for a paragraph). Consider synonyms: zip_code = postal code, phone = telephone, current_job_title = job title, current_company = company. If no good match or key is excluded, use "". Do not invent data not in user data or the resume/cover letter. Output only a valid JSON array of strings, no markdown, no explanation.${excludedStr}`
+    const prompt = `Field descriptions (one per line, in order):\n${metas.map((m, i) => `${i + 1}. ${m || '(empty)'}`).join('\n')}\n\nUser data (key: value):\n${userDataStr}${contextBlocks}\n\nReturn a JSON array of ${metas.length} strings, in the same order as the fields. Use "" for no match.`
+    console.log('[Autofill match-fields] Field count:', metas.length, '| Metas:', metas.slice(0, 20))
+    const out = await geminiGenerate(prompt, system)
+    if (includeDebug && out) console.log('[Autofill match-fields] Raw model output (first 1500 chars):', out.slice(0, 1500))
+    let values = []
+    if (out) {
+      const cleaned = out.replace(/^[\s\S]*?\[/, '[').replace(/\][\s\S]*$/, ']').trim()
+      try {
+        values = JSON.parse(cleaned)
+      } catch (e) {
+        const match = out.match(/\[[\s\S]*\]/)
+        if (match) values = JSON.parse(match[0])
+      }
+    }
+    if (!Array.isArray(values) || values.length !== metas.length) {
+      console.warn('[Autofill match-fields] Values length', values.length, '!= metas length', metas.length, '- padding with empty strings')
+      values = metas.map(() => '')
+    }
+    const normalized = values.slice(0, metas.length).map((v) => (v != null && typeof v !== 'string' ? String(v) : (v || '')))
+    console.log('[Autofill match-fields] Returning values (first 15):', normalized.slice(0, 15).map((v) => (v ? v.slice(0, 30) + (v.length > 30 ? '…' : '') : '(empty)')))
+    const response = { values: normalized }
+    if (includeDebug) {
+      response.debug = {
+        fieldCount: metas.length,
+        metas: metas.slice(0, 50),
+        rawOutputPreview: out ? out.slice(0, 800) : null,
+        valuesPreview: normalized.slice(0, 30),
+      }
+    }
+    return res.json(response)
+  } catch (err) {
+    console.error('Autofill match-fields:', err.message)
+    return res.status(502).json({ error: err.message || 'Match fields failed', values: metas.map(() => '') })
   }
 })
 
@@ -999,7 +1116,7 @@ app.post('/api/ai/generate-cover-letter', express.json(), async (req, res) => {
     )
     if (!keyRow.rows[0]) return res.status(400).json({ error: 'Invalid or inactive API key' })
     const { api_key_enc, provider_slug } = keyRow.rows[0]
-    const keywordsLine = keywords.length > 0 ? `\nWeave in these keywords/phrases naturally where they fit: ${keywords.join(', ')}.` : ''
+    const keywordsLine = keywords.length > 0 ? `\nYou MUST weave in each of these keywords/phrases naturally in the letter where they fit; do not omit any: ${keywords.join(', ')}.` : ''
     const companyJobLine = [companyName, jobTitle].filter(Boolean).length > 0
       ? `\nCompany name (use at top of letter): ${companyName || '[infer from job description]'}. Job title: ${jobTitle || '[infer from job description]'}.`
       : ''
@@ -1121,6 +1238,33 @@ function pickRandom (arr) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
+/** Extract first balanced { ... } from a string for JSON parsing. */
+function extractJsonObject (str) {
+  if (!str || typeof str !== 'string') return null
+  const start = str.indexOf('{')
+  if (start === -1) return null
+  let depth = 0
+  let inString = false
+  let escape = false
+  let quote = ''
+  for (let i = start; i < str.length; i++) {
+    const c = str[i]
+    if (escape) { escape = false; continue }
+    if (c === '\\' && inString) { escape = true; continue }
+    if (inString) {
+      if (c === quote) inString = false
+      continue
+    }
+    if (c === '"' || c === "'") { inString = true; quote = c; continue }
+    if (c === '{') depth++
+    else if (c === '}') {
+      depth--
+      if (depth === 0) return str.slice(start, i + 1)
+    }
+  }
+  return null
+}
+
 // POST /api/ai/generate-resume – body: api_key_id, personal, summary, education, experience, skills, languages, certifications, page_limit, template, primary_resume_html (optional)
 // Or for job-based: resume_text, job_description, skills (array), page_limit, template
 app.post('/api/ai/generate-resume', express.json(), async (req, res) => {
@@ -1166,7 +1310,9 @@ app.post('/api/ai/generate-resume', express.json(), async (req, res) => {
       const systemInstruction = `You are an expert US resume writer. Produce a tailored resume as valid JSON with exactly two keys: "latex" and "html".
 "latex": A complete, compilable LaTeX resume (\\documentclass through \\end{document}). Use a modern class. ${templateDesc}. ${pageRule}
 "html": The same resume as HTML body content only (no <html> or <body>), with inline styles. Escape double quotes in JSON. Output only the JSON object, no code fence or explanation.`
-      const skillsLine = skillsList.length > 0 ? `\n\nInclude or emphasize these skills/keywords in the resume: ${skillsList.join(', ')}` : ''
+      const skillsLine = skillsList.length > 0
+        ? `\n\nIMPORTANT - You MUST include every one of these skills/keywords in the resume. Add them in a Skills section and/or weave them into experience bullet points so each appears at least once. Do not omit any: ${skillsList.join(', ')}`
+        : ''
       const prompt = `Tailor the following resume for this job. Keep it ATS-friendly. Output valid JSON with "latex" and "html" only.
 
 --- RESUME ---
@@ -1203,10 +1349,10 @@ Certifications: ${body.certifications || ''}`
     let trimmed = (rawContent && typeof rawContent === 'string' ? rawContent.trim() : '')
     const codeBlock = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/)
     if (codeBlock) trimmed = codeBlock[1].trim()
-    const jsonMatch = trimmed.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
+    const jsonStr = extractJsonObject(trimmed)
+    if (jsonStr) {
       try {
-        const parsed = JSON.parse(jsonMatch[0])
+        const parsed = JSON.parse(jsonStr)
         if (typeof parsed.latex === 'string' && parsed.latex.trim()) latex = parsed.latex.trim()
         if (typeof parsed.html === 'string' && parsed.html.trim()) content = parsed.html.trim()
       } catch (e) {
@@ -1697,6 +1843,58 @@ app.post('/api/cover-letters/upload', uploadCoverLetter.single('file'), async (r
   res.status(400).json({ error: err.message || 'Invalid file.' })
 })
 
+// Get cover letter as plain text (from html_content or by extracting from PDF). Used by extension for autofill.
+app.get('/api/cover-letters/:id/text', async (req, res) => {
+  if (!pool) return res.status(503).json({ error: 'Database not configured' })
+  const userId = req.headers['x-user-id']
+  if (!userId) return res.status(401).json({ error: 'User ID required' })
+  const { id } = req.params
+  try {
+    const { rows } = await pool.query(
+      'select html_content, file_url from public.cover_letters where id = $1 and user_id = $2',
+      [id, userId]
+    )
+    if (!rows[0]) return res.status(404).json({ error: 'Cover letter not found' })
+    const { html_content, file_url } = rows[0]
+    if (html_content && typeof html_content === 'string' && html_content.trim().length > 0) {
+      const text = html_content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      return res.json({ text: text || '' })
+    }
+    if (!file_url) return res.json({ text: '' })
+    const resp = await fetch(file_url, { redirect: 'follow' })
+    if (!resp.ok) {
+      if (resp.status === 401 && file_url.includes('cloudinary')) {
+        console.error('Cover letter text: Cloudinary returned 401.')
+      } else {
+        console.error('Cover letter text: fetch failed', resp.status, file_url)
+      }
+      return res.status(502).json({ error: 'File could not be retrieved.' })
+    }
+    const buf = Buffer.from(await resp.arrayBuffer())
+    const contentType = (resp.headers.get('content-type') || '').toLowerCase()
+    const urlLooksPdf = file_url.toLowerCase().includes('.pdf')
+    const bufferIsPdf = buf.length >= 5 && buf.slice(0, 5).toString('ascii') === '%PDF-'
+    const treatAsPdf = contentType.includes('pdf') || urlLooksPdf || bufferIsPdf
+    if (treatAsPdf) {
+      try {
+        const { PDFParse } = require('pdf-parse')
+        const parser = new PDFParse({ data: buf })
+        const result = await parser.getText()
+        await parser.destroy()
+        const text = (result && result.text) ? String(result.text).trim() : ''
+        return res.json({ text })
+      } catch (e) {
+        console.error('Cover letter PDF parse error:', e.message)
+        return res.json({ text: '' })
+      }
+    }
+    return res.json({ text: '' })
+  } catch (err) {
+    console.error('Cover letter text:', err)
+    return res.status(502).json({ error: err.message || 'Failed to get cover letter text.' })
+  }
+})
+
 // Get cover letter file (proxy from storage for in-page preview, avoids CORS)
 app.get('/api/cover-letters/:id/file', async (req, res) => {
   if (!pool) return res.status(503).json({ error: 'Database not configured' })
@@ -1863,6 +2061,15 @@ app.get('/api/analytics/stats', async (req, res) => {
     } catch (e) {
       if (e.code !== '42P01') throw e
     }
+    try {
+      const tr = await pool.query(
+        "select count(*)::int as c from public.job_tracker where user_id = $1 and application_status = 'applied'",
+        [userId]
+      )
+      if (tr.rows[0]) jobsAppliedCount += tr.rows[0].c
+    } catch (e) {
+      if (e.code !== '42P01') throw e
+    }
 
     let jobsTrackedCount = 0
     try {
@@ -1931,6 +2138,9 @@ app.post('/api/job-tracker', express.json(), async (req, res) => {
     const row = r.rows[0]
     res.status(201).json({ id: row.id, company_name: row.company_name, position_title: row.position_title, location: row.location, created_at: row.created_at })
   } catch (err) {
+    if (err.code === '42P01') {
+      return res.status(503).json({ error: 'Job tracker is not set up. Run the database migration: Backend/Node/migrations/create_job_tracker.sql' })
+    }
     return handleDbError(err, res, 'Job tracker save')
   }
 })

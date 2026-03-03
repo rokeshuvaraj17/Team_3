@@ -73,9 +73,13 @@ const regenerateBtn = document.getElementById('regenerateBtn');
 const checkResume = document.getElementById('checkResume');
 const checkJD = document.getElementById('checkJD');
 const checkAPI = document.getElementById('checkAPI');
-const updateResumeBtn = document.getElementById('updateResumeBtn');
+const resumeCoverLetterBtn = document.getElementById('resumeCoverLetterBtn');
 const resumeGenerateWebBtn = document.getElementById('resumeGenerateWebBtn');
+const resumeGenerateSidebarBtn = document.getElementById('resumeGenerateSidebarBtn');
 const coverLetterWebBtn = document.getElementById('coverLetterWebBtn');
+const resumeSidebarOutputWrap = document.getElementById('resumeSidebarOutputWrap');
+const resumeSidebarOutput = document.getElementById('resumeSidebarOutput');
+const resumeSidebarCopyBtn = document.getElementById('resumeSidebarCopyBtn');
 const resumeJDHint = document.getElementById('resumeJDHint');
 const resumeNoTextWarning = document.getElementById('resumeNoTextWarning');
 const autofillBtn = document.getElementById('autofillBtn');
@@ -462,10 +466,12 @@ function updateChecklist() {
     checkJD.classList.toggle('ready', hasJD);
     checkAPI.classList.toggle('ready', hasAPI);
     generateBtn.disabled = !(hasResume && hasJD && hasAPI);
-    if (updateResumeBtn)
-        updateResumeBtn.disabled = !(hasResume && hasJD);
+    if (resumeCoverLetterBtn)
+        resumeCoverLetterBtn.disabled = !(hasResume && hasJD);
     if (resumeGenerateWebBtn)
         resumeGenerateWebBtn.disabled = !(hasResume && hasJD);
+    if (resumeGenerateSidebarBtn)
+        resumeGenerateSidebarBtn.disabled = !(hasResume && hasJD);
     if (coverLetterWebBtn)
         coverLetterWebBtn.disabled = !(hasResume && hasJD);
     if (resumeJDHint)
@@ -854,6 +860,14 @@ async function getAccountResumeText(userId, resumeId) {
     const text = typeof textRes.data?.text === 'string' ? textRes.data.text.trim() : '';
     return text.length > 0 ? text : null;
 }
+/** Fetch cover letter text by id: GET /api/cover-letters/:id/text (extracts from PDF if needed). */
+async function getCoverLetterText(userId, coverLetterId) {
+    const textRes = await apiFetch(`/api/cover-letters/${coverLetterId}/text`, { token: userId });
+    if (!textRes.ok)
+        return null;
+    const text = typeof textRes.data?.text === 'string' ? textRes.data.text.trim() : '';
+    return text.length > 0 ? text : null;
+}
 async function generateCoverLetter() {
     const hasStored = state.selectedApiKeyId != null && !state.useCustom;
     const hasCustom = state.useCustom && !!state.apiKey;
@@ -1018,11 +1032,117 @@ async function openJobResumeInWebsite() {
         showToast(res.error || 'Failed to send context.', true);
         return;
     }
-    chrome.tabs.create({ url: `${WEB_APP_BASE}/app/generate-resume/job-based?from=extension` });
+    const uid = encodeURIComponent(userId);
+    const apiBase = encodeURIComponent(API_BASE.replace(/\/$/, ''));
+    chrome.tabs.create({ url: `${WEB_APP_BASE}/app/generate-resume/job-based?from=extension&uid=${uid}&api=${apiBase}` });
     showToast('Opening website…');
 }
-updateResumeBtn?.addEventListener('click', openJobResumeInWebsite);
+async function openCoverLetterInWebsite() {
+    const stored = await chrome.storage.local.get(['userId', 'jobDescription']);
+    const userId = stored.userId;
+    if (!userId) {
+        showToast('Log in first to open in website.', true);
+        return;
+    }
+    const jobDescription = stored.jobDescription || state.jobDescription || '';
+    if (!jobDescription) {
+        showToast('Load a job description in the Scraper tab first.', true);
+        return;
+    }
+    const jobMeta = state.jobMeta;
+    const { text: resumeText, hadSelection } = await getCurrentResumeText(userId);
+    if (!resumeText) {
+        showToast(hadSelection ? 'Could not load resume text (e.g. scanned PDF). Use Custom resume and paste your text.' : 'Select a resume (account or paste custom) first.', true);
+        return;
+    }
+    const res = await apiFetch('/api/extension/cover-letter-context', {
+        method: 'POST',
+        token: userId,
+        body: JSON.stringify({
+            resume: resumeText,
+            job_description: jobDescription,
+            company_name: jobMeta?.company || '',
+            job_title: jobMeta?.title || '',
+        }),
+    });
+    if (!res.ok) {
+        showToast(res.error || 'Failed to send context.', true);
+        return;
+    }
+    const uid = encodeURIComponent(userId);
+    const apiBase = encodeURIComponent(API_BASE.replace(/\/$/, ''));
+    chrome.tabs.create({ url: `${WEB_APP_BASE}/app/generate-cover-letter?from=extension&uid=${uid}&api=${apiBase}` });
+    showToast('Opening website…');
+}
+let lastResumeSidebarContent = '';
+resumeCoverLetterBtn?.addEventListener('click', openCoverLetterInWebsite);
 resumeGenerateWebBtn?.addEventListener('click', openJobResumeInWebsite);
+resumeGenerateSidebarBtn?.addEventListener('click', async () => {
+    const stored = await chrome.storage.local.get(['userId']);
+    const userId = stored.userId;
+    if (!userId) {
+        showToast('Log in first.', true);
+        return;
+    }
+    if (!state.selectedApiKeyId) {
+        showToast('Select an API key in Account or Cover letter API first.', true);
+        return;
+    }
+    const { text: resumeText, hadSelection } = await getCurrentResumeText(userId);
+    if (!resumeText) {
+        showToast(hadSelection ? 'Could not load resume text.' : 'Select a resume first.', true);
+        return;
+    }
+    if (!state.jobDescription) {
+        showToast('Load a job description in the Scraper tab first.', true);
+        return;
+    }
+    resumeGenerateSidebarBtn.disabled = true;
+    try {
+        const res = await apiFetch('/api/ai/generate-resume', {
+            method: 'POST',
+            token: userId,
+            body: JSON.stringify({
+                api_key_id: state.selectedApiKeyId,
+                resume_text: resumeText,
+                job_description: state.jobDescription,
+                skills: [],
+                template: 'modern_minimal',
+                page_limit: 1,
+            }),
+        });
+        if (!res.ok)
+            throw new Error(res.error || 'Failed to generate');
+        const content = res.data?.content ?? '';
+        const div = document.createElement('div');
+        div.innerHTML = content;
+        const text = (div.textContent || div.innerText || '').trim();
+        lastResumeSidebarContent = content || '';
+        if (resumeSidebarOutput)
+            resumeSidebarOutput.textContent = text || '(No content)';
+        if (resumeSidebarOutputWrap)
+            resumeSidebarOutputWrap.classList.remove('hidden');
+        showToast('Generated. Copy or open website to save.');
+    }
+    catch (err) {
+        showToast(err instanceof Error ? err.message : 'Generate failed.', true);
+    }
+    finally {
+        resumeGenerateSidebarBtn.disabled = !(state.resumeView && state.jobDescription);
+        updateChecklist();
+    }
+});
+resumeSidebarCopyBtn?.addEventListener('click', () => {
+    if (!lastResumeSidebarContent)
+        return;
+    const ta = document.createElement('textarea');
+    ta.value = lastResumeSidebarContent;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Copied.');
+});
 coverLetterWebBtn?.addEventListener('click', async () => {
     const stored = await chrome.storage.local.get(['userId', 'jobDescription']);
     const userId = stored.userId;
@@ -1055,7 +1175,9 @@ coverLetterWebBtn?.addEventListener('click', async () => {
         showToast(res.error || 'Failed to send context.', true);
         return;
     }
-    chrome.tabs.create({ url: `${WEB_APP_BASE}/app/generate-cover-letter?from=extension` });
+    const uid = encodeURIComponent(userId);
+    const apiBase = encodeURIComponent(API_BASE.replace(/\/$/, ''));
+    chrome.tabs.create({ url: `${WEB_APP_BASE}/app/generate-cover-letter?from=extension&uid=${uid}&api=${apiBase}` });
     showToast('Opening website…');
 });
 copyResultBtn.addEventListener('click', async () => {
@@ -1104,7 +1226,7 @@ async function loadState() {
     state.useCustom = state.selectedApiKeyId == null && data.useCustom !== false;
     state.resumeSource = data.resumeSource === 'account' ? 'account' : 'custom';
     state.selectedResumeId = data.selectedResumeId ?? null;
-    state.resumeView = data.resumeView === 'list' || data.resumeView === 'custom' ? data.resumeView : null;
+    state.resumeView = data.resumeView === 'list' || data.resumeView === 'custom' ? data.resumeView : 'list';
     state.jobDescription = data.jobDescription || '';
     state.jobMeta = data.jobMeta || { title: '', company: '', location: '', source: '' };
     state.theme = (data[THEME_KEY] === 'light' ? 'light' : 'dark');
@@ -1178,6 +1300,16 @@ async function loadState() {
                     showToast('No active tab.', true);
                     return;
                 }
+                const tabUrl = tab.url || '';
+                const isRestricted = !tabUrl ||
+                    tabUrl.startsWith('chrome://') ||
+                    tabUrl.startsWith('edge://') ||
+                    tabUrl.startsWith('about:') ||
+                    tabUrl.startsWith('chrome-extension://');
+                if (isRestricted) {
+                    showToast('Open a job application page in this tab first (e.g. a company careers page).', true);
+                    return;
+                }
                 const stored = await chrome.storage.local.get(['userId', 'user']);
                 const userId = stored.userId;
                 const user = stored.user;
@@ -1185,29 +1317,37 @@ async function loadState() {
                     showToast('Log in first to use autofill.', true);
                     return;
                 }
-                const profileRes = await apiFetch('/api/profile', { token: userId });
-                const profileData = profileRes.ok ? profileRes.data : null;
-                const displayName = profileData?.display_name?.trim() || user.name || '';
-                const parts = displayName.split(/\s+/).filter(Boolean);
-                const firstName = parts[0] || '';
-                const lastName = parts.slice(1).join(' ') || '';
-                const profile = {
-                    firstName,
-                    lastName,
-                    email: user.email ?? '',
-                    phone: (profileData?.phone ?? '') || '',
-                };
-                let resumeText = null;
+                showToast('Loading autofill data…');
+                const autofillRes = await apiFetch('/api/autofill', { token: userId });
+                if (!autofillRes.ok || !autofillRes.data) {
+                    showToast(autofillRes.error || 'Failed to load autofill data.', true);
+                    return;
+                }
+                const data = autofillRes.data.data ?? {};
+                const excluded = Array.isArray(autofillRes.data.excluded_field_keys) ? autofillRes.data.excluded_field_keys : [];
+                const customPairs = Array.isArray(autofillRes.data.custom_pairs) ? autofillRes.data.custom_pairs : [];
+                const customObj = {};
+                for (const p of customPairs) {
+                    const k = p?.field_key;
+                    if (k != null && typeof k === 'string' && k.trim())
+                        customObj[k.trim()] = typeof p?.field_value === 'string' ? p.field_value : '';
+                }
+                const mergedFields = { ...data, ...customObj };
+                const MAX_RESUME_CHARS = 12000;
+                const MAX_COVER_CHARS = 8000;
+                let resumeText;
+                let coverLetterText;
                 if (state.autofillResumeId) {
-                    resumeText = await getAccountResumeText(userId, state.autofillResumeId);
+                    const text = await getAccountResumeText(userId, state.autofillResumeId);
+                    if (text)
+                        resumeText = text.slice(0, MAX_RESUME_CHARS);
                 }
-                let coverLetterFileUrl;
                 if (state.autofillCoverLetterId) {
-                    const letter = state.autofillCoverLetters.find((c) => c.id === state.autofillCoverLetterId);
-                    if (letter?.file_url)
-                        coverLetterFileUrl = letter.file_url;
+                    const text = await getCoverLetterText(userId, state.autofillCoverLetterId);
+                    if (text)
+                        coverLetterText = text.slice(0, MAX_COVER_CHARS);
                 }
-                const payload = { profile, resumeText: resumeText || undefined, coverLetterFileUrl };
+                const payload = { fields: mergedFields, excluded, userId, apiBase: API_BASE, resumeText, coverLetterText };
                 const sendAutofill = () => new Promise((resolve, reject) => {
                     chrome.tabs.sendMessage(tab.id, { type: 'APPLY_AUTOFILL', data: payload }, (err) => {
                         if (chrome.runtime.lastError)
@@ -1225,14 +1365,35 @@ async function loadState() {
                     if (isNoReceiver) {
                         try {
                             await chrome.scripting.executeScript({
-                                target: { tabId: tab.id, allFrames: true },
+                                target: { tabId: tab.id, allFrames: false },
                                 files: ['content.js'],
                             });
-                            await new Promise((r) => setTimeout(r, 150));
-                            await sendAutofill();
                         }
                         catch (injectErr) {
-                            showToast('Refresh the job page and try again, or check that the extension can run on this site.', true);
+                            const errMsg = injectErr instanceof Error ? injectErr.message : String(injectErr);
+                            if (errMsg.includes('Cannot access') || errMsg.includes('restricted')) {
+                                showToast('This page cannot be scripted. Use a normal job application URL (e.g. company careers page).', true);
+                                return;
+                            }
+                            showToast("Autofill couldn't run. Run 'npm run build' in the manifest folder, then load the extension from the 'dist' folder (Load unpacked → manifest/dist). Reload the extension and refresh this page.", true);
+                            return;
+                        }
+                        const maxRetries = 3;
+                        const delayMs = 250;
+                        let lastErr;
+                        for (let i = 0; i < maxRetries; i++) {
+                            await new Promise((r) => setTimeout(r, delayMs));
+                            try {
+                                await sendAutofill();
+                                lastErr = null;
+                                break;
+                            }
+                            catch (retryErr) {
+                                lastErr = retryErr;
+                            }
+                        }
+                        if (lastErr) {
+                            showToast('Refresh the page, then try Autofill again.', true);
                             return;
                         }
                     }

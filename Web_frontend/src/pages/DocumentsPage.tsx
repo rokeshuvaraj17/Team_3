@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useLayoutEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getStoredUser } from '@/lib/auth'
 import { apiUrl } from '@/lib/api'
@@ -120,6 +120,20 @@ export function DocumentsPage() {
     setViewModeCover('view')
     setCoverLetterLoadError(null)
   }, [selectedCover?.id])
+
+  // Sync content into cover letter editor only when entering edit mode (avoids cursor jump on every keystroke)
+  useLayoutEffect(() => {
+    if (viewModeCover === 'edit' && coverEditorRef.current) {
+      coverEditorRef.current.innerHTML = editedHtmlCover
+    }
+  }, [viewModeCover])
+
+  // Sync content into resume editor only when entering edit mode (avoids cursor jump on every keystroke)
+  useLayoutEffect(() => {
+    if (viewMode === 'edit' && editorRef.current) {
+      editorRef.current.innerHTML = editedHtml
+    }
+  }, [viewMode])
 
   // Fetch PDF via proxy for viewing (avoids CORS/embedding "Failed to load PDF")
   useEffect(() => {
@@ -639,15 +653,28 @@ ${body}
                     </button>
                   )}
                   {viewModeCover === 'edit' && (
-                    <button
-                      type="button"
-                      onClick={handleSaveCoverClick}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700"
-                      title="Save changes"
-                    >
-                      <Save className="h-4 w-4" />
-                      Save
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditedHtmlCover(selectedCover?.html_content ?? '')
+                          setViewModeCover('view')
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700"
+                        title="Cancel editing"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSaveCoverClick}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700"
+                        title="Save changes"
+                      >
+                        <Save className="h-4 w-4" />
+                        Save
+                      </button>
+                    </>
                   )}
                   <a
                     href={selectedCover.file_url}
@@ -695,7 +722,6 @@ ${body}
                       suppressContentEditableWarning
                       onInput={() => setEditedHtmlCover(coverEditorRef.current?.innerHTML ?? '')}
                       className="min-h-[400px] w-full rounded-b-lg border border-t-0 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-sm text-slate-800 dark:text-slate-100 prose prose-slate dark:prose-invert max-w-none focus:outline-none focus:ring-2 focus:ring-violet-500"
-                      dangerouslySetInnerHTML={{ __html: editedHtmlCover }}
                     />
                   </>
                 ) : (hasEditableCoverContent || editedHtmlCover) ? (
@@ -761,15 +787,28 @@ ${body}
                     </button>
                   )}
                   {viewMode === 'edit' && (hasEditableContent || editedHtml) && (
-                    <button
-                      type="button"
-                      onClick={handleSaveClick}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
-                      title="Save changes"
-                    >
-                      <Save className="h-4 w-4" />
-                      Save
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditedHtml(selected?.html_content ?? '')
+                          setViewMode('view')
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700"
+                        title="Cancel editing"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSaveClick}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
+                        title="Save changes"
+                      >
+                        <Save className="h-4 w-4" />
+                        Save
+                      </button>
+                    </>
                   )}
                   <div className="relative">
                     <button
@@ -860,7 +899,6 @@ ${body}
                       suppressContentEditableWarning
                       onInput={() => setEditedHtml(editorRef.current?.innerHTML ?? '')}
                       className="min-h-[400px] w-full rounded-b-lg border border-t-0 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-sm text-slate-800 dark:text-slate-100 prose prose-slate dark:prose-invert max-w-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      dangerouslySetInnerHTML={{ __html: editedHtml }}
                     />
                   </>
                 )}

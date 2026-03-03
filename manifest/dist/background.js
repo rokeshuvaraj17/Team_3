@@ -18,6 +18,17 @@ function splitName(name) {
         return [parts[0], ''];
     return [parts[0], parts.slice(1).join(' ')];
 }
+// Safe sendResponse: avoid "disconnected port" / "Unchecked runtime.lastError" when sender tab is bfcached or closed
+function safeSendResponse(sendResponse, response) {
+    try {
+        sendResponse(response);
+    }
+    catch {
+        // port may be disconnected (e.g. tab in back/forward cache)
+    }
+    if (chrome.runtime.lastError)
+        void 0;
+}
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message.type === 'SET_USE_SIDEBAR') {
         const useSidebar = message.data?.useSidebar === true;
@@ -38,8 +49,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
                         });
                     }
                 }
-                sendResponse(undefined);
-            }).catch(() => sendResponse(undefined));
+                safeSendResponse(sendResponse, undefined);
+            }).catch(() => safeSendResponse(sendResponse, undefined));
         });
         return true;
     }
@@ -47,7 +58,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         const tabId = message.data?.tabId ?? _sender.tab?.id;
         if (tabId)
             chrome.sidePanel.open({ tabId }).catch(() => { });
-        sendResponse(undefined);
+        safeSendResponse(sendResponse, undefined);
         return false;
     }
     if (message.type === 'JOB_SCRAPED') {
@@ -60,7 +71,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
                 location: d?.location ?? '',
                 source: d?.source ?? '',
             },
-        }).then(() => sendResponse({ success: true }));
+        }).then(() => safeSendResponse(sendResponse, { success: true }));
         return true;
     }
     if (message.type !== 'GET_PROFILE')
@@ -69,7 +80,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         const stored = await chrome.storage.local.get(['userId', 'user']);
         const { userId, user } = stored;
         if (!userId || !user?.email) {
-            sendResponse({ error: 'Not logged in. Open the extension and log in first.' });
+            safeSendResponse(sendResponse, { error: 'Not logged in. Open the extension and log in first.' });
             return;
         }
         try {
@@ -79,7 +90,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             });
             const profile = res.ok ? await res.json() : null;
             const [firstName, lastName] = splitName(profile?.display_name ?? user.name);
-            sendResponse({
+            safeSendResponse(sendResponse, {
                 profile: {
                     firstName: firstName || (user.name ?? '').trim(),
                     lastName,
@@ -90,7 +101,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         }
         catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            sendResponse({ error: msg });
+            safeSendResponse(sendResponse, { error: msg });
         }
     })();
     return true; // keep channel open for async sendResponse

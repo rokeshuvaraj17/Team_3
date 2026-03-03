@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Briefcase, FileCheck, Loader2, Save, KeyRound, Check, FileDown } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Briefcase, FileCheck, Loader2, Save, KeyRound, Check, FileDown, PenLine } from 'lucide-react'
 import { getStoredUser } from '@/lib/auth'
 import { apiUrl } from '@/lib/api'
+import { RichTextToolbar } from '@/components/RichTextToolbar'
 
 const RESUME_TEMPLATES = [
   { id: 'modern_minimal', name: 'Modern Minimal', tags: 'Clean · Whitespace · ATS-Friendly' },
@@ -13,173 +14,132 @@ const RESUME_TEMPLATES = [
   { id: 'compact_pro', name: 'Compact Pro', tags: 'Experienced · Dense · 1-Page' },
 ] as const
 
-const TEMPLATE_PREVIEW_SCALE = 0.28
-const PREVIEW_W = 160
-const PREVIEW_H = 157
-const INNER_W = Math.ceil(PREVIEW_W / TEMPLATE_PREVIEW_SCALE)
-const INNER_H = Math.ceil(PREVIEW_H / TEMPLATE_PREVIEW_SCALE)
-
-function TemplatePreviewMini({ templateId }: { templateId: string }) {
-  const base = { width: INNER_W, height: INNER_H, transform: `scale(${TEMPLATE_PREVIEW_SCALE})`, transformOrigin: '0 0' } as const
-  if (templateId === 'modern_minimal') {
-    return (
-      <div style={base} className="bg-white border border-slate-200 rounded overflow-hidden flex flex-col text-left">
-        <div className="p-4 pb-1">
-          <div className="text-[78px] font-light text-slate-800 tracking-tight leading-tight">Jane Doe</div>
-          <div className="text-[29px] text-slate-500 mt-1">email · phone · location</div>
-        </div>
-        <hr className="border-t-2 border-slate-200 my-2 mx-4" />
-        <div className="px-4 py-1">
-          <div className="text-[32px] font-semibold text-slate-700 uppercase tracking-wide">Experience</div>
-          <div className="text-[29px] text-slate-600 mt-1">Role — Company · Date</div>
-        </div>
-        <hr className="border-t-2 border-slate-200 my-2 mx-4" />
-        <div className="px-4 py-1">
-          <div className="text-[32px] font-semibold text-slate-700 uppercase tracking-wide">Education</div>
-          <div className="text-[29px] text-slate-600 mt-1">Degree — School</div>
-        </div>
-      </div>
-    )
-  }
-  if (templateId === 'executive_classic') {
-    return (
-      <div style={base} className="flex border border-slate-200 rounded overflow-hidden bg-white">
-        <div className="w-[32%] bg-[#1e3a5f] text-white p-3">
-          <div className="text-[43px] font-semibold leading-tight">Jane Doe</div>
-          <div className="text-[21px] mt-2 opacity-90">email · phone</div>
-          <div className="text-[21px] opacity-90">location</div>
-        </div>
-        <div className="flex-1 p-2">
-          <div className="text-[29px] font-semibold text-slate-800">Experience</div>
-          <div className="text-[25px] text-slate-600">Role — Company</div>
-          <div className="text-[29px] font-semibold text-slate-800 mt-2">Education</div>
-          <div className="text-[25px] text-slate-600">Degree — School</div>
-        </div>
-      </div>
-    )
-  }
-  if (templateId === 'technical_developer') {
-    return (
-      <div style={base} className="bg-slate-900 text-slate-300 font-mono border border-slate-700 rounded overflow-hidden p-3 text-left">
-        <div className="text-[39px] font-mono">jane_doe</div>
-        <div className="text-[21px] text-slate-500">email · github</div>
-        <div className="border-t-2 border-slate-600 my-2" />
-        <div className="text-[25px]">EXPERIENCE</div>
-        <div className="text-[21px] mt-1">Role @ Company</div>
-        <div className="flex flex-wrap gap-1 mt-2">
-          <span className="px-2 py-1 rounded bg-slate-700 text-[21px]">JS</span>
-          <span className="px-2 py-1 rounded bg-slate-700 text-[21px]">React</span>
-        </div>
-        <div className="border-t-2 border-slate-600 my-2" />
-        <div className="text-[25px]">EDUCATION</div>
-        <div className="text-[21px] mt-1">Degree — School</div>
-      </div>
-    )
-  }
-  if (templateId === 'bold_creative') {
-    return (
-      <div style={base} className="bg-white border border-slate-200 rounded overflow-hidden">
-        <div className="bg-teal-500 text-white p-3 text-center">
-          <div className="text-[57px] font-bold leading-tight">JANE DOE</div>
-          <div className="text-[21px] opacity-90">Designer · Creative</div>
-        </div>
-        <div className="flex p-2">
-          <div className="w-1/2 pr-1">
-            <div className="text-[25px] font-semibold text-slate-800">Experience</div>
-            <div className="text-[21px] text-slate-600">Role — Company</div>
-          </div>
-          <div className="w-1/2 pl-1 border-l-2 border-slate-200">
-            <div className="text-[25px] font-semibold text-slate-800">Skills</div>
-            <div className="text-[21px] text-slate-600">Design · Brand</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  if (templateId === 'academic_research') {
-    return (
-      <div style={base} className="bg-white border border-slate-200 rounded overflow-hidden p-3 text-left font-serif">
-        <div className="text-[50px] font-serif font-semibold text-slate-800">Jane Doe</div>
-        <div className="text-[25px] text-slate-600 mt-1">Department · University</div>
-        <div className="text-[29px] font-semibold text-slate-800 mt-3">Education</div>
-        <div className="text-[25px] text-slate-600">Ph.D. — University, Year</div>
-        <div className="text-[29px] font-semibold text-slate-800 mt-2">Publications</div>
-        <div className="text-[21px] text-slate-600 italic">Author (Year). Title. Journal.</div>
-      </div>
-    )
-  }
-  if (templateId === 'compact_pro') {
-    return (
-      <div style={base} className="bg-white border border-slate-200 rounded overflow-hidden p-2 text-left">
-        <div className="text-[36px] font-semibold text-slate-800">Jane Doe</div>
-        <div className="text-[18px] text-slate-500">email · phone · location</div>
-        <div className="text-[21px] font-semibold text-slate-700 mt-2">Experience</div>
-        <div className="text-[18px] text-slate-600 leading-tight">Role, Company · Dates. Brief bullet.</div>
-        <div className="text-[21px] font-semibold text-slate-700 mt-1">Education</div>
-        <div className="text-[18px] text-slate-600 leading-tight">Degree, School · Year. Skills: A, B, C.</div>
-      </div>
-    )
-  }
-  return null
-}
+// Template preview images for job-based step 2 (1–6 map to RESUME_TEMPLATES; 7–10 repeat first four)
+const JOB_TEMPLATE_IMAGES = [
+  { imageNum: 1, id: 'modern_minimal', name: 'Template 1' },
+  { imageNum: 2, id: 'executive_classic', name: 'Template 2' },
+  { imageNum: 3, id: 'technical_developer', name: 'Template 3' },
+  { imageNum: 4, id: 'bold_creative', name: 'Template 4' },
+  { imageNum: 5, id: 'academic_research', name: 'Template 5' },
+  { imageNum: 6, id: 'compact_pro', name: 'Template 6' },
+  { imageNum: 7, id: 'modern_minimal', name: 'Template 7' },
+  { imageNum: 8, id: 'executive_classic', name: 'Template 8' },
+  { imageNum: 9, id: 'technical_developer', name: 'Template 9' },
+  { imageNum: 10, id: 'bold_creative', name: 'Template 10' },
+]
 
 const JOB_STEPS = [
-  { id: 1, title: 'Template', icon: FileCheck },
-  { id: 2, title: 'Keywords', icon: Briefcase },
-  { id: 3, title: 'Options', icon: FileCheck },
-  { id: 4, title: 'Generate', icon: FileCheck },
+  { id: 1, title: 'Resume & Job', icon: PenLine },
+  { id: 2, title: 'Template', icon: FileCheck },
+  { id: 3, title: 'Keywords', icon: Briefcase },
+  { id: 4, title: 'Options', icon: FileCheck },
+  { id: 5, title: 'Generate', icon: FileCheck },
 ]
+
+type ResumeItem = { id: string; name: string; is_primary?: boolean; uploaded_at?: string; html_content?: string | null }
 
 export function JobBasedResumePage() {
   const [searchParams] = useSearchParams()
   const fromExtension = searchParams.get('from') === 'extension'
+  const extensionUid = searchParams.get('uid') ?? ''
+  const extensionApiBase = searchParams.get('api') ?? ''
+  const jobContextFetchedRef = useRef(false)
+  const contextFetchCompletedRef = useRef(false)
   const [resumeText, setResumeText] = useState('')
   const [jobDescription, setJobDescription] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [jobTitle, setJobTitle] = useState('')
+  const [resumes, setResumes] = useState<ResumeItem[]>([])
+  const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null)
   const [step, setStep] = useState(1)
-  const [template, setTemplate] = useState('modern_minimal')
+  const [selectedTemplateImageNum, setSelectedTemplateImageNum] = useState(1)
   const [apiKeys, setApiKeys] = useState<{ id: string; provider_name: string; label: string | null; is_active?: boolean }[]>([])
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('')
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [suggestionsLoading, setSuggestionsLoading] = useState(false)
   const [selectedKeywords, setSelectedKeywords] = useState<Set<string>>(new Set())
+  const [customKeywordInput, setCustomKeywordInput] = useState('')
   const [pageLimit, setPageLimit] = useState<1 | null>(1)
   const [generating, setGenerating] = useState(false)
   const [generatedContent, setGeneratedContent] = useState<string | null>(null)
   const [generatedLatex, setGeneratedLatex] = useState('')
   const [resumeViewMode, setResumeViewMode] = useState<'edit' | 'latex'>('edit')
+  const [contentVersion, setContentVersion] = useState(0)
   const [saveModal, setSaveModal] = useState<'choose' | 'add' | null>(null)
   const [addResumeName, setAddResumeName] = useState('')
   const [saving, setSaving] = useState(false)
   const [apiKeyModal, setApiKeyModal] = useState<'add' | 'choose' | null>(null)
   const resumeEditorRef = useRef<HTMLDivElement>(null)
-  const initialEditorContentSet = useRef(false)
   const navigate = useNavigate()
   const user = getStoredUser()
 
-  useEffect(() => {
-    if (step === 4 && generatedContent && resumeEditorRef.current && !initialEditorContentSet.current) {
+  // Sync state into the editor when showing editable view (initial load and when switching back from LaTeX).
+  // contentVersion increments when we first get generated content so this runs on initial display; [resumeViewMode] handles tab switch.
+  useLayoutEffect(() => {
+    if (resumeViewMode === 'edit' && resumeEditorRef.current && generatedContent !== undefined) {
       resumeEditorRef.current.innerHTML = generatedContent
-      initialEditorContentSet.current = true
     }
-    if (!generatedContent) initialEditorContentSet.current = false
-  }, [step, generatedContent])
+  }, [resumeViewMode, contentVersion])
+
+  useEffect(() => {
+    if (!fromExtension || jobContextFetchedRef.current) return
+    const userIdForContext = user?.id || extensionUid
+    if (!userIdForContext) return
+    jobContextFetchedRef.current = true
+    const contextUrl = extensionApiBase
+      ? `${extensionApiBase.replace(/\/$/, '')}/api/extension/job-resume-context`
+      : apiUrl('/api/extension/job-resume-context')
+    fetch(contextUrl, { headers: { 'x-user-id': userIdForContext } })
+      .then((r) => r.json())
+      .then((data: { resume?: string; job_description?: string; company_name?: string; job_title?: string }) => {
+        if (data?.resume) setResumeText(data.resume)
+        if (data?.job_description) setJobDescription(data.job_description ?? '')
+        if (data?.company_name) setCompanyName(data.company_name ?? '')
+        if (data?.job_title) setJobTitle(data.job_title ?? '')
+      })
+      .catch(() => {})
+      .finally(() => { contextFetchCompletedRef.current = true })
+  }, [fromExtension, user?.id, extensionUid, extensionApiBase])
 
   useEffect(() => {
     if (!user?.id) return
-    if (fromExtension) {
-      fetch(apiUrl('/api/extension/job-resume-context'), { headers: { 'x-user-id': user.id } })
-        .then((r) => r.json())
-        .then((data: { resume?: string; job_description?: string; company_name?: string; job_title?: string }) => {
-          if (data?.resume) setResumeText(data.resume)
-          if (data?.job_description) setJobDescription(data.job_description)
-          if (data?.company_name) setCompanyName(data.company_name)
-          if (data?.job_title) setJobTitle(data.job_title)
-        })
-        .catch(() => {})
+    fetch(apiUrl('/api/resumes'), { headers: { 'x-user-id': user.id } })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list: ResumeItem[]) => {
+        const sorted = Array.isArray(list)
+          ? [...list].sort((a, b) => {
+              const ta = a.uploaded_at ? new Date(a.uploaded_at).getTime() : 0
+              const tb = b.uploaded_at ? new Date(b.uploaded_at).getTime() : 0
+              return tb - ta
+            })
+          : []
+        setResumes(sorted)
+      })
+      .catch(() => {})
+  }, [user?.id])
+
+  useEffect(() => {
+    if (!user?.id || !selectedResumeId) return
+    const r = resumes.find((x) => x.id === selectedResumeId)
+    if (!r) return
+    const html = r?.html_content
+    if (html && typeof html === 'string' && html.trim().length > 0) {
+      const div = document.createElement('div')
+      div.innerHTML = html
+      const text = (div.textContent || div.innerText || '').trim()
+      if (text) {
+        setResumeText(text)
+        return
+      }
     }
-  }, [user?.id, fromExtension])
+    fetch(apiUrl(`/api/resumes/${selectedResumeId}/text`), { headers: { 'x-user-id': user.id } })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { text?: string } | null) => {
+        const t = data && typeof data.text === 'string' ? data.text.trim() : ''
+        if (t) setResumeText(t)
+      })
+      .catch(() => {})
+  }, [user?.id, selectedResumeId, resumes])
 
   useEffect(() => {
     if (!user?.id) return
@@ -234,28 +194,71 @@ export function JobBasedResumePage() {
           resume_text: resumeText.trim(),
           job_description: jobDescription.trim(),
           skills: Array.from(selectedKeywords),
-          template,
+          template: JOB_TEMPLATE_IMAGES.find((x) => x.imageNum === selectedTemplateImageNum)?.id ?? 'modern_minimal',
           page_limit: pageLimit,
         }),
       })
       const text = await res.text()
       if (text.trimStart().startsWith('<')) throw new Error('Could not reach the server.')
-      let data: { content?: string; latex?: string; error?: string }
+      let data: { content?: string; latex?: string; error?: string } | null = null
       try {
         data = JSON.parse(text)
       } catch {
-        throw new Error('Invalid response from server.')
+        const codeBlock = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+        const toParse = codeBlock ? codeBlock[1].trim() : text
+        const jsonMatch = toParse.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+          try {
+            data = JSON.parse(jsonMatch[0])
+          } catch {
+            // ignore
+          }
+        }
       }
+      if (!data || typeof data !== 'object') throw new Error('Server returned an invalid response. Try again or check your API key.')
       if (!res.ok) throw new Error(data?.error || 'Failed to generate')
       setGeneratedContent(data?.content ?? '')
       setGeneratedLatex(typeof data?.latex === 'string' ? data.latex : '')
       setResumeViewMode('edit')
+      setContentVersion((v) => v + 1)
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Could not generate resume')
     } finally {
       setGenerating(false)
     }
-  }, [user?.id, resumeText, jobDescription, selectedKeywords, template, pageLimit, selectedApiKeyId])
+  }, [user?.id, resumeText, jobDescription, selectedKeywords, selectedTemplateImageNum, pageLimit, selectedApiKeyId])
+
+  /** Strip oklch() and other unsupported color functions from cloned doc so html2canvas can parse (it doesn't support oklch). */
+  const stripUnsupportedColorsForCanvas = (originalEl: HTMLElement, clonedEl: HTMLElement) => {
+    const fallback = 'rgb(128,128,128)'
+    const replaceUnsupportedColors = (css: string) => css.replace(/oklch\s*\([^)]*\)/g, fallback).replace(/color-mix\s*\([^)]*\)/g, fallback)
+    const doc = clonedEl.ownerDocument
+    doc.querySelectorAll('style').forEach((style) => {
+      if (style.textContent) style.textContent = replaceUnsupportedColors(style.textContent)
+    })
+    doc.querySelectorAll('[style]').forEach((el) => {
+      const elHtml = el as HTMLElement
+      if (elHtml.style?.cssText) elHtml.style.cssText = replaceUnsupportedColors(elHtml.style.cssText)
+    })
+    const styleProps = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'outlineColor', 'textDecorationColor']
+    const walk = (orig: Element, clone: Element) => {
+      if (orig instanceof HTMLElement && clone instanceof HTMLElement) {
+        const cs = getComputedStyle(orig)
+        styleProps.forEach((prop) => {
+          const k = prop.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '')
+          const v = cs.getPropertyValue(k)
+          if (v && !v.includes('oklch') && !v.includes('color-mix')) (clone.style as unknown as Record<string, string>)[prop] = v
+        })
+      }
+      const origChildren = Array.from(orig.children)
+      const cloneChildren = Array.from(clone.children)
+      origChildren.forEach((origChild, i) => {
+        const cloneChild = cloneChildren[i]
+        if (cloneChild) walk(origChild, cloneChild)
+      })
+    }
+    walk(originalEl, clonedEl)
+  }
 
   const handleSaveResume = async (asPrimary: boolean, name: string) => {
     if (!user?.id) return
@@ -265,7 +268,11 @@ export function JobBasedResumePage() {
       const { default: html2canvas } = await import('html2canvas')
       const el = resumeEditorRef.current
       if (!el) throw new Error('Editor not found')
-      const canvas = await html2canvas(el, { scale: 2, useCORS: true })
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        onclone: (_doc, clonedElement) => stripUnsupportedColorsForCanvas(el, clonedElement as HTMLElement),
+      })
       const img = canvas.toDataURL('image/png')
       const pdf = new jsPDF({ format: 'a4', unit: 'mm' })
       const w = pdf.internal.pageSize.getWidth()
@@ -311,7 +318,11 @@ export function JobBasedResumePage() {
     try {
       const { default: jsPDF } = await import('jspdf')
       const { default: html2canvas } = await import('html2canvas')
-      const canvas = await html2canvas(el, { scale: 2, useCORS: true })
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        onclone: (_doc, clonedElement) => stripUnsupportedColorsForCanvas(el, clonedElement as HTMLElement),
+      })
       const img = canvas.toDataURL('image/png')
       const pdf = new jsPDF({ format: 'a4', unit: 'mm' })
       const w = pdf.internal.pageSize.getWidth()
@@ -338,7 +349,7 @@ export function JobBasedResumePage() {
     )
   }
 
-  if (!hasContext && !generatedContent) {
+  if (fromExtension && !contextFetchCompletedRef.current && !generatedContent) {
     return (
       <div className="w-full max-w-none py-8 px-4">
         <Link to="/app/generate-resume" className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 mb-6">
@@ -350,14 +361,7 @@ export function JobBasedResumePage() {
             <Briefcase className="h-7 w-7" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900">Job-based resume</h1>
-          <p className="text-slate-600 mt-1.5">
-            {fromExtension
-              ? 'Loading resume and job description…'
-              : 'Select a job from your dashboard or use the extension “Update resume for this job” to open this page with your resume and job description.'}
-          </p>
-          <Link to="/app" className="inline-flex items-center gap-2 mt-5 px-5 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700">
-            Go to job search
-          </Link>
+          <p className="text-slate-600 mt-1.5">Loading resume and job description…</p>
         </div>
       </div>
     )
@@ -389,21 +393,25 @@ export function JobBasedResumePage() {
           </button>
         </div>
         {resumeViewMode === 'edit' && (
-          <div
-            ref={resumeEditorRef}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={(e) => setGeneratedContent(e.currentTarget.innerHTML)}
-            className="min-h-[400px] w-full rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-800 prose prose-slate max-w-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <>
+            <RichTextToolbar editorRef={resumeEditorRef} />
+            <div
+              key="resume-editable"
+              ref={resumeEditorRef}
+              contentEditable
+              suppressContentEditableWarning
+              onInput={() => resumeEditorRef.current && setGeneratedContent(resumeEditorRef.current.innerHTML)}
+              className="min-h-[400px] w-full rounded-b-lg rounded-t-none border border-t-0 border-slate-200 bg-white p-6 text-sm text-slate-800 prose prose-slate max-w-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </>
         )}
         {resumeViewMode === 'latex' && (
-          <div className="space-y-2">
+          <div className="space-y-2 mt-2">
             <textarea
               value={generatedLatex}
               onChange={(e) => setGeneratedLatex(e.target.value)}
               className="min-h-[400px] w-full rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="LaTeX source"
+              placeholder={generatedLatex ? undefined : "LaTeX source will appear here. If the generated resume didn't include LaTeX, only the editable HTML view may have content."}
               spellCheck={false}
             />
             <div className="flex flex-wrap gap-2">
@@ -466,6 +474,7 @@ export function JobBasedResumePage() {
               setGeneratedContent(null)
               setGeneratedLatex('')
               setResumeViewMode('edit')
+              setContentVersion(0)
             }}
             className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50"
           >
@@ -532,7 +541,7 @@ export function JobBasedResumePage() {
       </Link>
       <div className="mb-5">
         <h1 className="text-2xl font-bold text-slate-900">Job-based resume</h1>
-        <p className="text-slate-600 mt-0.5">Step {step} of 4</p>
+        <p className="text-slate-600 mt-0.5">Step {step} of 5</p>
         <div className="flex gap-1 mt-3">
           {JOB_STEPS.map((s) => (
             <button
@@ -558,10 +567,11 @@ export function JobBasedResumePage() {
             <div>
               <h2 className="text-base font-semibold text-slate-900">{JOB_STEPS[step - 1].title}</h2>
               <p className="text-xs text-slate-500">
-                {step === 1 && 'Choose a resume template'}
-                {step === 2 && 'Select keywords to add (from job description)'}
-                {step === 3 && 'One page or more'}
-                {step === 4 && 'Generate tailored resume'}
+                {step === 1 && 'Resume and job description'}
+                {step === 2 && 'Choose a resume template'}
+                {step === 3 && 'Select keywords to add (from job description)'}
+                {step === 4 && 'One page or more'}
+                {step === 5 && 'Generate tailored resume'}
               </p>
             </div>
           </div>
@@ -570,52 +580,115 @@ export function JobBasedResumePage() {
         <div className="p-5">
           {step === 1 && (
             <div className="space-y-4">
-              {companyName.trim() || jobTitle.trim() ? (
-                <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div>
-                    <p className="text-xs font-medium text-slate-500">Job from extension</p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {jobTitle.trim() || 'Job title unknown'}
-                      {companyName.trim() ? ` · ${companyName.trim()}` : ''}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="self-start mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-white"
-                    onClick={() => {
-                      // allow user to clear if they don't want it
-                      setCompanyName('')
-                      setJobTitle('')
+              <p className="text-sm text-slate-600">Select a resume from your account or paste below. From the extension, resume and job description are prefilled.</p>
+              {resumes.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Select a resume</label>
+                  <select
+                    value={selectedResumeId ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setSelectedResumeId(v || null)
                     }}
+                    className="w-full max-w-md px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 bg-white"
+                    aria-label="Select a resume"
                   >
-                    Clear
-                  </button>
+                    <option value="">— Select a resume or paste below —</option>
+                    {resumes.map((r) => {
+                      const label = r.name?.trim() || (r.uploaded_at ? `Resume · ${new Date(r.uploaded_at).toLocaleDateString()}` : `Resume ${r.id.slice(0, 8)}`)
+                      return (
+                        <option key={r.id} value={r.id}>{label}{r.is_primary ? ' (Primary)' : ''}</option>
+                      )
+                    })}
+                  </select>
+                </div>
+              )}
+              <div>
+                <label className="text-sm font-medium text-slate-700 block mb-1">Resume text *</label>
+                <textarea
+                  value={resumeText}
+                  onChange={(e) => {
+                    setResumeText(e.target.value)
+                    if (e.target.value.trim()) setSelectedResumeId(null)
+                  }}
+                  rows={6}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                  placeholder="Paste your resume content or select a resume above..."
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700 block mb-1">Job description *</label>
+                <textarea
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                  rows={6}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                  placeholder="Paste job description..."
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Company name</label>
+                  <input
+                    type="text"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g. Acme Inc."
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Job title</label>
+                  <input
+                    type="text"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g. Software Engineer"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4">
+              {companyName.trim() || jobTitle.trim() ? (
+                <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                  <p className="text-xs font-medium text-slate-500">Job</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {jobTitle.trim() || 'Job title'}
+                    {companyName.trim() ? ` · ${companyName.trim()}` : ''}
+                  </p>
                 </div>
               ) : null}
               <p className="text-sm text-slate-600">Select a template for your tailored resume.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" style={{ maxWidth: '100%' }}>
-                {RESUME_TEMPLATES.map((t) => {
-                  const selected = template === t.id
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {JOB_TEMPLATE_IMAGES.map((t) => {
+                  const selected = selectedTemplateImageNum === t.imageNum
+                  const src = `/resumake-templates/${t.imageNum}.png`
                   return (
                     <button
-                      key={t.id}
+                      key={`${t.imageNum}-${t.id}`}
                       type="button"
-                      onClick={() => setTemplate(t.id)}
-                      className={`relative w-full text-left rounded-[12px] bg-white transition-all hover:border-[#93c5fd] hover:shadow-md ${selected ? 'border-[3px] border-[#2563EB] shadow-[0_0_0_3px_#dbeafe]' : 'border-[1.5px] border-[#e5e7eb]'}`}
-                      style={{ width: 160, minHeight: 210 }}
+                      onClick={() => setSelectedTemplateImageNum(t.imageNum)}
+                      className={`relative flex flex-col items-center rounded-lg border-2 overflow-hidden bg-slate-50 transition-all hover:border-blue-400 hover:shadow-md ${selected ? 'border-blue-600 shadow-[0_0_0_3px_#dbeafe]' : 'border-slate-200'}`}
                     >
                       {selected && (
-                        <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-[#2563EB] flex items-center justify-center flex-shrink-0">
+                        <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
                           <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
                         </div>
                       )}
-                      <div className="overflow-hidden rounded-t-xl flex items-start justify-start bg-slate-50 flex-shrink-0" style={{ height: PREVIEW_H, width: PREVIEW_W }}>
-                        <TemplatePreviewMini templateId={t.id} />
+                      <div className="w-full flex items-center justify-center bg-slate-100 min-h-[120px] max-h-[160px] p-2">
+                        <img
+                          src={src}
+                          alt={`${t.name} preview`}
+                          className="max-w-full max-h-[152px] w-auto h-auto object-contain"
+                        />
                       </div>
-                      <div className="p-2.5 border-t border-slate-100">
-                        <div className="font-semibold text-slate-900 text-sm">{t.name}</div>
-                        <div className="text-xs text-slate-500 mt-0.5">{t.tags}</div>
-                      </div>
+                      <span className="w-full py-2 text-center text-sm font-medium text-slate-700 bg-white border-t border-slate-200">
+                        {t.name}
+                      </span>
                     </button>
                   )
                 })}
@@ -623,20 +696,60 @@ export function JobBasedResumePage() {
             </div>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <div className="space-y-4">
               <p className="text-sm text-slate-600">Get keyword suggestions from the job description, then select which to add to your resume.</p>
               {apiKeys.length === 0 ? (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 flex items-center gap-2">
-                  <KeyRound className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-slate-900">Add an API key</p>
-                    <p className="text-xs text-slate-600">You need an API key to get keyword suggestions. Add one in API Connection.</p>
-                    <button type="button" onClick={() => navigate('/app/api-connection')} className="mt-2 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
-                      Go to API Connection
-                    </button>
+                <>
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 flex items-center gap-2">
+                    <KeyRound className="h-5 w-5 text-amber-600 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">Add an API key</p>
+                      <p className="text-xs text-slate-600">You need an API key to get keyword suggestions. Add one in API Connection.</p>
+                      <button type="button" onClick={() => navigate('/app/api-connection')} className="mt-2 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
+                        Go to API Connection
+                      </button>
+                    </div>
                   </div>
-                </div>
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-slate-700 mb-2">Or add custom keywords (no API needed)</p>
+                    <div className="flex gap-2 flex-wrap items-center">
+                      <input
+                        type="text"
+                        value={customKeywordInput}
+                        onChange={(e) => setCustomKeywordInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            const v = customKeywordInput.trim()
+                            if (v) {
+                              setSelectedKeywords((prev) => new Set(prev).add(v))
+                              setCustomKeywordInput('')
+                            }
+                          }
+                        }}
+                        placeholder="e.g. Python, Agile, AWS"
+                        className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 w-48"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const v = customKeywordInput.trim()
+                          if (v) {
+                            setSelectedKeywords((prev) => new Set(prev).add(v))
+                            setCustomKeywordInput('')
+                          }
+                        }}
+                        className="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {selectedKeywords.size > 0 && (
+                      <p className="text-xs text-slate-500 mt-2">Selected: {Array.from(selectedKeywords).join(', ')}</p>
+                    )}
+                  </div>
+                </>
               ) : (
                 <>
                   <div>
@@ -674,12 +787,52 @@ export function JobBasedResumePage() {
                       </div>
                     </div>
                   )}
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-slate-700 mb-2">Add custom keyword</p>
+                    <div className="flex gap-2 flex-wrap items-center">
+                      <input
+                        type="text"
+                        value={customKeywordInput}
+                        onChange={(e) => setCustomKeywordInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            const v = customKeywordInput.trim()
+                            if (v) {
+                              setSelectedKeywords((prev) => new Set(prev).add(v))
+                              setCustomKeywordInput('')
+                            }
+                          }
+                        }}
+                        placeholder="e.g. Python, Agile, AWS"
+                        className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 w-48"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const v = customKeywordInput.trim()
+                          if (v) {
+                            setSelectedKeywords((prev) => new Set(prev).add(v))
+                            setCustomKeywordInput('')
+                          }
+                        }}
+                        className="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {selectedKeywords.size > 0 && (
+                      <p className="text-xs text-slate-500 mt-2">
+                        Selected: {Array.from(selectedKeywords).join(', ')} — these will be included in the resume.
+                      </p>
+                    )}
+                  </div>
                 </>
               )}
             </div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <div className="space-y-3">
               <p className="text-sm text-slate-600">Choose one page or allow multiple pages.</p>
               <div className="flex gap-2">
@@ -701,7 +854,7 @@ export function JobBasedResumePage() {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div className="space-y-4">
               <p className="text-sm text-slate-600">Generate a tailored resume from your content and the job description. We’ll use the template and keywords you selected.</p>
               {apiKeys.length === 0 ? (
@@ -754,8 +907,8 @@ export function JobBasedResumePage() {
             <ArrowLeft className="h-4 w-4" />
             Previous
           </button>
-          {step < 4 && (
-            <button type="button" onClick={() => setStep((s) => Math.min(s + 1, 4))} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
+          {step < 5 && (
+            <button type="button" onClick={() => setStep((s) => Math.min(s + 1, 5))} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
               Next
               <ArrowRight className="h-4 w-4" />
             </button>

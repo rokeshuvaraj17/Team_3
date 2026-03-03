@@ -24,6 +24,8 @@ type ResumeItem = { id: string; name: string; is_primary?: boolean; uploaded_at?
 export function GenerateCoverLetterPage() {
   const [searchParams] = useSearchParams()
   const fromExtension = searchParams.get('from') === 'extension'
+  const extensionUid = searchParams.get('uid') ?? ''
+  const extensionApiBase = searchParams.get('api') ?? '' // same API the extension used to POST context (avoids localhost vs Render mismatch)
   const [resumeText, setResumeText] = useState('')
   const [jobDescription, setJobDescription] = useState('')
   const [companyName, setCompanyName] = useState('')
@@ -37,6 +39,7 @@ export function GenerateCoverLetterPage() {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [suggestionsLoading, setSuggestionsLoading] = useState(false)
   const [selectedKeywords, setSelectedKeywords] = useState<Set<string>>(new Set())
+  const [customKeywordInput, setCustomKeywordInput] = useState('')
   const [generating, setGenerating] = useState(false)
   const [generatedText, setGeneratedText] = useState('')
   const [generatedLatex, setGeneratedLatex] = useState('')
@@ -45,19 +48,26 @@ export function GenerateCoverLetterPage() {
   const [saveName, setSaveName] = useState('')
   const [saving, setSaving] = useState(false)
   const textAreaRef = useRef<HTMLTextAreaElement>(null)
+  const extensionContextFetchedRef = useRef(false)
   const user = getStoredUser()
   const navigate = useNavigate()
 
+  // When opened from extension (?from=extension), fetch pre-filled context once. Use web login user id or uid from URL (extension passes it so context loads even if user hasn’t logged in on web yet).
   useEffect(() => {
-    if (!user?.id) return
-    if (fromExtension) {
-      fetch(apiUrl('/api/extension/cover-letter-context'), { headers: { 'x-user-id': user.id } })
-        .then((r) => r.json())
-        .then((data: { resume?: string; job_description?: string; company_name?: string; job_title?: string }) => {
-          if (data?.resume) setResumeText(data.resume)
-          if (data?.job_description) setJobDescription(data.job_description)
-          if (data?.company_name) setCompanyName(data.company_name)
-          if (data?.job_title) setJobTitle(data.job_title)
+    if (!fromExtension || extensionContextFetchedRef.current) return
+    const userIdForContext = user?.id || extensionUid
+    if (!userIdForContext) return
+    extensionContextFetchedRef.current = true
+    const contextUrl = extensionApiBase
+      ? `${extensionApiBase.replace(/\/$/, '')}/api/extension/cover-letter-context`
+      : apiUrl('/api/extension/cover-letter-context')
+    fetch(contextUrl, { headers: { 'x-user-id': userIdForContext } })
+      .then((r) => r.json())
+      .then((data: { resume?: string; job_description?: string; company_name?: string; job_title?: string }) => {
+        if (data?.resume) setResumeText(data.resume)
+        if (data?.job_description) setJobDescription(data.job_description ?? '')
+        if (data?.company_name) setCompanyName(data.company_name ?? '')
+        if (data?.job_title) setJobTitle(data.job_title ?? '')
           // #region agent log
           fetch('http://127.0.0.1:7432/ingest/ef57fcee-7603-40e6-8f59-4c9f287b5350', {
             method: 'POST',
@@ -81,10 +91,9 @@ export function GenerateCoverLetterPage() {
             }),
           }).catch(() => {})
           // #endregion
-        })
-        .catch(() => {})
-    }
-  }, [user?.id, fromExtension])
+      })
+      .catch(() => {})
+  }, [fromExtension, user?.id, extensionUid, extensionApiBase])
 
   useEffect(() => {
     if (!user?.id) return
@@ -149,21 +158,28 @@ export function GenerateCoverLetterPage() {
     if (!user?.id || !selectedResumeId) return ''
     const r = resumes.find((x) => x.id === selectedResumeId)
     const html = r?.html_content
-    if (html && typeof html === 'string') {
+    if (html && typeof html === 'string' && html.trim().length > 0) {
       const div = document.createElement('div')
       div.innerHTML = html
-      return (div.textContent || div.innerText || '').trim()
+      const text = (div.textContent || div.innerText || '').trim()
+      if (text) return text
     }
-    const res = await fetch(apiUrl('/api/resumes'), { headers: { 'x-user-id': user.id } })
-    const list = res.ok ? await res.json() : []
+    const listRes = await fetch(apiUrl('/api/resumes'), { headers: { 'x-user-id': user.id } })
+    const list = listRes.ok ? await listRes.json() : []
     const item = Array.isArray(list) ? list.find((x: ResumeItem) => x.id === selectedResumeId) : null
     const h = item?.html_content
-    if (h && typeof h === 'string') {
+    if (h && typeof h === 'string' && h.trim().length > 0) {
       const d = document.createElement('div')
       d.innerHTML = h
-      return (d.textContent || d.innerText || '').trim()
+      const text = (d.textContent || d.innerText || '').trim()
+      if (text) return text
     }
-    return ''
+    // Resume may be PDF-only (no html_content). Fetch text via dedicated endpoint (extracts from PDF if needed).
+    const textRes = await fetch(apiUrl(`/api/resumes/${selectedResumeId}/text`), { headers: { 'x-user-id': user.id } })
+    if (!textRes.ok) return ''
+    const data = await textRes.json().catch(() => ({}))
+    const fromApi = typeof (data as { text?: string }).text === 'string' ? (data as { text: string }).text.trim() : ''
+    return fromApi
   }, [user?.id, resumeText, selectedResumeId, resumes])
 
   const doGenerate = useCallback(async () => {
@@ -417,23 +433,29 @@ export function GenerateCoverLetterPage() {
           {step === 1 && (
             <div className="space-y-4">
               <p className="text-sm text-slate-600">Use resume and job description from the extension, or pick a saved resume and paste the job description.</p>
-              {resumes.length > 0 && (
-                <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-2">Resume (recent first)</label>
-                  <div className="flex flex-wrap gap-2">
-                    {resumes.map((r) => (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onClick={() => { setSelectedResumeId(r.id); setResumeText('') }}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium ${selectedResumeId === r.id && !resumeText ? 'bg-violet-600 text-white' : 'border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-                      >
-                        {r.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div>
+                <label className="text-sm font-medium text-slate-700 block mb-2">Resume</label>
+                {resumes.length === 0 ? (
+                  <p className="text-sm text-slate-500 mb-2">No resumes yet. Upload one in <Link to="/app/documents" className="text-violet-600 hover:underline">Documents</Link> or <Link to="/app/profile" className="text-violet-600 hover:underline">Profile</Link>, or paste resume text below.</p>
+                ) : (
+                  <>
+                    <select
+                      value={selectedResumeId ?? ''}
+                      onChange={(e) => { const v = e.target.value; setSelectedResumeId(v || null); setResumeText('') }}
+                      className="w-full max-w-md px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white"
+                      aria-label="Select a resume"
+                    >
+                      <option value="">— Select a resume —</option>
+                      {resumes.map((r) => {
+                        const label = r.name?.trim() || (r.uploaded_at ? `Resume · ${new Date(r.uploaded_at).toLocaleDateString()}` : `Resume ${r.id.slice(0, 8)}`)
+                        return (
+                          <option key={r.id} value={r.id}>{label}</option>
+                        )
+                      })}
+                    </select>
+                  </>
+                )}
+              </div>
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">Or paste resume text</label>
                 <textarea
@@ -507,16 +529,56 @@ export function GenerateCoverLetterPage() {
             <div className="space-y-4">
               <p className="text-sm text-slate-600">Get keyword suggestions from the job description and optionally select which to weave in.</p>
               {apiKeys.length === 0 ? (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 flex items-center gap-2">
-                  <KeyRound className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-slate-900">Add an API key</p>
-                    <p className="text-xs text-slate-600">Needed for keyword suggestions. Add one in API Connection.</p>
-                    <button type="button" onClick={() => navigate('/app/api-connection')} className="mt-2 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700">
-                      Go to API Connection
-                    </button>
+                <>
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 flex items-center gap-2">
+                    <KeyRound className="h-5 w-5 text-amber-600 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">Add an API key</p>
+                      <p className="text-xs text-slate-600">Needed for keyword suggestions. Add one in API Connection.</p>
+                      <button type="button" onClick={() => navigate('/app/api-connection')} className="mt-2 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700">
+                        Go to API Connection
+                      </button>
+                    </div>
                   </div>
-                </div>
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-slate-700 mb-2">Or add custom keywords (no API needed)</p>
+                    <div className="flex gap-2 flex-wrap items-center">
+                      <input
+                        type="text"
+                        value={customKeywordInput}
+                        onChange={(e) => setCustomKeywordInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            const v = customKeywordInput.trim()
+                            if (v) {
+                              setSelectedKeywords((prev) => new Set(prev).add(v))
+                              setCustomKeywordInput('')
+                            }
+                          }
+                        }}
+                        placeholder="e.g. Python, Agile, AWS"
+                        className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 w-48"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const v = customKeywordInput.trim()
+                          if (v) {
+                            setSelectedKeywords((prev) => new Set(prev).add(v))
+                            setCustomKeywordInput('')
+                          }
+                        }}
+                        className="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {selectedKeywords.size > 0 && (
+                      <p className="text-xs text-slate-500 mt-2">Selected: {Array.from(selectedKeywords).join(', ')}</p>
+                    )}
+                  </div>
+                </>
               ) : (
                 <>
                   <div>
@@ -554,6 +616,44 @@ export function GenerateCoverLetterPage() {
                       </div>
                     </div>
                   )}
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-slate-700 mb-2">Add custom keyword</p>
+                    <div className="flex gap-2 flex-wrap items-center">
+                      <input
+                        type="text"
+                        value={customKeywordInput}
+                        onChange={(e) => setCustomKeywordInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            const v = customKeywordInput.trim()
+                            if (v) {
+                              setSelectedKeywords((prev) => new Set(prev).add(v))
+                              setCustomKeywordInput('')
+                            }
+                          }
+                        }}
+                        placeholder="e.g. Python, Agile, AWS"
+                        className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 w-48"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const v = customKeywordInput.trim()
+                          if (v) {
+                            setSelectedKeywords((prev) => new Set(prev).add(v))
+                            setCustomKeywordInput('')
+                          }
+                        }}
+                        className="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {selectedKeywords.size > 0 && (
+                      <p className="text-xs text-slate-500 mt-2">Selected: {Array.from(selectedKeywords).join(', ')}</p>
+                    )}
+                  </div>
                 </>
               )}
             </div>

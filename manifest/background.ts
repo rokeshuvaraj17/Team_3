@@ -27,6 +27,19 @@ function splitName(name: string | undefined): [string, string] {
   return [parts[0], parts.slice(1).join(' ')];
 }
 
+// Safe sendResponse: avoid "disconnected port" / "Unchecked runtime.lastError" when sender tab is bfcached or closed
+function safeSendResponse(
+  sendResponse: (response: { profile?: AutofillProfile; error?: string; success?: boolean } | undefined) => void,
+  response: { profile?: AutofillProfile; error?: string; success?: boolean } | undefined
+): void {
+  try {
+    sendResponse(response);
+  } catch {
+    // port may be disconnected (e.g. tab in back/forward cache)
+  }
+  if (chrome.runtime.lastError) void 0;
+}
+
 chrome.runtime.onMessage.addListener(
   (
     message: { type: string; data?: { title?: string; company?: string; location?: string; description?: string; source?: string; url?: string; useSidebar?: boolean; tabId?: number } },
@@ -50,15 +63,15 @@ chrome.runtime.onMessage.addListener(
               });
             }
           }
-          sendResponse(undefined);
-        }).catch(() => sendResponse(undefined));
+          safeSendResponse(sendResponse, undefined);
+        }).catch(() => safeSendResponse(sendResponse, undefined));
       });
       return true;
     }
     if (message.type === 'OPEN_SIDE_PANEL') {
       const tabId = message.data?.tabId ?? (_sender as { tab?: { id?: number } }).tab?.id;
       if (tabId) chrome.sidePanel.open({ tabId }).catch(() => {});
-      sendResponse(undefined);
+      safeSendResponse(sendResponse, undefined);
       return false;
     }
     if (message.type === 'JOB_SCRAPED') {
@@ -71,7 +84,7 @@ chrome.runtime.onMessage.addListener(
           location: d?.location ?? '',
           source: d?.source ?? '',
         },
-      }).then(() => sendResponse({ success: true }));
+      }).then(() => safeSendResponse(sendResponse, { success: true }));
       return true;
     }
     if (message.type !== 'GET_PROFILE') return false;
@@ -80,7 +93,7 @@ chrome.runtime.onMessage.addListener(
       const stored = await chrome.storage.local.get(['userId', 'user']);
       const { userId, user } = stored as Partial<StoredUser>;
       if (!userId || !user?.email) {
-        sendResponse({ error: 'Not logged in. Open the extension and log in first.' });
+        safeSendResponse(sendResponse, { error: 'Not logged in. Open the extension and log in first.' });
         return;
       }
 
@@ -91,7 +104,7 @@ chrome.runtime.onMessage.addListener(
         });
         const profile = res.ok ? await res.json() : null;
         const [firstName, lastName] = splitName(profile?.display_name ?? user.name);
-        sendResponse({
+        safeSendResponse(sendResponse, {
           profile: {
             firstName: firstName || (user.name ?? '').trim(),
             lastName,
@@ -101,7 +114,7 @@ chrome.runtime.onMessage.addListener(
         });
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        sendResponse({ error: msg });
+        safeSendResponse(sendResponse, { error: msg });
       }
     })();
 

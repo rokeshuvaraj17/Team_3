@@ -168,7 +168,16 @@
         <div class="input-group" style="margin-top: 0.75rem;">
           <p id="resumeJDHint" class="settings-desc">Load a job description in the Scraper tab to enable.</p>
           <p id="resumeNoTextWarning" class="settings-desc toast-error hidden">Could not load resume text (e.g. scanned PDF). Use Custom resume and paste your text.</p>
-          <button type="button" id="resumeGenerateWebBtn" class="btn btn-primary btn-full" disabled>Generate resume (open in website)</button>
+          <button type="button" id="resumeCoverLetterBtn" class="btn btn-primary btn-full" disabled>Create cover letter → Open in website</button>
+          <button type="button" id="resumeGenerateWebBtn" class="btn btn-ghost btn-full" disabled>Create custom resume → Open in website</button>
+          <button type="button" id="resumeGenerateSidebarBtn" class="btn btn-ghost btn-full" disabled>Generate resume (in sidebar only)</button>
+        </div>
+        <div id="resumeSidebarOutputWrap" class="hidden" style="margin-top: 0.75rem;">
+          <div class="result-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+            <span class="section-desc">Resume generated</span>
+            <button type="button" id="resumeSidebarCopyBtn" class="btn btn-sm btn-ghost">Copy</button>
+          </div>
+          <div id="resumeSidebarOutput" class="output-box" style="max-height: 200px; overflow: auto;"></div>
         </div>
       </section>
 
@@ -229,9 +238,6 @@
         <button type="button" id="generateBtn" class="btn btn-primary btn-full" disabled>Generate Cover Letter</button>
         <div class="input-group" style="margin-top: 0.75rem;">
           <button type="button" id="coverLetterWebBtn" class="btn btn-ghost btn-full" disabled>Cover letter (templates &amp; LaTeX) → Open in website</button>
-        </div>
-        <div class="input-group" style="margin-top: 0.25rem;">
-          <button type="button" id="updateResumeBtn" class="btn btn-ghost btn-full" disabled>Update resume for this job → Open in website</button>
         </div>
         <div id="loadingIndicator" class="loading hidden"><div class="spinner"></div><span>Generating...</span></div>
         <div id="generatedResult" class="hidden">
