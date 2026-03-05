@@ -5,16 +5,7 @@ import { getStoredUser } from '@/lib/auth'
 import { apiUrl } from '@/lib/api'
 import { RichTextToolbar } from '@/components/RichTextToolbar'
 
-const RESUME_TEMPLATES = [
-  { id: 'modern_minimal', name: 'Modern Minimal', tags: 'Clean · Whitespace · ATS-Friendly' },
-  { id: 'executive_classic', name: 'Executive Classic', tags: 'Professional · Corporate · Senior' },
-  { id: 'technical_developer', name: 'Technical / Developer', tags: 'Dev · Engineer · Tech' },
-  { id: 'bold_creative', name: 'Bold Creative', tags: 'Design · Marketing · Creative' },
-  { id: 'academic_research', name: 'Academic / Research', tags: 'Academic · Research · PhD' },
-  { id: 'compact_pro', name: 'Compact Pro', tags: 'Experienced · Dense · 1-Page' },
-] as const
-
-// Template preview images for job-based step 2 (1–6 map to RESUME_TEMPLATES; 7–10 repeat first four)
+// Template preview images for job-based step 2 (1–6 map to template ids; 7–10 repeat first four)
 const JOB_TEMPLATE_IMAGES = [
   { imageNum: 1, id: 'modern_minimal', name: 'Template 1' },
   { imageNum: 2, id: 'executive_classic', name: 'Template 2' },
@@ -76,7 +67,7 @@ export function JobBasedResumePage() {
   // Sync state into the editor when showing editable view (initial load and when switching back from LaTeX).
   // contentVersion increments when we first get generated content so this runs on initial display; [resumeViewMode] handles tab switch.
   useLayoutEffect(() => {
-    if (resumeViewMode === 'edit' && resumeEditorRef.current && generatedContent !== undefined) {
+    if (resumeViewMode === 'edit' && resumeEditorRef.current && typeof generatedContent === 'string') {
       resumeEditorRef.current.innerHTML = generatedContent
     }
   }, [resumeViewMode, contentVersion])
