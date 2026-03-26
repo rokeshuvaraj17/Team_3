@@ -63,6 +63,7 @@ COMMENT ON TYPE proficiency_level IS 'Used for skills and languages.';
 
 CREATE TABLE users (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name            text NOT NULL,
   email           citext NOT NULL,
   password_hash   text NOT NULL,
   email_verified  boolean NOT NULL DEFAULT false,
