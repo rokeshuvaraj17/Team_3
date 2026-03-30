@@ -6,9 +6,6 @@ function check(req, res) {
 }
 
 async function dbCheck(req, res) {
-  if (!pool) {
-    return res.status(503).json({ ok: false, error: 'Database not configured' })
-  }
   try {
     await pool.query('select 1')
     res.json({ ok: true, message: 'Database connected' })
