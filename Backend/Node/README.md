@@ -77,7 +77,7 @@ PASSWORD_SALT=your_secret_salt_string
 > **Important:** If your Supabase password contains special characters (`^`, `$`, `@`, etc.), URL-encode them (e.g. `^` → `%5E`, `$` → `%24`).
 
 ### 3. Set up the database (Already done) 
-No setup needed as the database is already setup.
+No setup needed as the database is already setup. Jump to setp 4
 
 Run the base schema first, then migrations:
 
