@@ -14,7 +14,7 @@ Express 5 REST API powering the Job Application Portal. Handles authentication, 
 | Auth | bcrypt + salt-based password hashing |
 | File Storage | Cloudinary (photos, resumes, cover letters) |
 | PDF Generation | LaTeX templates + node-latex (pdflatex) with LaTeX.Online fallback |
-| AI/LLM | Google Gemini or custom LLM endpoint |
+| AI/LLM | Multi-provider (Gemini, OpenAI, Anthropic, OpenRouter, Groq, Together, Mistral, Cohere) |
 
 ---
 
@@ -22,7 +22,18 @@ Express 5 REST API powering the Job Application Portal. Handles authentication, 
 
 ```
 Backend/Node/
-├── server.js                  # Express app — all routes and middleware
+├── src/                       # Main application source (MVC)
+│   ├── app.js                 # Express app — CORS, route mounting, error handler
+│   ├── server.js              # Entry point — listens on PORT
+│   ├── config/                # env.js, db.js (pg pool), cloudinary.js
+│   ├── controllers/           # Request handlers — validation, orchestration, response
+│   ├── models/                # Pure DB functions — parameterized queries
+│   ├── routes/                # Route definitions with per-route middleware
+│   ├── middleware/            # auth, requireDb, errorHandler, upload (multer)
+│   ├── services/              # External integrations (ai, jobSearch, cloudinary)
+│   └── utils/                 # Constants and helpers
+│
+├── server.js                  # Legacy entry point (deprecated, use src/server.js)
 ├── run-migration.js           # Runs SQL migrations against the database
 ├── package.json
 ├── .env                       # Local config (not committed)
@@ -77,7 +88,7 @@ PASSWORD_SALT=your_secret_salt_string
 > **Important:** If your Supabase password contains special characters (`^`, `$`, `@`, etc.), URL-encode them (e.g. `^` → `%5E`, `$` → `%24`).
 
 ### 3. Set up the database (Already done) 
-No setup needed as the database is already setup.
+No setup needed as the database is already set up. Jump to step 4.
 
 Run the base schema first, then migrations:
 
