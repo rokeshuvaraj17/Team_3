@@ -8,6 +8,7 @@ const assert = require('node:assert/strict')
 
 const { PASSWORD_SALT } = require('../src/config/env')
 const { saltedPassword } = require('../src/utils/password')
+const { isLocalhostOrigin, isOriginAllowed, parseAllowedOrigins } = require('../src/utils/cors')
 const auth = require('../src/middleware/auth')
 const { handleDbError } = require('../src/middleware/errorHandler')
 const {
@@ -20,6 +21,30 @@ const {
 
 test('saltedPassword prefixes the configured salt', () => {
   assert.equal(saltedPassword('secret123'), `${PASSWORD_SALT}secret123`)
+})
+
+test('parseAllowedOrigins trims entries and removes empty values', () => {
+  assert.deepEqual(
+    [...parseAllowedOrigins(' https://app.example.com, ,https://admin.example.com ')],
+    ['https://app.example.com', 'https://admin.example.com']
+  )
+})
+
+test('isLocalhostOrigin recognizes local development URLs only', () => {
+  assert.equal(isLocalhostOrigin('http://localhost:5173'), true)
+  assert.equal(isLocalhostOrigin('http://127.0.0.1:3000'), true)
+  assert.equal(isLocalhostOrigin('https://app.example.com'), false)
+  assert.equal(isLocalhostOrigin('chrome-extension://abc123'), false)
+})
+
+test('isOriginAllowed only permits whitelisted origins, chrome extensions, and dev localhost', () => {
+  const allowedOrigins = parseAllowedOrigins('https://app.example.com')
+
+  assert.equal(isOriginAllowed('https://app.example.com', { allowedOrigins, allowLocalhost: false }), true)
+  assert.equal(isOriginAllowed('chrome-extension://abcdefghijklmnop', { allowedOrigins, allowLocalhost: false }), true)
+  assert.equal(isOriginAllowed('http://localhost:5173', { allowedOrigins, allowLocalhost: true }), true)
+  assert.equal(isOriginAllowed('http://localhost:5173', { allowedOrigins, allowLocalhost: false }), false)
+  assert.equal(isOriginAllowed('https://evil.example.com', { allowedOrigins, allowLocalhost: true }), false)
 })
 
 test('mergeAutofillWithProfile merges profile defaults and tracks profile-derived fields', () => {

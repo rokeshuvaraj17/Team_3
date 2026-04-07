@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt')
 const cloudinary = require('cloudinary').v2
 const resumake = require('./resumake')
 const { compilePdfWithFallback: resumakeCompilePdf } = require('./resumake/compilePdf')
+const { createCorsOptions } = require('./src/utils/cors')
 
 const cloudName = process.env.cloudinary_cloud_name || process.env.CLOUDINARY_CLOUD_NAME || ''
 const cloudKey = process.env.cloudinary_api_key || process.env.CLOUDINARY_API_KEY || ''
@@ -123,31 +124,10 @@ if (pool) {
   })
 }
 
-// Allow Vite dev server and production frontend origins (set ALLOWED_ORIGINS or FRONTEND_URL on Render)
-const defaultOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:4173',
-]
-const envOrigins = (process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || '')
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean)
-const allowedOrigins = [...defaultOrigins, ...envOrigins]
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin) return cb(null, true)
-    if (allowedOrigins.includes(origin)) return cb(null, true)
-    // Chrome extension popup/background: allow any chrome-extension:// origin
-    if (origin.startsWith('chrome-extension://')) return cb(null, true)
-    // Content script runs in the page context (e.g. Workday, Greenhouse): allow any HTTPS and localhost so job portals can call our API
-    if (origin.startsWith('https://') || origin === 'http://localhost' || origin.startsWith('http://127.0.0.1')) return cb(null, true)
-    cb(new Error('Not allowed by CORS'))
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id'],
-}))
+app.use(cors(createCorsOptions({
+  allowedOrigins: process.env.ALLOWED_ORIGINS,
+  nodeEnv: process.env.NODE_ENV,
+})))
 app.use(express.json())
 
 // Health check (for proxy and monitoring)
