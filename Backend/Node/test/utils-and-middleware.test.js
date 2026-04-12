@@ -3,7 +3,6 @@ AI-generated test assistance note:
 Prompt used: "Create small Node built-in tests for the PM2.1 MVC refactor. Focus on pure backend helpers and middleware, avoid external APIs and real database calls, and keep the tests easy for a student team to maintain."
 */
 
-const test = require('node:test')
 const assert = require('node:assert/strict')
 
 const { PASSWORD_SALT } = require('../src/config/env')

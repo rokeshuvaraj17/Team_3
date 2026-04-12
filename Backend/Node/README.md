@@ -285,6 +285,85 @@ All authenticated endpoints use the `x-user-id` header to identify the user.
 |--------|---------|-------------|
 | `start` | `npm start` | Run server with Node |
 | `dev` | `npm run dev` | Run server with nodemon (auto-reload) |
+| `test` | `npm test` | Run Jest tests once (serial mode for DB safety) |
+| `test:watch` | `npm run test:watch` | Run Jest in watch mode |
+| `test:coverage` | `npm run test:coverage` | Run Jest with coverage report |
+| `test:db:prepare` | `npm run test:db:prepare` | Load `.env.test` and run migrations for test DB |
+| `test:db:reset` | `npm run test:db:reset` | Truncate all public tables in test DB |
+| `test:db:seed` | `npm run test:db:seed` | Insert baseline test fixtures |
+
+---
+
+## Testing
+
+This backend uses Jest and Supertest for unit/integration tests.
+
+### Test files and helpers
+
+- `test/app.integration.test.js` — route mounting and middleware composition checks
+- `test/utils-and-middleware.test.js` — utility and middleware unit tests
+- `test/setup.smoke.test.js` — smoke test for app + DB connectivity
+- `test/helpers/request.js` — authenticated request helper (`x-user-id` header)
+- `test/helpers/db.js` — shared DB query/cleanup helpers
+- `test/jest.setup.js` — loads `.env.test` before test files execute
+
+### Environment isolation
+
+Tests should use `.env.test`, not `.env`.
+
+Example `.env.test` (Supabase):
+
+```env
+PORT=5002
+DATABASE_URL=postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres
+DIRECT_URL=postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres
+PASSWORD_SALT=test_salt
+
+GEMINI_API_KEY=dummy
+JOOBLE_API_KEY=dummy
+REED_API_KEY=dummy
+ADZUNA_APP_ID=dummy
+ADZUNA_APP_KEY=dummy
+CLOUDINARY_CLOUD_NAME=dummy
+CLOUDINARY_API_KEY=dummy
+CLOUDINARY_API_SECRET=dummy
+ALLOWED_ORIGINS=http://localhost:5173
+```
+
+Notes:
+
+- Use a dedicated Supabase project/database for tests.
+- URL-encode special characters in the password section of the connection string.
+- Keep `.env.test` out of source control.
+
+### Recommended local workflow
+
+Run from `Backend/Node`:
+
+```bash
+npm run test:db:prepare
+npm run test:db:reset
+npm run test:db:seed
+npm test
+```
+
+For active development:
+
+```bash
+npm run test:watch
+```
+
+For coverage:
+
+```bash
+npm run test:coverage
+```
+
+### Current expectations
+
+- If the test DB is reachable, all test suites should pass.
+- If only `test/setup.smoke.test.js` fails with `ECONNREFUSED`, your test DB connection in `.env.test` is not reachable.
+- `console.error` output from error-path tests is expected and does not mean the test failed.
 
 ---
 
@@ -297,3 +376,5 @@ All authenticated endpoints use the `x-user-id` header to identify the user.
 | CORS errors from `localhost:5173` | Check the server is actually running on the configured `PORT` — macOS AirPlay uses port 5000 |
 | `relation "X" does not exist` | Run `schema/job_portal_schema.sql` before `node run-migration.js` |
 | Migration order errors | Migrations are prefixed with numbers (`001_`, `002_`...) to ensure correct execution order |
+| `npm run test:db:prepare` fails with `ECONNREFUSED` | The host/port in `.env.test` is unreachable. Verify Supabase project is active and connection string is correct. |
+| Jest passes unit tests but smoke test fails | DB helper is working, but test DB is unavailable. Recheck `.env.test` and rerun prepare/reset/seed. |

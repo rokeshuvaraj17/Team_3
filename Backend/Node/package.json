@@ -7,7 +7,12 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "start:legacy": "node server.js",
-    "test": "node --test"
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:db:prepare": "node test/scripts/prepareTestDb.js",
+    "test:db:reset": "node test/scripts/resetTestDb.js",
+    "test:db:seed": "node test/scripts/seedTestDb.js"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +31,8 @@
     "pg": "^8.18.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
   }
 }
