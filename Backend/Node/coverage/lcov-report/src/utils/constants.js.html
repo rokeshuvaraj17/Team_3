@@ -1,0 +1,508 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/utils/constants.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/utils</a> constants.js</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">13.04% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>9/69</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/36</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/11</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">15.78% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>9/57</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const AUTOFILL_FIELD_KEYS = [
+  'first_name', 'middle_name', 'last_name', 'suffix', 'full_name', 'preferred_name', 'pronouns',
+  'email', 'phone', 'phone_alt', 'email_alt',
+  'date_of_birth', 'age', 'place_of_birth', 'citizenship_country', 'nationality',
+  'linkedin_url', 'website_url', 'portfolio_url', 'github_url', 'twitter_url',
+  'address_line1', 'address_line2', 'city', 'state', 'zip_code', 'country',
+  'headline', 'summary', 'current_job_title', 'current_company', 'years_of_experience', 'job_type_preference',
+  'work_authorization', 'requires_sponsorship', 'veteran_status', 'disability_status', 'race_ethnicity', 'gender',
+  'salary_expectation_min', 'salary_expectation_max', 'salary_type', 'salary_currency',
+  'highest_degree', 'university_name', 'graduation_year', 'major_field', 'gpa', 'second_degree', 'second_major',
+  'how_did_you_hear', 'referral_employee_name', 'desired_start_date', 'willing_to_relocate', 'willing_to_travel', 'notice_period',
+  'cover_letter_note', 'emergency_contact_name', 'emergency_contact_phone', 'driver_license_number', 'security_clearance', 'ssn_last4',
+]
+&nbsp;
+const COUNTRY_LOCATION_MAP = {
+  in: ['india'],
+  gb: ['united kingdom', 'uk', 'england', 'scotland', 'wales'],
+  us: ['united states', 'usa', ' u.s.', ' u.s.a.'],
+  au: ['australia'],
+  de: ['germany', 'deutschland'],
+  br: ['brazil', 'brasil'],
+}
+&nbsp;
+const COUNTRY_TO_JOOBLE_LOCATION = {
+  in: 'India',
+  gb: 'United Kingdom',
+  us: 'United States',
+  au: 'Australia',
+  de: 'Germany',
+  br: 'Brazil',
+}
+&nbsp;
+const OPENAI_COMPATIBLE_MODELS = {
+  openai: 'gpt-4o-mini',
+  anthropic: 'claude-3-haiku-20240307',
+  openrouter: 'openai/gpt-4o-mini',
+  groq: 'llama-3.3-70b-versatile',
+  together: 'meta-llama/Llama-3-70b-chat-hf',
+  mistral: 'mistral-small-latest',
+  cohere: 'command',
+}
+&nbsp;
+const DEFAULT_API_KEY_PROVIDERS = [
+  { slug: 'openai', name: 'OpenAI', description: 'GPT-4, GPT-3.5, and other OpenAI models', base_url: 'https://api.openai.com/v1', display_order: 10 },
+  { slug: 'gemini', name: 'Google Gemini', description: 'Gemini Pro and other Google AI models', base_url: 'https://generativelanguage.googleapis.com', display_order: 20 },
+  { slug: 'anthropic', name: 'Anthropic', description: 'Claude models', base_url: 'https://api.anthropic.com', display_order: 30 },
+  { slug: 'openrouter', name: 'OpenRouter', description: 'Unified API for many models (OpenAI, Anthropic, etc.)', base_url: 'https://openrouter.ai/api/v1', display_order: 40 },
+  { slug: 'groq', name: 'Groq', description: 'Fast inference (Llama, Mixtral)', base_url: 'https://api.groq.com/openai/v1', display_order: 50 },
+  { slug: 'together', name: 'Together AI', description: 'Open-source and custom models', base_url: 'https://api.together.xyz/v1', display_order: 60 },
+  { slug: 'mistral', name: 'Mistral AI', description: 'Mistral and Mixtral models', base_url: 'https://api.mistral.ai/v1', display_order: 70 },
+  { slug: 'cohere', name: 'Cohere', description: 'Command and embed models', base_url: 'https://api.cohere.ai', display_order: 80 },
+]
+&nbsp;
+const RESUME_SYSTEM_PROMPTS = [
+<span class="fstat-no" title="function not covered" >  (t</span>emplateDesc, pageLimit, primaryResumeHtml) =&gt; {
+    let s = <span class="cstat-no" title="statement not covered" >'You are an expert US resume writer and career coach. Produce a polished resume. Keep it ATS-friendly: use clear section headings, standard job titles, and keywords relevant to the target role; avoid complex layouts or graphics that break parsing. Output valid JSON only with exactly two keys: "latex" and "html". '</span>
+<span class="cstat-no" title="statement not covered" >    s += '"latex": A complete, compilable LaTeX resume (\\documentclass through \\end{document}). Use a modern class (e.g. moderncv or article with geometry, fontenc, charter/libertine). '</span>
+<span class="cstat-no" title="statement not covered" >    s += '"html": The same resume as HTML body content only (no &lt;html&gt; or &lt;body&gt;), with inline styles for a modern look. Use clear sections: Summary, Experience, Education, Skills, Languages, Certifications. Dates in US style (e.g. January 2020). Escape double quotes in JSON. Output only the JSON object, no code fence or explanation. '</span>
+<span class="cstat-no" title="statement not covered" >    s += `Template style: ${templateDesc}. `</span>
+<span class="cstat-no" title="statement not covered" >    if (pageLimit === 1) <span class="cstat-no" title="statement not covered" >s += 'CRITICAL: Fit on ONE page. Be concise; reduce spacing and text. '</span></span>
+    else <span class="cstat-no" title="statement not covered" >s += 'You may use multiple pages. '</span>
+<span class="cstat-no" title="statement not covered" >    if (primaryResumeHtml &amp;&amp; primaryResumeHtml.length &gt; 50) <span class="cstat-no" title="statement not covered" >s += 'When "Primary resume to match" is provided below, use that design, structure, and layout; only replace content with the new data. '</span></span>
+<span class="cstat-no" title="statement not covered" >    return s</span>
+  },
+<span class="fstat-no" title="function not covered" >  (t</span>emplateDesc, pageLimit, primaryResumeHtml) =&gt; {
+    let s = <span class="cstat-no" title="statement not covered" >'You are a professional resume writer specializing in US formats. Keep the resume ATS-friendly: clear headings, standard structure, and role-relevant keywords; avoid tables or images that confuse ATS. Your output must be a single valid JSON object with keys "latex" and "html". '</span>
+<span class="cstat-no" title="statement not covered" >    s += 'For "latex": write a full LaTeX resume document (complete with \\documentclass and \\begin{document}...\\end{document}), modern and clean. '</span>
+<span class="cstat-no" title="statement not covered" >    s += 'For "html": write the same resume as HTML document body only, using simple tags (h1, h2, h3, p, ul, li, strong, br) and inline styles. '</span>
+<span class="cstat-no" title="statement not covered" >    s += `Follow this template style: ${templateDesc}. Format dates like January 2020. Output only JSON. `</span>
+<span class="cstat-no" title="statement not covered" >    if (pageLimit === 1) <span class="cstat-no" title="statement not covered" >s += 'The resume MUST be one page only. '</span></span>
+    else <span class="cstat-no" title="statement not covered" >s += 'Multiple pages allowed. '</span>
+<span class="cstat-no" title="statement not covered" >    if (primaryResumeHtml &amp;&amp; primaryResumeHtml.length &gt; 50) <span class="cstat-no" title="statement not covered" >s += 'If a primary resume reference is given, replicate its design and structure; fill with the new content. '</span></span>
+<span class="cstat-no" title="statement not covered" >    return s</span>
+  },
+<span class="fstat-no" title="function not covered" >  (t</span>emplateDesc, pageLimit, primaryResumeHtml) =&gt; {
+    let s = <span class="cstat-no" title="statement not covered" >'Role: Expert resume writer. Task: Generate a US-format resume. Keep it ATS-friendly: use standard section names, scannable layout, and keywords for the target role. Output format: JSON with "latex" and "html" only. '</span>
+<span class="cstat-no" title="statement not covered" >    s += '"latex" = complete compilable LaTeX (modern class, e.g. moderncv or article). "html" = same content as HTML body only, inline styles, modern look. '</span>
+<span class="cstat-no" title="statement not covered" >    s += `Style to follow: ${templateDesc}. Dates: US style (e.g. January 2020). No markdown, no explanation—only the JSON object. `</span>
+<span class="cstat-no" title="statement not covered" >    if (pageLimit === 1) <span class="cstat-no" title="statement not covered" >s += 'Constraint: Exactly one page. Be concise. '</span></span>
+    else <span class="cstat-no" title="statement not covered" >s += 'Page limit: none. '</span>
+<span class="cstat-no" title="statement not covered" >    if (primaryResumeHtml &amp;&amp; primaryResumeHtml.length &gt; 50) <span class="cstat-no" title="statement not covered" >s += 'When primary resume HTML is provided, match its layout and styling; substitute the new data. '</span></span>
+<span class="cstat-no" title="statement not covered" >    return s</span>
+  },
+<span class="fstat-no" title="function not covered" >  (t</span>emplateDesc, pageLimit, primaryResumeHtml) =&gt; {
+    let s = <span class="cstat-no" title="statement not covered" >'You are a senior career advisor. Create a compelling US resume. Make it ATS-friendly: clear headings, logical structure, and role-specific keywords; avoid graphics or complex formatting that ATS cannot read. Respond with valid JSON containing two keys: "latex" (full LaTeX document, modern design) and "html" (body-only HTML with inline styles). '</span>
+<span class="cstat-no" title="statement not covered" >    s += `Apply this template: ${templateDesc}. Use sections: Summary, Experience, Education, Skills, Languages, Certifications. US date format. Output only the JSON. `</span>
+<span class="cstat-no" title="statement not covered" >    if (pageLimit === 1) <span class="cstat-no" title="statement not covered" >s += 'One page maximum—prioritize impact and brevity. '</span></span>
+    else <span class="cstat-no" title="statement not covered" >s += 'Length: as many pages as needed. '</span>
+<span class="cstat-no" title="statement not covered" >    if (primaryResumeHtml &amp;&amp; primaryResumeHtml.length &gt; 50) <span class="cstat-no" title="statement not covered" >s += 'If the user supplies a reference resume, mirror its design and structure; use the new data for content. '</span></span>
+<span class="cstat-no" title="statement not covered" >    return s</span>
+  },
+<span class="fstat-no" title="function not covered" >  (t</span>emplateDesc, pageLimit, primaryResumeHtml) =&gt; {
+    let s = <span class="cstat-no" title="statement not covered" >'Act as a professional US resume writer. Keep the resume ATS-friendly: standard sections, scannable content, and keywords aligned to the target role; no images or complex tables. Generate one JSON object with "latex" and "html". '</span>
+<span class="cstat-no" title="statement not covered" >    s += 'latex: Complete LaTeX resume (\\documentclass to \\end{document}), modern class, clean layout. '</span>
+<span class="cstat-no" title="statement not covered" >    s += 'html: Same resume as HTML body content only; use inline styles for typography and spacing. '</span>
+<span class="cstat-no" title="statement not covered" >    s += `Template: ${templateDesc}. Dates in US style. Return only the JSON—no code blocks or extra text. `</span>
+<span class="cstat-no" title="statement not covered" >    if (pageLimit === 1) <span class="cstat-no" title="statement not covered" >s += 'Must fit on one page. '</span></span>
+    else <span class="cstat-no" title="statement not covered" >s += 'Multi-page OK. '</span>
+<span class="cstat-no" title="statement not covered" >    if (primaryResumeHtml &amp;&amp; primaryResumeHtml.length &gt; 50) <span class="cstat-no" title="statement not covered" >s += 'When a primary resume is provided, copy its layout and styling; replace only the text with the new data. '</span></span>
+<span class="cstat-no" title="statement not covered" >    return s</span>
+  },
+<span class="fstat-no" title="function not covered" >  (t</span>emplateDesc, pageLimit, primaryResumeHtml) =&gt; {
+    let s = <span class="cstat-no" title="statement not covered" >'You are an ATS-optimized resume writer. Keep the resume ATS-friendly: clear section headings, standard job titles, and keywords for the target role; use simple structure so applicant tracking systems parse correctly. Produce a single JSON object: "latex" (full LaTeX resume, modern and professional) and "html" (body-only HTML, inline styles). '</span>
+<span class="cstat-no" title="statement not covered" >    s += `Design direction: ${templateDesc}. Standard sections; US date format. Output raw JSON only. `</span>
+<span class="cstat-no" title="statement not covered" >    if (pageLimit === 1) <span class="cstat-no" title="statement not covered" >s += 'Keep to one page. '</span></span>
+    else <span class="cstat-no" title="statement not covered" >s += 'Pages: unlimited. '</span>
+<span class="cstat-no" title="statement not covered" >    if (primaryResumeHtml &amp;&amp; primaryResumeHtml.length &gt; 50) <span class="cstat-no" title="statement not covered" >s += 'If reference resume is included, match its design and structure; fill with the provided data. '</span></span>
+<span class="cstat-no" title="statement not covered" >    return s</span>
+  },
+]
+&nbsp;
+const RESUME_USER_PROMPT_INTROS = [
+<span class="fstat-no" title="function not covered" >  (t</span>emplate, templateDesc, pageRule) =&gt; <span class="cstat-no" title="statement not covered" >`Generate a US-format resume from the data below. Output only a JSON object with keys "latex" and "html".\n\nTemplate (required): ${template} — ${templateDesc}\nPage length (required): ${pageRule}\n\nResume data:`,</span>
+<span class="fstat-no" title="function not covered" >  (t</span>emplate, templateDesc, pageRule) =&gt; <span class="cstat-no" title="statement not covered" >`Create a resume from this information. Return valid JSON with "latex" and "html".\n\nTemplate: ${template} — ${templateDesc}\nPage length: ${pageRule}\n\nData:`,</span>
+<span class="fstat-no" title="function not covered" >  (t</span>emplate, templateDesc, pageRule) =&gt; <span class="cstat-no" title="statement not covered" >`Using the following data, generate a resume. Output JSON with "latex" and "html" only.\n\nStyle: ${template} — ${templateDesc}\nLength: ${pageRule}\n\nInput:`,</span>
+<span class="fstat-no" title="function not covered" >  (t</span>emplate, templateDesc, pageRule) =&gt; <span class="cstat-no" title="statement not covered" >`Build a resume from the data below. Response must be JSON: "latex" (full LaTeX doc) and "html" (body HTML).\n\nTemplate: ${template} — ${templateDesc}\nPages: ${pageRule}\n\nResume data:`,</span>
+<span class="fstat-no" title="function not covered" >  (t</span>emplate, templateDesc, pageRule) =&gt; <span class="cstat-no" title="statement not covered" >`Generate a professional resume. Output a single JSON object with "latex" and "html".\n\nTemplate (required): ${template} — ${templateDesc}\nPage rule: ${pageRule}\n\nCandidate data:`,</span>
+]
+&nbsp;
+const TEMPLATE_DESCRIPTIONS = {
+  modern_minimal: 'Modern minimal: clean typography, ample whitespace, subtle dividers, no clutter. Single column, professional and contemporary.',
+  professional: 'Professional: classic layout, clear sections, conservative styling. Ideal for corporate and traditional roles.',
+  creative: 'Creative: distinctive layout, optional two-column, modern fonts, suitable for design and creative roles.',
+  academic: 'Academic: emphasis on education, publications, and research. Formal and structured.',
+  executive_classic: 'Executive: two-column layout with a dark sidebar (e.g. navy) for name and contact; main content for experience and education. Professional and corporate.',
+  technical_developer: 'Technical/Developer: monospace or technical feel, skill tags as pills, clear section dividers. Suited for engineers and developers.',
+  bold_creative: 'Bold creative: full-width colored header, large display name, asymmetric two-column. Suited for design and marketing.',
+  academic_research: 'Academic/Research: emphasis on education, publications, research. Formal, serif optional.',
+  compact_pro: 'Compact: dense layout, small fonts, tight spacing. Maximize content on one page for experienced professionals.',
+}
+&nbsp;
+module.exports = {
+  AUTOFILL_FIELD_KEYS,
+  COUNTRY_LOCATION_MAP,
+  COUNTRY_TO_JOOBLE_LOCATION,
+  OPENAI_COMPATIBLE_MODELS,
+  DEFAULT_API_KEY_PROVIDERS,
+  RESUME_SYSTEM_PROMPTS,
+  RESUME_USER_PROMPT_INTROS,
+  TEMPLATE_DESCRIPTIONS,
+}
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-04-13T19:21:04.153Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

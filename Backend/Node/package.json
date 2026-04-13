@@ -9,10 +9,7 @@
     "start:legacy": "node server.js",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:db:prepare": "node test/scripts/prepareTestDb.js",
-    "test:db:reset": "node test/scripts/resetTestDb.js",
-    "test:db:seed": "node test/scripts/seedTestDb.js"
+    "test:coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
@@ -32,7 +29,6 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "nodemon": "^3.1.14",
-    "supertest": "^7.2.2"
+    "nodemon": "^3.1.14"
   }
 }
