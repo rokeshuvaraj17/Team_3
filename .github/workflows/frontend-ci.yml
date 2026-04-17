@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'Web_Frontend/**'
+      - 'Web_frontend/**'
   pull_request:
     paths:
       - 'Web_Frontend/**'
+      - 'Web_frontend/**'
 
 jobs:
   test-and-build:
