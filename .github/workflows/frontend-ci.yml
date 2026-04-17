@@ -1,0 +1,35 @@
+name: Frontend CI
+
+on:
+  push:
+    paths:
+      - 'Web_Frontend/**'
+  pull_request:
+    paths:
+      - 'Web_Frontend/**'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: Web_Frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: Web_Frontend
+        run: npm ci
+
+      - name: Run tests
+        working-directory: Web_Frontend
+        run: npm test
+
+      - name: Build check
+        working-directory: Web_Frontend
+        run: npm run build
