@@ -33,3 +33,16 @@ jobs:
       - name: Build check
         working-directory: Web_Frontend
         run: npm run build
+
+      - name: Notify Mattermost
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" = "success" ]; then
+            EMOJI=":white_check_mark:"
+          else
+            EMOJI=":x:"
+          fi
+          curl -s -X POST "${{ secrets.MATTERMOST_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"text\": \"$EMOJI **[Frontend CI]** $STATUS — ${{ github.ref_name }} by ${{ github.actor }} ([view run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}))\"}"
