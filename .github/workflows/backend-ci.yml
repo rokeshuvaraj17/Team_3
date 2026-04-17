@@ -1,0 +1,44 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - 'Backend/Node/**'
+  pull_request:
+    paths:
+      - 'Backend/Node/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: Backend/Node/package-lock.json
+
+      - name: Install dependencies
+        working-directory: Backend/Node
+        run: npm ci
+
+      - name: Run tests
+        working-directory: Backend/Node
+        run: npm test
+
+      - name: Notify Mattermost
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" = "success" ]; then
+            EMOJI=":white_check_mark:"
+          else
+            EMOJI=":x:"
+          fi
+          curl -s -X POST "${{ secrets.MATTERMOST_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"text\": \"$EMOJI **[Backend CI]** $STATUS — ${{ github.ref_name }} by ${{ github.actor }} ([view run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}))\"}"
