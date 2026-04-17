@@ -1,3 +1,9 @@
+// AI-assisted implementation note:
+// The CORS issue was presented to AI with the requirement to remove the broad
+// `https://` wildcard, use explicit origins from `ALLOWED_ORIGINS`, keep
+// `chrome-extension://` support for the browser extension, allow localhost only
+// during development, and document the required environment variable.
+
 const DEFAULT_CORS_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 const DEFAULT_CORS_HEADERS = ['Content-Type', 'Authorization', 'x-user-id']
 
