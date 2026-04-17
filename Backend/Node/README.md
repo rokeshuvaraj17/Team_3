@@ -285,6 +285,45 @@ All authenticated endpoints use the `x-user-id` header to identify the user.
 |--------|---------|-------------|
 | `start` | `npm start` | Run server with Node |
 | `dev` | `npm run dev` | Run server with nodemon (auto-reload) |
+| `test` | `npm test` | Run all unit tests once |
+| `test:watch` | `npm run test:watch` | Run Jest in watch mode |
+| `test:coverage` | `npm run test:coverage` | Run Jest with coverage report |
+
+---
+
+## Testing
+
+This backend currently uses unit testing only with Jest.
+
+### Test files
+
+- `test/app.integration.test.js` — route mounting and middleware composition checks
+- `test/utils-and-middleware.test.js` — utility and middleware unit tests
+
+### Recommended local workflow
+
+Run from `Backend/Node`:
+
+```bash
+npm test
+```
+
+For active development:
+
+```bash
+npm run test:watch
+```
+
+For coverage:
+
+```bash
+npm run test:coverage
+```
+
+### Current expectations
+
+- All tests should run without a separate test database setup.
+- `console.error` output from error-path tests is expected and does not mean the test failed.
 
 ---
 
@@ -297,3 +336,4 @@ All authenticated endpoints use the `x-user-id` header to identify the user.
 | CORS errors from `localhost:5173` | Check the server is actually running on the configured `PORT` — macOS AirPlay uses port 5000 |
 | `relation "X" does not exist` | Run `schema/job_portal_schema.sql` before `node run-migration.js` |
 | Migration order errors | Migrations are prefixed with numbers (`001_`, `002_`...) to ensure correct execution order |
+| Jest prints `console.error` during tests | Some unit tests intentionally exercise error paths. This log output is expected when tests still pass. |

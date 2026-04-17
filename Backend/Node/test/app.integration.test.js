@@ -3,7 +3,6 @@ AI-generated test assistance note:
 Prompt used: "Create lightweight integration-style tests for a Node/Express MVC refactor that verify route mounting and middleware/controller composition without using a real database or opening a network listener."
 */
 
-const test = require('node:test')
 const assert = require('node:assert/strict')
 const path = require('node:path')
 
