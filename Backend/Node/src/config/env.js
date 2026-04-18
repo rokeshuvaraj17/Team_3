@@ -18,5 +18,5 @@ module.exports = {
   CLOUDINARY_CLOUD_NAME: process.env.cloudinary_cloud_name || process.env.CLOUDINARY_CLOUD_NAME || '',
   CLOUDINARY_API_KEY: process.env.cloudinary_api_key || process.env.CLOUDINARY_API_KEY || '',
   CLOUDINARY_API_SECRET: process.env.cloudinary_api_secret || process.env.CLOUDINARY_API_SECRET || '',
-  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || '',
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || '',
 }

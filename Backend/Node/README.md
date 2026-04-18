@@ -143,7 +143,7 @@ curl http://localhost:5001/api/health/db     # Database connectivity
 | `REED_API_KEY` | No | Reed.co.uk job search API |
 | `ADZUNA_APP_ID` | No | Adzuna job search app ID |
 | `ADZUNA_APP_KEY` | No | Adzuna job search app key |
-| `ALLOWED_ORIGINS` | No | Comma-separated CORS origins (default: localhost:5173) |
+| `ALLOWED_ORIGINS` | Yes in production | Comma-separated list of exact frontend origins allowed by CORS |
 
 ---
 

@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const { ALLOWED_ORIGINS } = require('./config/env')
 const { errorHandler } = require('./middleware/errorHandler')
+const { createCorsOptions } = require('./utils/cors')
 
 const healthRoutes = require('./routes/health.routes')
 const authRoutes = require('./routes/auth.routes')
@@ -19,31 +20,10 @@ const { keysRouter: apiKeysRoutes, providersRouter: apiKeyProvidersRoutes } = re
 
 const app = express()
 
-// CORS
-const defaultOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:3000',
-  'http://localhost:4173',
-]
-const envOrigins = (ALLOWED_ORIGINS || '')
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean)
-const allowedOrigins = [...defaultOrigins, ...envOrigins]
-
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin) return cb(null, true)
-    if (allowedOrigins.includes(origin)) return cb(null, true)
-    if (origin.startsWith('chrome-extension://')) return cb(null, true)
-    if (origin.startsWith('https://') || origin === 'http://localhost' || origin.startsWith('http://127.0.0.1')) return cb(null, true)
-    cb(new Error('Not allowed by CORS'))
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id'],
-}))
+app.use(cors(createCorsOptions({
+  allowedOrigins: ALLOWED_ORIGINS,
+  nodeEnv: process.env.NODE_ENV,
+})))
 
 app.use(express.json())
 
