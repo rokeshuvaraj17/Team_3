@@ -22,18 +22,18 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-          cache-dependency-path: Web_Frontend/package-lock.json
+          cache-dependency-path: Web_frontend/package-lock.json
 
       - name: Install dependencies
-        working-directory: Web_Frontend
+        working-directory: Web_frontend
         run: npm ci
 
       - name: Run tests
-        working-directory: Web_Frontend
+        working-directory: Web_frontend
         run: npm test
 
       - name: Build check
-        working-directory: Web_Frontend
+        working-directory: Web_frontend
         run: npm run build
 
       - name: Notify Mattermost
