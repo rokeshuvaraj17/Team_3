@@ -1,3 +1,9 @@
+/*
+ * DJC 4/30/2026 - Issue 48 - Created tests for frontend lib functions. Claude Code 
+ * used with prompt: "Create unit tests for all functions exported from src/lib. 
+ * Exclude tests which require database or server calls."
+*/
+
 import { describe, it, expect, beforeEach } from 'vitest'
 import {
   getSavedJobIds,
