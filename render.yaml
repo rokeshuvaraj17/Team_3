@@ -2,7 +2,7 @@ services:
   - type: web
     name: jobflow-backend
     env: node
-    rootDir: Backend/Node
+    rootDir: backend
     buildCommand: npm install
     startCommand: npm start
     autoDeploy: true
@@ -27,6 +27,8 @@ services:
       - key: JOOBLE_API_KEY
         sync: false
       - key: REED_API_KEY
+        sync: false
+      - key: JSEARCH_API_KEY
         sync: false
       - key: GEMINI_API_KEY
         sync: false

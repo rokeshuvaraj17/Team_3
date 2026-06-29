@@ -4,7 +4,7 @@
 
 - **Web app:** `http://localhost:5173/app/autofill-form-fields`
 - **Route:** `/app/autofill-form-fields` (React Router)
-- **Component:** `Web_frontend/src/pages/AutofillFormFieldsPage.tsx`
+- **Component:** `frontend/src/pages/AutofillFormFieldsPage.tsx`
 
 ---
 
@@ -125,8 +125,8 @@ Defined in backend `AUTOFILL_FIELD_KEYS` and frontend `AUTOFILL_FIELD_KEYS` / `F
 
 ## Migrations
 
-- `Backend/Node/migrations/create_autofill.sql` — creates `user_autofill`.
-- `Backend/Node/migrations/create_autofill_custom_fields.sql` — creates `user_autofill_custom_fields`.
+- `backend/migrations/create_autofill.sql` — creates `user_autofill`.
+- `backend/migrations/create_autofill_custom_fields.sql` — creates `user_autofill_custom_fields`.
 
 Run these so the tables exist before using the page or the API.
 

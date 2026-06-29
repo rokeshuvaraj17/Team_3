@@ -17,9 +17,9 @@ A production-oriented **job application portal** (similar to LinkedIn/Naukri) wi
 ## Project Structure
 
 ```
-Project 1/
+Automate_Apply/
 ├── README.md                 # This file
-├── Web_frontend/             # Vite + React SPA
+├── frontend/                 # Vite + React SPA
 │   ├── src/
 │   │   ├── App.tsx           # Routes: /, /signup, /app
 │   │   ├── main.tsx
@@ -37,15 +37,16 @@ Project 1/
 │   ├── package.json
 │   └── .env.example           # Optional VITE_API_BASE_URL for production
 │
-├── Backend/
-│   └── Node/
-│       ├── server.js         # Express: /api/health, /api/signup, /api/login
-│       ├── package.json
-│       ├── .env              # DATABASE_URL, PASSWORD_SALT, PORT (not committed)
-│       ├── .env.example      # Template for .env
-│       └── schema/
-│           └── job_portal_schema.sql   # Full PostgreSQL schema (job portal tables)
+├── backend/                  # Express API (entry: src/server.js)
+│   ├── src/server.js         # Express app entry
+│   ├── server.js             # Legacy single-file server (npm run start:legacy)
+│   ├── package.json
+│   ├── .env                  # DATABASE_URL, PASSWORD_SALT, PORT (not committed)
+│   ├── .env.example          # Template for .env
+│   └── schema/
+│       └── job_portal_schema.sql   # Full PostgreSQL schema (job portal tables)
 │
+├── manifest/                 # Browser extension source (built + zipped into frontend/public)
 └── (Supabase)                # Database hosted on Supabase
     └── public: users, user_profiles, companies, jobs, job_applications, saved_jobs,
                 work_experiences, education, skills, user_skills, certifications,
@@ -84,7 +85,7 @@ cd Team_3
 ### 2. Backend (Node)
 
 ```bash
-cd Backend/Node
+cd backend
 npm install
 cp .env.example .env
 ```
@@ -105,7 +106,7 @@ npm start
 In a **new terminal**:
 
 ```bash
-cd Web_frontend
+cd frontend
 npm install
 npm run dev
 # Frontend runs at http://localhost:5173; /api is proxied to backend
@@ -114,14 +115,14 @@ npm run dev
 ### 4. Database (Supabase)
 
 - Tables are already created via Supabase migrations (see **Database schema** below).
-- If you use a **new** Supabase project, run the SQL in `Backend/Node/schema/job_portal_schema.sql` in the SQL Editor (or apply the same migrations). Skip creating `users` if you already have an auth `users` table.
+- If you use a **new** Supabase project, run the SQL in `backend/schema/job_portal_schema.sql` in the SQL Editor (or apply the same migrations). Skip creating `users` if you already have an auth `users` table.
 
 ---
 
 ## Running the App
 
-1. **Start backend**: `cd Backend/Node && npm start`
-2. **Start frontend**: `cd Web_frontend && npm run dev`
+1. **Start backend**: `cd backend && npm start`
+2. **Start frontend**: `cd frontend && npm run dev`
 3. Open **http://localhost:5173**
    - **Sign up** → `/signup` (validates name, email, password, confirm password) → creates user in DB → redirects to sign-in.
    - **Sign in** → `/` (email + password) → redirects to `/app` with user info.
@@ -149,7 +150,7 @@ Frontend uses relative URLs (e.g. `fetch('/api/signup')`); Vite proxies `/api` t
 - **User-related**: `work_experiences`, `education`, `skills`, `user_skills`, `certifications`, `projects`, `languages`, `resumes`
 - **Jobs**: `jobs`, `job_applications`, `saved_jobs`
 
-All tables use **UUID** primary keys, **timestamptz** for timestamps, and appropriate indexes/FKs. File storage is **URLs only** (e.g. `resumes.file_url`). See `Backend/Node/schema/job_portal_schema.sql` for full DDL and design notes.
+All tables use **UUID** primary keys, **timestamptz** for timestamps, and appropriate indexes/FKs. File storage is **URLs only** (e.g. `resumes.file_url`). See `backend/schema/job_portal_schema.sql` for full DDL and design notes.
 
 ---
 
@@ -157,20 +158,20 @@ All tables use **UUID** primary keys, **timestamptz** for timestamps, and approp
 
 | Variable        | Where       | Description |
 |----------------|-------------|-------------|
-| `DATABASE_URL` | Backend/Node/.env | Supabase Postgres connection string |
-| `PASSWORD_SALT`| Backend/Node/.env | Secret used for password hashing (required) |
-| `PORT`         | Backend/Node/.env | Server port (default 3000) |
-| `VITE_API_BASE_URL` | Web_frontend/.env | Optional; production API base URL (no trailing slash) |
+| `DATABASE_URL` | backend/.env | Supabase Postgres connection string |
+| `PASSWORD_SALT`| backend/.env | Secret used for password hashing (required) |
+| `PORT`         | backend/.env | Server port (default 3000) |
+| `VITE_API_BASE_URL` | frontend/.env | Optional; production API base URL (no trailing slash) |
 
 ---
 
 ## Scripts
 
-**Backend** (`Backend/Node`):
+**Backend** (`backend`):
 
 - `npm start` / `npm run dev` – run Express server
 
-**Frontend** (`Web_frontend`):
+**Frontend** (`frontend`):
 
 - `npm run dev` – Vite dev server
 - `npm run build` – production build

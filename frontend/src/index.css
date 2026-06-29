@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: add .dark to html to apply dark: variants */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Brand colors — derived from the MR ROKESH logo (fire & ice dragons).
+ * The app was originally built on the `blue` palette as its primary accent,
+ * so we remap `blue` to the logo's signature FIRE ORANGE. This recolors every
+ * `blue-*` utility (buttons, active nav, focus rings, links) app-wide from here.
+ * The ice-blue side of the logo is represented via `sky`/`cyan` accents.
+ */
+@theme {
+  --color-blue-50: #fff5ec;
+  --color-blue-100: #ffe7d2;
+  --color-blue-200: #fecba4;
+  --color-blue-300: #fda86c;
+  --color-blue-400: #fb7d39;
+  --color-blue-500: #f4591f;
+  --color-blue-600: #e84a12;
+  --color-blue-700: #bd380e;
+  --color-blue-800: #962e13;
+  --color-blue-900: #792913;
+  --color-blue-950: #411106;
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.dark body {
+  background-color: rgb(15 23 42);
+}
+
+/* Job description typography (sanitized HTML from APIs) */
+.job-description {
+  line-height: 1.65;
+}
+.job-description p {
+  margin-bottom: 0.75rem;
+}
+.job-description p:last-child {
+  margin-bottom: 0;
+}
+.job-description h2,
+.job-description h3,
+.job-description h4 {
+  font-weight: 600;
+  color: rgb(30 41 59);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: inherit;
+}
+.job-description h2:first-child,
+.job-description h3:first-child,
+.job-description h4:first-child {
+  margin-top: 0;
+}
+.job-description ul,
+.job-description ol {
+  margin: 0.5rem 0 0.75rem 1.25rem;
+  padding-left: 1.25rem;
+}
+.job-description li {
+  margin-bottom: 0.25rem;
+}
+.job-description strong,
+.job-description b {
+  font-weight: 600;
+  color: rgb(51 65 85);
+}
+.job-description a {
+  color: #e84a12;
+  text-decoration: underline;
+}
+.job-description a:hover {
+  color: #bd380e;
+}
+.job-description blockquote {
+  border-left: 3px solid rgb(203 213 225);
+  padding-left: 0.75rem;
+  margin: 0.75rem 0;
+  color: rgb(71 85 105);
+}
+
+.job-description-structured .job-description-section h3 {
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+.job-description-list {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+}
+.job-description-list li {
+  margin-bottom: 0.25rem;
+}

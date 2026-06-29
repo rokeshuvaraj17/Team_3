@@ -1,4 +1,4 @@
-# Environment and secrets (Backend/Node has its own .gitignore; this covers root)
+# Environment and secrets (backend has its own .gitignore; this covers root)
 .env
 .env.local
 .env.*.local

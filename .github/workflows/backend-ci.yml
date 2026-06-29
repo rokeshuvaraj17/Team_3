@@ -3,10 +3,10 @@ name: Backend CI
 on:
   push:
     paths:
-      - 'Backend/Node/**'
+      - 'backend/**'
   pull_request:
     paths:
-      - 'Backend/Node/**'
+      - 'backend/**'
 
 jobs:
   test:
@@ -20,14 +20,14 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-          cache-dependency-path: Backend/Node/package-lock.json
+          cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
-        working-directory: Backend/Node
+        working-directory: backend
         run: npm ci
 
       - name: Run tests
-        working-directory: Backend/Node
+        working-directory: backend
         run: npm test
 
       - name: Notify Mattermost

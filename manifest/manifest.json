@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Team 3 Extension",
+  "name": "MR_Rokesh Job Portal Extension",
   "version": "1.0.0",
-  "description": "Team 3 login and autofill profile data",
+  "description": "MR_Rokesh Job Portal login and autofill profile data",
   "permissions": ["storage", "activeTab", "scripting", "sidePanel","tabs"],
   "host_permissions": ["https://team-3-lvlf.onrender.com/*", "http://localhost:3000/*", "http://localhost:5173/*", "<all_urls>"],
   "background": { "service_worker": "background.js", "type": "module" },
@@ -11,7 +11,7 @@
   ],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "Team 3",
+    "default_title": "MR_Rokesh Job Portal",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

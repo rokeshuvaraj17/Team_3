@@ -3,12 +3,10 @@ name: Frontend CI
 on:
   push:
     paths:
-      - 'Web_Frontend/**'
-      - 'Web_frontend/**'
+      - 'frontend/**'
   pull_request:
     paths:
-      - 'Web_Frontend/**'
-      - 'Web_frontend/**'
+      - 'frontend/**'
 
 jobs:
   test-and-build:
@@ -22,18 +20,18 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-          cache-dependency-path: Web_frontend/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        working-directory: Web_frontend
+        working-directory: frontend
         run: npm ci
 
       - name: Run tests
-        working-directory: Web_frontend
+        working-directory: frontend
         run: npm test
 
       - name: Build check
-        working-directory: Web_frontend
+        working-directory: frontend
         run: npm run build
 
       - name: Notify Mattermost

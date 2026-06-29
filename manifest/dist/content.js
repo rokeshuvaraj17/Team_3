@@ -157,13 +157,13 @@
     const fab = document.createElement("button");
     fab.id = "team3-job-fab";
     fab.type = "button";
-    fab.title = "Save job to Team 3";
+    fab.title = "Save job to MR_Rokesh Job Portal";
     fab.innerHTML = `
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
       <rect x="2" y="3" width="20" height="18" rx="3"/>
       <path d="M8 7h8M8 11h8M8 15h5"/>
     </svg>
-    <span>Save to Team 3</span>
+    <span>Save to MR_Rokesh Job Portal</span>
   `;
     fab.addEventListener("click", () => {
       const result = scrapeJobPage();
@@ -183,7 +183,7 @@
               <rect x="2" y="3" width="20" height="18" rx="3"/>
               <path d="M8 7h8M8 11h8M8 15h5"/>
             </svg>
-            <span>Save to Team 3</span>
+            <span>Save to MR_Rokesh Job Portal</span>
           `;
             fab.classList.remove("team3-fab-success");
           }, 2e3);
@@ -195,7 +195,7 @@
   try {
     if (isJobSite()) injectFAB();
   } catch (e) {
-    console.warn("Team 3 extension: injectFAB failed", e);
+    console.warn("MR_Rokesh Job Portal extension: injectFAB failed", e);
   }
   function injectSidebarIcons() {
     if (window !== window.top) return;
@@ -203,12 +203,12 @@
     const strip = document.createElement("div");
     strip.id = "team3-sidebar-strip";
     strip.className = "team3-sidebar-strip";
-    strip.setAttribute("aria-label", "Team 3");
+    strip.setAttribute("aria-label", "MR_Rokesh Job Portal");
     strip.innerHTML = `
-    <button type="button" class="team3-sidebar-icon team3-sidebar-icon-t" title="Team 3 \u2013 open side panel" aria-label="Open Team 3">
-      <span class="team3-sidebar-icon-letter">T</span>
+    <button type="button" class="team3-sidebar-icon team3-sidebar-icon-t" title="MR_Rokesh Job Portal \u2013 open side panel" aria-label="Open MR_Rokesh Job Portal">
+      <span class="team3-sidebar-icon-letter">M</span>
     </button>
-    <button type="button" class="team3-sidebar-icon team3-sidebar-icon-circle" title="Team 3 \u2013 open side panel" aria-label="Open Team 3">
+    <button type="button" class="team3-sidebar-icon team3-sidebar-icon-circle" title="MR_Rokesh Job Portal \u2013 open side panel" aria-label="Open MR_Rokesh Job Portal">
       <span class="team3-sidebar-icon-circle-svg"></span>
     </button>
   `;
@@ -236,7 +236,7 @@
   try {
     tryInjectSidebarIcons();
   } catch (e) {
-    console.warn("Team 3 extension: tryInjectSidebarIcons failed", e);
+    console.warn("MR_Rokesh Job Portal extension: tryInjectSidebarIcons failed", e);
   }
   function setNativeValue(el, value) {
     const proto = Object.getPrototypeOf(el);
@@ -472,7 +472,7 @@
     const allFields = Array.from(root.querySelectorAll("input:not([type='hidden']):not([type='submit']):not([type='button']):not([type='image']), textarea, select, [role='combobox']"));
     const elements = allFields.filter((el) => !el.hasAttribute(ATTR));
     if (elements.length === 0) {
-      if (AUTOFILL_DEBUG) console.log("[Team3 Autofill] No unfilled fields found (all may already have data-team3-autofilled).");
+      if (AUTOFILL_DEBUG) console.log("[MR_Rokesh Job Portal Autofill] No unfilled fields found (all may already have data-team3-autofilled).");
       return true;
     }
     const fields = elements.map((el) => ({
@@ -480,7 +480,7 @@
       type: getFieldType(el)
     }));
     if (AUTOFILL_DEBUG) {
-      console.log("[Team3 Autofill] Sending to API:", elements.length, "fields. Metas (in order):", fields.map((f, i) => `${i + 1}. "${f.meta}" (${f.type})`));
+      console.log("[MR_Rokesh Job Portal Autofill] Sending to API:", elements.length, "fields. Metas (in order):", fields.map((f, i) => `${i + 1}. "${f.meta}" (${f.type})`));
     }
     try {
       const url = `${apiBase.replace(/\/$/, "")}/api/autofill/match-fields`;
@@ -502,15 +502,15 @@
       const values = Array.isArray(json?.values) ? json.values : [];
       const useFallback = json?.fallback === true;
       if (AUTOFILL_DEBUG) {
-        console.log("[Team3 Autofill] API status:", res.status, "| values count:", values.length, "| expected:", elements.length, useFallback ? "| fallback requested" : "");
-        console.log("[Team3 Autofill] Values returned:", values.map((v, i) => `${i + 1}. ${v === "" ? "(empty)" : `"${String(v).slice(0, 50)}${String(v).length > 50 ? "\u2026" : ""}"`}`));
-        if (json?.debug) console.log("[Team3 Autofill] Debug from server:", json.debug);
-        if (json?.error) console.log("[Team3 Autofill] API message:", json.error);
+        console.log("[MR_Rokesh Job Portal Autofill] API status:", res.status, "| values count:", values.length, "| expected:", elements.length, useFallback ? "| fallback requested" : "");
+        console.log("[MR_Rokesh Job Portal Autofill] Values returned:", values.map((v, i) => `${i + 1}. ${v === "" ? "(empty)" : `"${String(v).slice(0, 50)}${String(v).length > 50 ? "\u2026" : ""}"`}`));
+        if (json?.debug) console.log("[MR_Rokesh Job Portal Autofill] Debug from server:", json.debug);
+        if (json?.error) console.log("[MR_Rokesh Job Portal Autofill] API message:", json.error);
       }
       if (useFallback || values.length !== elements.length) {
-        if (AUTOFILL_DEBUG && useFallback) console.log("[Team3 Autofill] Using client-side fill (API returned fallback).");
+        if (AUTOFILL_DEBUG && useFallback) console.log("[MR_Rokesh Job Portal Autofill] Using client-side fill (API returned fallback).");
         if (values.length !== elements.length && !useFallback) {
-          if (AUTOFILL_DEBUG) console.warn("[Team3 Autofill] Length mismatch: API returned", values.length, "values for", elements.length, "fields.");
+          if (AUTOFILL_DEBUG) console.warn("[MR_Rokesh Job Portal Autofill] Length mismatch: API returned", values.length, "values for", elements.length, "fields.");
         }
         return false;
       }
@@ -519,19 +519,19 @@
         const rawValue = values[i];
         const meta = fields[i].meta;
         if (rawValue == null || typeof rawValue === "string" && !rawValue.trim() && rawValue !== "0") {
-          if (AUTOFILL_DEBUG) console.log("[Team3 Autofill] Skip", i + 1, 'meta="' + meta + '" (empty value)');
+          if (AUTOFILL_DEBUG) console.log("[MR_Rokesh Job Portal Autofill] Skip", i + 1, 'meta="' + meta + '" (empty value)');
           continue;
         }
         const cleanedValue = normalizeValueForField(el, "", rawValue, meta);
         const isStateLike = meta.includes("state") || meta.includes("region") || meta.includes("province");
         const valueToFill = isStateLike ? normalizeState(rawValue) || cleanedValue : cleanedValue;
         if (!valueToFill && valueToFill !== "0") {
-          if (AUTOFILL_DEBUG) console.log("[Team3 Autofill] Skip", i + 1, 'meta="' + meta + '" (normalized to empty)');
+          if (AUTOFILL_DEBUG) console.log("[MR_Rokesh Job Portal Autofill] Skip", i + 1, 'meta="' + meta + '" (normalized to empty)');
           continue;
         }
         await fillFieldByType(el, String(valueToFill), doc);
         el.setAttribute(ATTR, "1");
-        if (AUTOFILL_DEBUG) console.log("[Team3 Autofill] Filled", i + 1, 'meta="' + meta + '" with', '"' + String(valueToFill).slice(0, 40) + (String(valueToFill).length > 40 ? "\u2026" : "") + '"');
+        if (AUTOFILL_DEBUG) console.log("[MR_Rokesh Job Portal Autofill] Filled", i + 1, 'meta="' + meta + '" with', '"' + String(valueToFill).slice(0, 40) + (String(valueToFill).length > 40 ? "\u2026" : "") + '"');
         if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
           const input = el;
           setTimeout(() => {
@@ -543,7 +543,7 @@
       }
       return true;
     } catch (err) {
-      if (AUTOFILL_DEBUG) console.error("[Team3 Autofill] API or fill error:", err);
+      if (AUTOFILL_DEBUG) console.error("[MR_Rokesh Job Portal Autofill] API or fill error:", err);
       return false;
     }
   }
@@ -1212,11 +1212,11 @@
   function onShortcut() {
     chrome.runtime.sendMessage({ type: "GET_PROFILE" }, (response) => {
       if (chrome.runtime.lastError) {
-        console.warn("Team 3 extension:", chrome.runtime.lastError.message);
+        console.warn("MR_Rokesh Job Portal extension:", chrome.runtime.lastError.message);
         return;
       }
       if (response?.error) {
-        console.warn("Team 3 extension:", response.error);
+        console.warn("MR_Rokesh Job Portal extension:", response.error);
         return;
       }
       if (response?.profile) {

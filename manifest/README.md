@@ -1,16 +1,16 @@
-# Team 3 Chrome Extension (Manifest v3)
+# MR_Rokesh Job Portal Chrome Extension (Manifest v3)
 
 ## Port (local testing)
 
 The extension is configured for **local** backend and frontend:
 
 - **Backend:** `http://localhost:3000` (set in `utils/api.ts` and `background.ts`)
-- **Frontend / web app:** `http://localhost:5173` (derived from API_BASE; used for “Open in Team 3”, profile, generate resume/cover letter links)
+- **Frontend / web app:** `http://localhost:5173` (derived from API_BASE; used for “Open in MR_Rokesh Job Portal”, profile, generate resume/cover letter links)
 
 Start both before testing:
 
-1. **Backend:** `cd Backend/Node && npm run dev` (or `node server.js`)
-2. **Frontend:** `cd Web_frontend && npm run dev` (Vite on 5173)
+1. **Backend:** `cd backend && npm run dev` (or `node src/server.js`)
+2. **Frontend:** `cd frontend && npm run dev` (Vite on 5173)
 
 Load the extension from the **`dist`** folder. For production, change `API_BASE` in `utils/api.ts` and `background.ts` to your production URL (e.g. `https://team-3-lvlf.onrender.com`) and run `npm run build` again.
 
@@ -41,7 +41,7 @@ If autofill shows “couldn’t run” or “refresh the job page” on every pa
 1. **Load the extension from `dist`**
    - In the project: `cd manifest` then `npm run build`.
    - In Chrome: **Extensions** → **Load unpacked** → choose the **`manifest/dist`** folder (not `manifest`).
-2. **Reload the extension** (Extensions page → refresh icon on Team 3 Extension).
+2. **Reload the extension** (Extensions page → refresh icon on MR_Rokesh Job Portal Extension).
 3. **Refresh the job application tab** (or open the job page again), then click **Autofill current page**.
 
 Use autofill on the **tab where the job application form is open** (e.g. company careers site). It will not work on `chrome://` or the extension’s own pages.
@@ -51,7 +51,7 @@ Use autofill on the **tab where the job application form is open** (e.g. company
 1. **Open DevTools on the job application page**  
    Right‑click the page → **Inspect** → **Console** tab. Leave it open, then click **Autofill current page** in the extension.
 
-2. **Check extension logs (prefix `[Team3 Autofill]`)**  
+2. **Check extension logs (prefix `[MR_Rokesh Job Portal Autofill]`)**  
    - **“Sending to API: N fields”** – Number of form fields we detected and their `meta` (name/id/label/placeholder). If N is 0, the page may use different elements or all fields already have `data-team3-autofilled`.
    - **“API status: 200 | values count: X | expected: Y”** – If X ≠ Y, the backend returned the wrong number of values and we abort (no fill). That usually means the AI returned malformed JSON.
    - **“Values returned: 1. (empty) 2. "value" …”** – What the API returned for each field. If many are `(empty)`, the AI didn’t match your user data/resume to those field labels.

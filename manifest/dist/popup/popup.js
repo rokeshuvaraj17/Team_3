@@ -1,7 +1,10 @@
 import { apiFetch, API_BASE } from '../utils/api.js';
-// Web app base URL for Job Tracker and profile edit (dev: same host, frontend port)
-// Local frontend (Vite). When API_BASE is localhost:3000 this is localhost:5173.
-const FRONTEND_BASE = API_BASE.replace(/:3000\/?$/, ':5173');
+// Web app base URL for Job Tracker and profile edit.
+// Dev: when API_BASE is http://localhost:3000 use http://localhost:5173.
+// Prod: default to deployed frontend at https://team-3-two.vercel.app.
+const FRONTEND_BASE = API_BASE.includes('localhost:3000')
+    ? API_BASE.replace(/:3000\/?$/, ':5173')
+    : 'https://team-3-two.vercel.app';
 import { scrapeJobPage } from '../scraper.js';
 const THEME_KEY = 'team3-extension-theme';
 function applyTheme(theme) {
@@ -1270,6 +1273,8 @@ async function loadState() {
             state.selectedApiKeyId = defaultRes.data.id;
             state.useCustom = false;
             await chrome.storage.local.set({ selectedApiKeyId: defaultRes.data.id, useCustom: false });
+            updateChecklist();
+            renderStoredKeyButtons();
         }
     }
     const savedTab = data.activeTab === 'profile' ? 'account' : data.activeTab;

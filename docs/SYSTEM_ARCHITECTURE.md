@@ -1,4 +1,4 @@
-# System Architecture — Team 3 Job Application Portal
+# System Architecture — MR_Rokesh Job Portal
 
 High-level architecture of the job application portal: Chrome extension, web app, Node backend, and external services.
 
@@ -45,7 +45,7 @@ High-level architecture of the job application portal: Chrome extension, web app
 |------|--------|------|
 | **Manifest** | `manifest/manifest.json` | Permissions: storage, activeTab, scripting, sidePanel, tabs; host permissions for backend + `<all_urls>`. |
 | **Background (service worker)** | `manifest/background.ts` → `dist/background.js` | Handles messages (e.g. `SET_USE_SIDEBAR`, `OPEN_SIDE_PANEL`, `JOB_SCRAPED`), stores scraped job in `chrome.storage`, applies sidebar preference, fetches profile for autofill and responds to `GET_PROFILE`. |
-| **Content script** | `manifest/content.ts` → `dist/content.js` | Injected on `<all_urls>`. On job sites: injects FAB “Save to Team 3” and sidebar strip; listens for `APPLY_AUTOFILL`; applies table-based or full autofill (profile/resume/cover letter); marks fields with `data-team3-autofilled`. |
+| **Content script** | `manifest/content.ts` → `dist/content.js` | Injected on `<all_urls>`. On job sites: injects FAB “Save to MR_Rokesh Job Portal” and sidebar strip; listens for `APPLY_AUTOFILL`; applies table-based or full autofill (profile/resume/cover letter); marks fields with `data-team3-autofilled`. |
 | **Popup / side panel** | `manifest/popup/popup.ts` + `popup.html` | Login, profile, resume/cover letter context, scrape current page, generate cover letter, autofill trigger; uses `manifest/utils/api.ts` for all backend calls. |
 | **Scraper** | `manifest/scraper.ts` | Self-contained scraper for job page (LinkedIn, Workday, Greenhouse, etc.); returns title, company, location, description, source. Used by content (FAB) and popup. |
 | **API client** | `manifest/utils/api.ts` | `API_BASE` (e.g. `http://localhost:3000`), `apiFetch(path, { token })` with `x-user-id` for auth. |
@@ -58,9 +58,9 @@ High-level architecture of the job application portal: Chrome extension, web app
 
 | Part | Location | Role |
 |------|----------|------|
-| **App & routing** | `Web_frontend/src/App.tsx`, `main.tsx` | Routes: `/`, `/signup`, `/app`, etc. |
-| **API** | `Web_frontend/src/lib/api.ts` | `apiUrl()` / `apiBase` for backend; proxy in dev (e.g. `/api` → backend). |
-| **Pages** | `Web_frontend/src/pages/` | Welcome, job search, documents, Resumake, notifications, API connection, extension instructions, etc. |
+| **App & routing** | `frontend/src/App.tsx`, `main.tsx` | Routes: `/`, `/signup`, `/app`, etc. |
+| **API** | `frontend/src/lib/api.ts` | `apiUrl()` / `apiBase` for backend; proxy in dev (e.g. `/api` → backend). |
+| **Pages** | `frontend/src/pages/` | Welcome, job search, documents, Resumake, notifications, API connection, extension instructions, etc. |
 | **UI** | React 19, Vite 7, TypeScript, Tailwind 4, Framer Motion, Lucide | Components and styling. |
 
 **Deployment:** Vite dev server (e.g. port 5173); production can be Vercel (`vercel.json`). Same backend for web and extension.
@@ -109,7 +109,7 @@ High-level architecture of the job application portal: Chrome extension, web app
 
 ### 3.1 Extension: Save job from job site
 
-1. User on job site (e.g. LinkedIn) → content script shows “Save to Team 3” FAB.
+1. User on job site (e.g. LinkedIn) → content script shows “Save to MR_Rokesh Job Portal” FAB.
 2. User clicks FAB → content runs `scrapeJobPage()`, sends `JOB_SCRAPED` to background with scraped data + URL.
 3. Background stores job in `chrome.storage.local`.
 4. (Optional) Popup or web app can send this job to backend (e.g. job tracker) via API.
