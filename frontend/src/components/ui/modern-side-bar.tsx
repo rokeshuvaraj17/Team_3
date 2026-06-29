@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { getStoredUser, clearStoredUser } from '@/lib/auth'
 import { apiUrl } from '@/lib/api'
+import { useNotifications } from '@/lib/useNotifications'
 import logoUrl from '@/images/transparent.png'
 
 interface NavigationItem {
@@ -39,7 +40,7 @@ const navigationItems: NavigationItem[] = [
   { id: 'analytics', name: 'Analytics', icon: BarChart3, href: '/app/analytics' },
   { id: 'job-tracker', name: 'Job Tracker', icon: BookmarkCheck, href: '/app/job-tracker' },
   { id: 'documents', name: 'Documents', icon: FileText, href: '/app/documents' },
-  { id: 'notifications', name: 'Notifications', icon: Bell, href: '/app/notifications', badge: '12' },
+  { id: 'notifications', name: 'Notifications', icon: Bell, href: '/app/notifications' },
   { id: 'extension', name: 'Extension', icon: Puzzle, href: '/app/extension' },
   { id: 'api-connection', name: 'API Connection', icon: KeyRound, href: '/app/api-connection' },
   { id: 'autofill-form-fields', name: 'Autofill Form Fields', icon: FormInput, href: '/app/autofill-form-fields' },
@@ -59,6 +60,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [profileName, setProfileName] = useState<string | null>(null)
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null)
+  const { count: notificationCount } = useNotifications()
 
   const activeItem =
     navigationItems.find((item) => {
@@ -178,6 +180,12 @@ export function Sidebar({ className = '' }: SidebarProps) {
             {navigationItems.map((item) => {
               const Icon = item.icon
               const isActive = activeItem === item.id
+              const badge =
+                item.id === 'notifications'
+                  ? notificationCount > 0
+                    ? String(notificationCount)
+                    : undefined
+                  : item.badge
               return (
                 <li key={item.id} className="relative">
                   <Link
@@ -199,29 +207,29 @@ export function Sidebar({ className = '' }: SidebarProps) {
                     {!isCollapsed && (
                       <div className="flex items-center justify-between w-full">
                         <span className={`text-sm ${isActive ? 'font-medium' : 'font-normal'}`}>{item.name}</span>
-                        {item.badge && (
+                        {badge && (
                           <span
                             className={`px-1.5 py-0.5 text-xs font-medium rounded-full ${
                               isActive ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
                             }`}
                           >
-                            {item.badge}
+                            {badge}
                           </span>
                         )}
                       </div>
                     )}
-                    {isCollapsed && item.badge && (
+                    {isCollapsed && badge && (
                       <div className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center rounded-full bg-blue-100 border border-white">
                         <span className="text-[10px] font-medium text-blue-700">
-                          {parseInt(item.badge) > 9 ? '9+' : item.badge}
+                          {parseInt(badge) > 9 ? '9+' : badge}
                         </span>
                       </div>
                     )}
                     {isCollapsed && (
                       <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
                         {item.name}
-                        {item.badge && (
-                          <span className="ml-1.5 px-1 py-0.5 bg-slate-700 rounded-full text-[10px]">{item.badge}</span>
+                        {badge && (
+                          <span className="ml-1.5 px-1 py-0.5 bg-slate-700 rounded-full text-[10px]">{badge}</span>
                         )}
                         <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
                       </div>
