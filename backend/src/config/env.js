@@ -5,6 +5,18 @@ const freeKey = process.env.FREE_JOB_API_KEY || process.env.free_job_api_key || 
 module.exports = {
   PORT: process.env.PORT || 3000,
   DATABASE_URL: process.env.DATABASE_URL,
+  // Secondary database (failover standby). Used automatically if the primary
+  // (DATABASE_URL) is unreachable, and kept in sync by the replication worker.
+  DB_USER2: process.env.DB_USER2 || '',
+  DB_HOST2: process.env.DB_HOST2 || '',
+  DB_NAME2: process.env.DB_NAME2 || '',
+  DB_PASSWORD2: process.env.DB_PASSWORD2 || '',
+  DB_PORT2: process.env.DB_PORT2 || '5432',
+  // Set DB_SSL2=true only if your secondary Postgres server requires SSL.
+  DB_SSL2: process.env.DB_SSL2 || '',
+  // How long (ms) to stop sending traffic to a DB after a connection failure
+  // before retrying it again (auto-recovery probe interval).
+  DB_FAILOVER_COOLDOWN_MS: process.env.DB_FAILOVER_COOLDOWN_MS || '15000',
   PASSWORD_SALT: process.env.PASSWORD_SALT || '',
   ADZUNA_APP_ID: process.env.ADZUNA_APP_ID || freeKey,
   ADZUNA_APP_KEY: process.env.ADZUNA_APP_KEY || freeKey,

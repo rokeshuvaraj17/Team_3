@@ -7,6 +7,9 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "start:legacy": "node server.js",
+    "db:copy": "node scripts/copy-db.js",
+    "db:copy:reverse": "node scripts/copy-db.js --reverse",
+    "db:replication:setup": "node scripts/setup-replication.js",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

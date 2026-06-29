@@ -8,7 +8,8 @@ function check(req, res) {
 async function dbCheck(req, res) {
   try {
     await pool.query('select 1')
-    res.json({ ok: true, message: 'Database connected' })
+    const status = typeof pool.getStatus === 'function' ? pool.getStatus() : undefined
+    res.json({ ok: true, message: 'Database connected', db: status })
   } catch (err) {
     const { status, body } = handleDbError(err, 'Health check')
     return res.status(status).json(body)

@@ -7,8 +7,27 @@ services:
     startCommand: npm start
     autoDeploy: true
     envVars:
+      # Comma-separated list of frontend origins allowed by CORS (no trailing slash).
+      # Add every deployed frontend domain here (e.g. your Vercel URL).
+      - key: ALLOWED_ORIGINS
+        value: https://team-3-two.vercel.app
       # Set these in the Render dashboard or via the blueprint UI.
       - key: DATABASE_URL
+        sync: false
+      # Secondary database (failover standby). Used automatically if the
+      # primary is unreachable. Set values in the Render dashboard.
+      - key: DB_USER2
+        sync: false
+      - key: DB_HOST2
+        sync: false
+      - key: DB_NAME2
+        sync: false
+      - key: DB_PASSWORD2
+        sync: false
+      - key: DB_PORT2
+        sync: false
+      # Set DB_SSL2=true only if the secondary server requires SSL.
+      - key: DB_SSL2
         sync: false
       - key: PASSWORD_SALT
         sync: false
