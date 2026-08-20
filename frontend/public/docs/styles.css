@@ -1,5 +1,5 @@
 :root{
-  --bg:#f6f7f9; --panel:#fff; --ink:#0f172a; --muted:#64748b; --line:#e5e8ee;
+  --bg:#ffffff; --panel:#fff; --ink:#0f172a; --muted:#64748b; --line:#e5e8ee;
   --accent:#f4703a; --accent-ink:#c2410c; --can:#16a34a; --canbg:#ecfdf3;
   --cannot:#dc2626; --cannotbg:#fef2f2; --side:#0f172a;
 }
@@ -10,10 +10,12 @@ body{margin:0;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,H
 a{color:var(--accent-ink);text-decoration:none}
 a:hover{text-decoration:underline}
 .side{position:fixed;top:0;left:0;bottom:0;width:264px;background:var(--side);color:#cbd5e1;padding:20px 14px;overflow-y:auto}
-.brand{display:flex;gap:10px;align-items:center;margin-bottom:16px}
+.brand{display:flex;gap:10px;align-items:center;justify-content:center;background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.brand-logo{width:100%;max-width:190px;height:auto;display:block}
 .brand-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#fb923c);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
 .brand strong{display:block;color:#fff;font-size:14px;line-height:1.2}
 .brand span{font-size:12px;color:#94a3b8}
+.brand-sub{text-align:center;color:#94a3b8;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
 #search{width:100%;padding:9px 12px;border-radius:9px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;margin-bottom:14px;outline:none}
 #search::placeholder{color:#94a3b8}
 nav a{display:block;color:#cbd5e1;padding:5px 8px;border-radius:7px;font-size:13px}
@@ -30,18 +32,18 @@ main{margin-left:264px;padding:34px 40px 80px;max-width:1180px}
 .cat{margin-top:40px}
 .cat>h2{font-size:22px;border-bottom:2px solid var(--line);padding-bottom:8px;margin-bottom:18px}
 .mods{display:flex;flex-direction:column;gap:26px}
-.mod{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:0 1px 2px rgba(15,23,42,.04);scroll-margin-top:20px}
+.mod{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:0 1px 3px rgba(15,23,42,.07);scroll-margin-top:20px}
 .mod-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .mod-head h3{margin:0;font-size:20px}
 .mod-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;margin-top:12px}
 .mod-visual{display:flex;flex-direction:column;gap:16px;min-width:0}
 .mod-text{min-width:0}
-.fig{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#f8fafc}
+.fig{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
 .fig img{display:block;width:100%;height:auto}
 .fig figcaption{padding:8px 12px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);background:#fff}
 .fig--ann{border-color:#fca5a5}
 .tag-ann{display:inline-block;background:#E10600;color:#fff;font-weight:700;font-size:10.5px;letter-spacing:.03em;padding:1px 6px;border-radius:4px;margin-right:6px;text-transform:uppercase}
-.shot{display:block;background:#eef1f5}
+.shot{display:block;background:#fff}
 .shot img{display:block;width:100%;height:auto}
 .shot--missing{padding:40px;text-align:center;color:var(--muted);font-size:13px}
 .mt{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:#334155}
@@ -55,7 +57,7 @@ main{margin-left:264px;padding:34px 40px 80px;max-width:1180px}
 .video-box{background:#0b1220;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
 .video-box video{width:100%;max-height:640px;border-radius:10px;display:block;background:#000}
 .video-note{color:var(--muted);font-size:13px;margin:10px 4px 2px}
-.route{background:#f1f5f9;border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:11.5px;color:#475569}
+.route{background:#fff;border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:11.5px;color:#475569}
 .summary{color:var(--muted);margin:8px 0 4px}
 .cc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .can,.cannot{border-radius:10px;padding:10px 12px}
