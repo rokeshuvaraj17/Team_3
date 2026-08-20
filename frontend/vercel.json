@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/((?!team3-extension\\.zip$).*)", "destination": "/index.html" }
+    { "source": "/((?!team3-extension\\.zip$|docs($|/)).*)", "destination": "/index.html" }
   ]
 }
