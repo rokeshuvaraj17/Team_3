@@ -22,13 +22,34 @@ const env = require('./env')
 
 const FAILOVER_COOLDOWN_MS = Number(env.DB_FAILOVER_COOLDOWN_MS) || 15000
 
+/**
+ * Decide SSL for the primary connection string.
+ * - `sslmode=disable` in the URL  -> no SSL (explicit opt-out).
+ * - `sslmode=require|verify-*`     -> SSL (explicit opt-in).
+ * - localhost / raw IPv4 host      -> no SSL (self-hosted servers usually have
+ *   TLS off, e.g. a plain Postgres on your own box).
+ * - anything else (managed hosts   -> SSL (Supabase/Neon/RDS require it).
+ *   like *.supabase.com)
+ * For a self-hosted server on a domain name with TLS off, append
+ * `?sslmode=disable` to DATABASE_URL.
+ */
+function primarySslConfig(url) {
+  if (/[?&]sslmode=disable/i.test(url)) return false
+  if (/[?&]sslmode=(require|verify-(ca|full))/i.test(url)) return { rejectUnauthorized: false }
+  const host = (url.match(/@([^/:?]+)/) || [])[1] || ''
+  const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(host)
+  const isBareIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
+  if (isLocal || isBareIp) return false
+  return { rejectUnauthorized: false }
+}
+
 function buildPrimaryPool() {
   const url = env.DATABASE_URL
   if (!url) return null
-  const isRemote = !/@(localhost|127\.0\.0\.1)(:\d+)?\//.test(url)
+  const ssl = primarySslConfig(url)
   return new Pool({
     connectionString: url,
-    ...(isRemote ? { ssl: { rejectUnauthorized: false } } : {}),
+    ...(ssl ? { ssl } : {}),
     max: 10,
     connectionTimeoutMillis: 8000,
     idleTimeoutMillis: 30000,
