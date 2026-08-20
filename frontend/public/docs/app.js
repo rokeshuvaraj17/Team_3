@@ -1,6 +1,6 @@
 (function(){
   var search=document.getElementById('search');
-  var cards=[].slice.call(document.querySelectorAll('.card,.guide'));
+  var cards=[].slice.call(document.querySelectorAll('.mod,.guide'));
   if(search){search.addEventListener('input',function(){
     var q=search.value.trim().toLowerCase();
     cards.forEach(function(c){
@@ -8,7 +8,7 @@
       c.classList.toggle('hidden', q && hay.indexOf(q)===-1);
     });
     document.querySelectorAll('.cat').forEach(function(sec){
-      var vis=sec.querySelectorAll('.card:not(.hidden),.guide:not(.hidden)').length;
+      var vis=sec.querySelectorAll('.mod:not(.hidden),.guide:not(.hidden)').length;
       sec.classList.toggle('hidden', q && vis===0);
     });
   });}
