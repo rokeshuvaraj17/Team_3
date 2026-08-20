@@ -302,6 +302,32 @@ function retryWithAlternativeFormatting(
 
 const semanticCache: Record<string, string | null> = {};
 
+/**
+ * Route backend calls through the background service worker so requests use the
+ * extension origin (which the backend allows) instead of the job site's page
+ * origin. This avoids CORS failures when autofilling on third-party sites.
+ */
+async function autofillApi<T = Record<string, unknown>>(
+  path: string,
+  body: unknown,
+  userId: string
+): Promise<{ ok: boolean; status: number; data: T | null }> {
+  return new Promise((resolve) => {
+    try {
+      chrome.runtime.sendMessage({ type: 'AUTOFILL_API', data: { path, body, userId } }, (resp) => {
+        if (chrome.runtime.lastError) {
+          resolve({ ok: false, status: 0, data: null });
+          return;
+        }
+        const r = resp as { success?: boolean; status?: number; data?: T } | undefined;
+        resolve({ ok: !!r?.success, status: r?.status ?? 0, data: (r?.data ?? null) as T | null });
+      });
+    } catch {
+      resolve({ ok: false, status: 0, data: null });
+    }
+  });
+}
+
 async function semanticMatch(
   meta: string,
   availableKeys: string[],
@@ -312,15 +338,10 @@ async function semanticMatch(
   const cacheKey = `${window.location.hostname}:${meta}`;
   if (cacheKey in semanticCache) return semanticCache[cacheKey];
   try {
-    const url = `${apiBase.replace(/\/$/, '')}/api/autofill/semantic-match`;
     const body: { fieldMeta: string; availableKeys: string[]; api_key_id?: string } = { fieldMeta: meta, availableKeys };
     if (apiKeyId) body.api_key_id = apiKeyId;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json().catch(() => ({}));
+    const { data } = await autofillApi<{ matchedKey?: string }>('/api/autofill/semantic-match', body, userId);
+    const json = data ?? {};
     const matched = json?.matchedKey && availableKeys.includes(json.matchedKey) ? json.matchedKey : null;
     semanticCache[cacheKey] = matched;
     return matched;
@@ -341,15 +362,10 @@ async function semanticOptionMatch(
   const cacheKey = `${window.location.hostname}:opt:${fieldLabel}:${value}`;
   if (cacheKey in semanticCache) return semanticCache[cacheKey];
   try {
-    const url = `${apiBase.replace(/\/$/, '')}/api/autofill/semantic-option-match`;
     const body: { fieldLabel: string; value: string; options: string[]; api_key_id?: string } = { fieldLabel, value, options };
     if (apiKeyId) body.api_key_id = apiKeyId;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json().catch(() => ({}));
+    const { data } = await autofillApi<{ bestOption?: string }>('/api/autofill/semantic-option-match', body, userId);
+    const json = data ?? {};
     const best = json?.bestOption && options.includes(json.bestOption) ? json.bestOption : null;
     semanticCache[cacheKey] = best;
     return best;
@@ -398,7 +414,6 @@ async function runAutofillEngineViaAPI(payload: TablePayload, root: Document | S
   }
 
   try {
-    const url = `${apiBase.replace(/\/$/, '')}/api/autofill/match-fields`;
     const body: { fields: { meta: string; type: string }[]; userData: Record<string, string>; excluded: string[]; api_key_id?: string; resumeText?: string; coverLetterText?: string; includeDebug?: boolean } = {
       fields,
       userData: payload.fields,
@@ -408,17 +423,13 @@ async function runAutofillEngineViaAPI(payload: TablePayload, root: Document | S
     if (payload.api_key_id) body.api_key_id = payload.api_key_id;
     if (payload.resumeText && payload.resumeText.trim()) body.resumeText = payload.resumeText.trim();
     if (payload.coverLetterText && payload.coverLetterText.trim()) body.coverLetterText = payload.coverLetterText.trim();
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json().catch(() => ({}));
+    const { status, data: respData } = await autofillApi<{ values?: string[]; fallback?: boolean; debug?: unknown; error?: string }>('/api/autofill/match-fields', body, userId);
+    const json = (respData ?? {}) as { values?: string[]; fallback?: boolean; debug?: unknown; error?: string };
     const values: string[] = Array.isArray(json?.values) ? json.values : [];
     const useFallback = json?.fallback === true;
 
     if (AUTOFILL_DEBUG) {
-      console.log('[MR_Rokesh Job Portal Autofill] API status:', res.status, '| values count:', values.length, '| expected:', elements.length, useFallback ? '| fallback requested' : '');
+      console.log('[MR_Rokesh Job Portal Autofill] API status:', status, '| values count:', values.length, '| expected:', elements.length, useFallback ? '| fallback requested' : '');
       console.log('[MR_Rokesh Job Portal Autofill] Values returned:', values.map((v, i) => `${i + 1}. ${v === '' ? '(empty)' : `"${String(v).slice(0, 50)}${String(v).length > 50 ? '…' : ''}"`}`));
       if (json?.debug) console.log('[MR_Rokesh Job Portal Autofill] Debug from server:', json.debug);
       if (json?.error) console.log('[MR_Rokesh Job Portal Autofill] API message:', json.error);

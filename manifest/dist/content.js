@@ -409,19 +409,30 @@
     el.blur();
   }
   var semanticCache = {};
+  async function autofillApi(path, body, userId) {
+    return new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage({ type: "AUTOFILL_API", data: { path, body, userId } }, (resp) => {
+          if (chrome.runtime.lastError) {
+            resolve({ ok: false, status: 0, data: null });
+            return;
+          }
+          const r = resp;
+          resolve({ ok: !!r?.success, status: r?.status ?? 0, data: r?.data ?? null });
+        });
+      } catch {
+        resolve({ ok: false, status: 0, data: null });
+      }
+    });
+  }
   async function semanticMatch(meta, availableKeys, apiBase, userId, apiKeyId) {
     const cacheKey = `${window.location.hostname}:${meta}`;
     if (cacheKey in semanticCache) return semanticCache[cacheKey];
     try {
-      const url = `${apiBase.replace(/\/$/, "")}/api/autofill/semantic-match`;
       const body = { fieldMeta: meta, availableKeys };
       if (apiKeyId) body.api_key_id = apiKeyId;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-id": userId },
-        body: JSON.stringify(body)
-      });
-      const json = await res.json().catch(() => ({}));
+      const { data } = await autofillApi("/api/autofill/semantic-match", body, userId);
+      const json = data ?? {};
       const matched = json?.matchedKey && availableKeys.includes(json.matchedKey) ? json.matchedKey : null;
       semanticCache[cacheKey] = matched;
       return matched;
@@ -434,15 +445,10 @@
     const cacheKey = `${window.location.hostname}:opt:${fieldLabel}:${value}`;
     if (cacheKey in semanticCache) return semanticCache[cacheKey];
     try {
-      const url = `${apiBase.replace(/\/$/, "")}/api/autofill/semantic-option-match`;
       const body = { fieldLabel, value, options };
       if (apiKeyId) body.api_key_id = apiKeyId;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-id": userId },
-        body: JSON.stringify(body)
-      });
-      const json = await res.json().catch(() => ({}));
+      const { data } = await autofillApi("/api/autofill/semantic-option-match", body, userId);
+      const json = data ?? {};
       const best = json?.bestOption && options.includes(json.bestOption) ? json.bestOption : null;
       semanticCache[cacheKey] = best;
       return best;
@@ -483,7 +489,6 @@
       console.log("[MR_Rokesh Job Portal Autofill] Sending to API:", elements.length, "fields. Metas (in order):", fields.map((f, i) => `${i + 1}. "${f.meta}" (${f.type})`));
     }
     try {
-      const url = `${apiBase.replace(/\/$/, "")}/api/autofill/match-fields`;
       const body = {
         fields,
         userData: payload.fields,
@@ -493,16 +498,12 @@
       if (payload.api_key_id) body.api_key_id = payload.api_key_id;
       if (payload.resumeText && payload.resumeText.trim()) body.resumeText = payload.resumeText.trim();
       if (payload.coverLetterText && payload.coverLetterText.trim()) body.coverLetterText = payload.coverLetterText.trim();
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-id": userId },
-        body: JSON.stringify(body)
-      });
-      const json = await res.json().catch(() => ({}));
+      const { status, data: respData } = await autofillApi("/api/autofill/match-fields", body, userId);
+      const json = respData ?? {};
       const values = Array.isArray(json?.values) ? json.values : [];
       const useFallback = json?.fallback === true;
       if (AUTOFILL_DEBUG) {
-        console.log("[MR_Rokesh Job Portal Autofill] API status:", res.status, "| values count:", values.length, "| expected:", elements.length, useFallback ? "| fallback requested" : "");
+        console.log("[MR_Rokesh Job Portal Autofill] API status:", status, "| values count:", values.length, "| expected:", elements.length, useFallback ? "| fallback requested" : "");
         console.log("[MR_Rokesh Job Portal Autofill] Values returned:", values.map((v, i) => `${i + 1}. ${v === "" ? "(empty)" : `"${String(v).slice(0, 50)}${String(v).length > 50 ? "\u2026" : ""}"`}`));
         if (json?.debug) console.log("[MR_Rokesh Job Portal Autofill] Debug from server:", json.debug);
         if (json?.error) console.log("[MR_Rokesh Job Portal Autofill] API message:", json.error);

@@ -25,9 +25,12 @@ function getJobResumeContext(req, res) {
 function download(req, res) {
   const projectRoot = path.join(__dirname, '../../../')
   const candidates = [
+    // Bundled with the backend (works on Render where rootDir=backend).
+    path.join(__dirname, '../../public/team3-extension.zip'),
+    path.join(process.cwd(), 'public/team3-extension.zip'),
+    // Repo layout when the whole monorepo is present.
     path.join(projectRoot, 'frontend/public/team3-extension.zip'),
     path.join(process.cwd(), 'frontend/public/team3-extension.zip'),
-    path.join(process.cwd(), 'public/team3-extension.zip'),
   ]
   const zipPath = candidates.find((p) => fs.existsSync(p))
   if (!zipPath) {

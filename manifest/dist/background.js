@@ -1,5 +1,5 @@
-// Must match manifest/utils/api.ts (local: http://localhost:3000)
-const API_BASE = 'http://localhost:3000';
+// Must match manifest/utils/api.ts. Production backend; for local use http://localhost:3000.
+const API_BASE = 'https://team-3-lvlf.onrender.com';
 const SIDEBAR_PREF_KEY = 'useSidebar';
 async function applySidebarPreference() {
     const stored = await chrome.storage.local.get([SIDEBAR_PREF_KEY]);
@@ -74,6 +74,32 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             },
         }).then(() => safeSendResponse(sendResponse, { success: true }));
         return true;
+    }
+    if (message.type === 'AUTOFILL_API') {
+        const req = message.data;
+        (async () => {
+            try {
+                const res = await fetch(`${API_BASE}${req.path ?? ''}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-user-id': req.userId ?? '' },
+                    body: JSON.stringify(req.body ?? {}),
+                });
+                const text = await res.text();
+                let data;
+                try {
+                    data = text ? JSON.parse(text) : undefined;
+                }
+                catch {
+                    data = undefined;
+                }
+                safeSendResponse(sendResponse, { success: res.ok, status: res.status, data });
+            }
+            catch (err) {
+                const msg = err instanceof Error ? err.message : String(err);
+                safeSendResponse(sendResponse, { success: false, status: 0, error: msg });
+            }
+        })();
+        return true; // keep channel open for async sendResponse
     }
     if (message.type !== 'GET_PROFILE')
         return false;
