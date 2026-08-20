@@ -79,6 +79,7 @@ for (const node of nodes) {
 function isConnectionError(err) {
   if (!err) return false
   const code = err.code
+  const msg = String(err.message || '')
   const netCodes = [
     'ECONNREFUSED', 'ETIMEDOUT', 'ENOTFOUND', 'ECONNRESET',
     'EHOSTUNREACH', 'ENETUNREACH', 'EPIPE', 'EAI_AGAIN',
@@ -89,9 +90,19 @@ function isConnectionError(err) {
     if (code.startsWith('08')) return true
     // Operator intervention (shutdown / admin terminate) + resource exhaustion.
     if (['57P01', '57P02', '57P03', '53300', '53400'].includes(code)) return true
+    // Supabase/Supavisor pooler reports an unreachable/paused/deleted project or
+    // pool exhaustion as XX000 (e.g. "Tenant or user not found", "Max client
+    // connections reached"). Treat these as the primary being unusable so we
+    // fail over instead of surfacing a 500 to the user.
+    if (
+      code === 'XX000' &&
+      /not found|tenant|pooler|max client|unavailable|timeout|terminat|ENOTFOUND|ECONN/i.test(msg)
+    ) {
+      return true
+    }
   }
-  // pg "Pool" acquisition failures sometimes arrive without a SQLSTATE code.
-  if (!code && /timeout|connect|terminat|ECONN|ENOTFOUND|socket hang up/i.test(err.message || '')) {
+  // Pool acquisition / pooler failures that don't carry a usable SQLSTATE.
+  if (/timeout|connect|terminat|ECONN|ENOTFOUND|EAI_AGAIN|socket hang up|Tenant or user not found|Max client connections/i.test(msg)) {
     return true
   }
   return false
