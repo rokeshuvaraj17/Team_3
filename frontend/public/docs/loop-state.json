@@ -1,0 +1,48 @@
+{
+  "updatedAt": "2026-08-20T20:52:07.378Z",
+  "loop": 4,
+  "consecutive": 4,
+  "industrialStandard": true,
+  "history": [
+    {
+      "loop": 1,
+      "phase": "build",
+      "code": 0
+    },
+    {
+      "loop": 1,
+      "phase": "qa",
+      "code": 0
+    },
+    {
+      "loop": 2,
+      "phase": "build",
+      "code": 0
+    },
+    {
+      "loop": 2,
+      "phase": "qa",
+      "code": 0
+    },
+    {
+      "loop": 3,
+      "phase": "build",
+      "code": 0
+    },
+    {
+      "loop": 3,
+      "phase": "qa",
+      "code": 0
+    },
+    {
+      "loop": 4,
+      "phase": "build",
+      "code": 0
+    },
+    {
+      "loop": 4,
+      "phase": "qa",
+      "code": 0
+    }
+  ]
+}

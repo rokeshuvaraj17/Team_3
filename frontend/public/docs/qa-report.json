@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-08-20T20:52:07.376Z",
+  "consecutivePasses": 4,
+  "industrialStandard": true,
+  "history": [
+    {
+      "outer": 1,
+      "allOk": true,
+      "live": {
+        "ok": true,
+        "status": 200,
+        "len": 39189
+      }
+    },
+    {
+      "outer": 2,
+      "allOk": true,
+      "live": {
+        "ok": true,
+        "status": 200,
+        "len": 39189
+      }
+    },
+    {
+      "outer": 3,
+      "allOk": true,
+      "live": {
+        "ok": true,
+        "status": 200,
+        "len": 39189
+      }
+    },
+    {
+      "outer": 4,
+      "allOk": true,
+      "live": {
+        "ok": true,
+        "status": 200,
+        "len": 39189
+      }
+    }
+  ]
+}

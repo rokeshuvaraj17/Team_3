@@ -1,0 +1,399 @@
+{
+  "product": "MR_Rokesh Job Portal",
+  "tagline": "AI-powered job search, resume & cover-letter generation, application tracking, and one-click autofill.",
+  "baseUrl": "https://team-3-two.vercel.app",
+  "demoAccount": "docs.demo@mrrokesh.com",
+  "generatedFor": "End-user & reviewer product documentation",
+  "guides": [
+    {
+      "id": "create-resume",
+      "title": "How to generate a resume",
+      "route": "/app/generate-resume",
+      "steps": [
+        "Open Generate Resume from the sidebar.",
+        "Pick a path: Job based (tailored to a specific job) or Resume Builder (LaTeX templates).",
+        "For Job based: choose a job from your search or saved list; the app highlights relevant experience and skills.",
+        "For Resume Builder: pick a template, then fill profile, education, work, skills, projects and awards across the 8 steps.",
+        "Generate / export. Your resume is saved and appears in Documents.",
+        "Open Documents to view or download it (PDF), or export as .tex / JSON from the builder."
+      ],
+      "can": [
+        "Create a job-tailored resume with AI",
+        "Build a resume from a LaTeX template step-by-step",
+        "Export as PDF, .tex, or JSON",
+        "Reuse profile data so fields are pre-filled"
+      ],
+      "cannot": [
+        "Generate without connecting an AI provider key (API Connection) for AI flows",
+        "Use LaTeX templates other than Template 1 yet (others 'coming soon')",
+        "Edit a saved resume's raw content from the Documents page"
+      ]
+    },
+    {
+      "id": "cover-letter",
+      "title": "How to generate a cover letter",
+      "route": "/app/generate-cover-letter",
+      "steps": [
+        "Open Generate Cover Letter from the sidebar.",
+        "Step 1: pick a saved resume or paste resume text, then paste the Job description (required).",
+        "Add Company name and Job title.",
+        "Continue through the 4 steps and generate.",
+        "The cover letter is saved and appears under Documents \u2192 Cover letters."
+      ],
+      "can": [
+        "Generate a cover letter from a resume + job description",
+        "Use resume text pulled from the extension, a saved resume, or pasted text",
+        "Save and download the result from Documents"
+      ],
+      "cannot": [
+        "Generate without a job description (it is required)",
+        "Generate without an AI provider key connected",
+        "Send the cover letter to an employer from inside the app"
+      ]
+    },
+    {
+      "id": "autofill",
+      "title": "How to autofill a job application",
+      "route": "/app/autofill-form-fields",
+      "steps": [
+        "Fill your details in Profile and in Autofill Form Fields (extra fields like EEO, salary).",
+        "Install the Chrome extension from the Extension page and log in with the same account.",
+        "Open a job application page on any site.",
+        "Press Ctrl+Shift+F (Cmd+Shift+F on Mac) or use the extension to autofill.",
+        "Optionally save the job to Job Tracker from the extension."
+      ],
+      "can": [
+        "Store every autofill value once and reuse across sites",
+        "Choose which fields autofill is allowed to fill/skip",
+        "Set voluntary EEO answers and salary expectations"
+      ],
+      "cannot": [
+        "Autofill file uploads automatically on every site (resume upload is manual / drag-drop on some ATS)",
+        "Autofill without installing and logging into the extension"
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "id": "getting-started",
+      "name": "Getting Started",
+      "modules": [
+        {
+          "id": "login",
+          "name": "Sign In",
+          "route": "/",
+          "screenshot": "auth-login",
+          "summary": "Email + password sign-in to the portal. Remember-me and a link to sign up.",
+          "can": [
+            "Sign in with email and password",
+            "Toggle password visibility and 'remember me'",
+            "Navigate to Sign up or Forgot password"
+          ],
+          "cannot": [
+            "Sign in with wrong credentials (shows 'Invalid email or password')",
+            "Use Google sign-in (button present but not wired to a live OAuth flow)",
+            "Reach the dashboard without a valid account"
+          ]
+        },
+        {
+          "id": "signup",
+          "name": "Sign Up",
+          "route": "/signup",
+          "screenshot": "auth-signup",
+          "summary": "Create a new account with name, email and password (min 8 characters).",
+          "can": [
+            "Register a new account (name, email, password)",
+            "Proceed into a guided onboarding for profile basics"
+          ],
+          "cannot": [
+            "Register with a password under 8 characters",
+            "Reuse an email that already exists",
+            "Use an invalid email format"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "job-search",
+      "name": "Job Search & Tracking",
+      "modules": [
+        {
+          "id": "dashboard",
+          "name": "Dashboard (Job Search)",
+          "route": "/app",
+          "screenshot": "mod-dashboard",
+          "summary": "Search jobs across multiple providers, filter and sort, view details, and save jobs.",
+          "can": [
+            "Search jobs by title/keyword and location",
+            "Switch job source provider (Arbeitnow, Adzuna, Jooble, Reed, JSearch)",
+            "Filter by country, salary and job type, and sort by relevance",
+            "Open a job to view details and switch between All jobs / Saved tabs",
+            "Save jobs for later"
+          ],
+          "cannot": [
+            "See results before running a search (empty state until then)",
+            "Return results from a provider you haven't subscribed to (e.g. JSearch needs a RapidAPI subscription)",
+            "Submit an application without leaving to the employer's site"
+          ]
+        },
+        {
+          "id": "job-tracker",
+          "name": "Job Tracker",
+          "route": "/app/job-tracker",
+          "screenshot": "mod-job-tracker",
+          "summary": "Track jobs you save from the extension or add manually; counts feed Analytics.",
+          "can": [
+            "Add a tracked job manually",
+            "See jobs saved from the extension (Autofill tab \u2192 save to Job Tracker)",
+            "Refresh the list; tracked counts appear on Analytics"
+          ],
+          "cannot": [
+            "Track jobs while signed out",
+            "Auto-sync application status from external job sites"
+          ]
+        },
+        {
+          "id": "analytics",
+          "name": "Analytics",
+          "route": "/app/analytics",
+          "screenshot": "mod-analytics",
+          "summary": "Overview of your activity: resumes, cover letters, jobs applied for, and jobs tracked.",
+          "can": [
+            "See counts for resumes stored, cover letters stored, jobs applied, jobs in tracker",
+            "Jump to the Job Tracker page from the cards",
+            "Read how each number is calculated"
+          ],
+          "cannot": [
+            "Edit or delete records from Analytics (read-only)",
+            "See other users' data (counts are per-account)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "resumes",
+      "name": "Resumes & Cover Letters",
+      "modules": [
+        {
+          "id": "generate-resume",
+          "name": "Generate Resume (Hub)",
+          "route": "/app/generate-resume",
+          "screenshot": "mod-generate-resume",
+          "summary": "Choose how to create a resume: Job based or the LaTeX Resume Builder.",
+          "can": [
+            "Pick a job-tailored AI flow",
+            "Open the template-based Resume Builder"
+          ],
+          "cannot": [
+            "Generate directly from this hub (it routes you to a flow)"
+          ]
+        },
+        {
+          "id": "generate-resume-job-based",
+          "name": "Job-Based Resume",
+          "route": "/app/generate-resume/job-based",
+          "screenshot": "mod-generate-resume-job-based",
+          "summary": "AI tailors a resume to a chosen job, highlighting relevant experience and skills.",
+          "can": [
+            "Pick a job from search or your saved list",
+            "Generate a tailored resume with AI",
+            "Save it to Documents"
+          ],
+          "cannot": [
+            "Tailor without selecting a job",
+            "Generate without an AI provider key connected"
+          ]
+        },
+        {
+          "id": "generate-resume-custom",
+          "name": "Custom Resume",
+          "route": "/app/generate-resume/custom",
+          "screenshot": "mod-generate-resume-custom",
+          "summary": "Custom AI resume flow driven by your own inputs.",
+          "can": [
+            "Generate a resume from custom prompts/inputs",
+            "Save the output to Documents"
+          ],
+          "cannot": [
+            "Generate without an AI provider key connected"
+          ]
+        },
+        {
+          "id": "generate-resume-builder",
+          "name": "Resume Builder (LaTeX)",
+          "route": "/app/generate-resume/builder",
+          "screenshot": "mod-generate-resume-builder",
+          "summary": "Resumake-style 8-step builder: choose a LaTeX template and fill each section.",
+          "can": [
+            "Choose a LaTeX template",
+            "Fill profile, education, work, skills, projects and awards across 8 steps",
+            "Export as .tex or JSON"
+          ],
+          "cannot": [
+            "Use templates other than Template 1 for LaTeX generation yet",
+            "Skip required profile fields the template needs"
+          ]
+        },
+        {
+          "id": "generate-cover-letter",
+          "name": "Generate Cover Letter",
+          "route": "/app/generate-cover-letter",
+          "screenshot": "mod-generate-cover-letter",
+          "summary": "4-step AI cover-letter generator from a resume and a job description.",
+          "can": [
+            "Use a saved resume, extension resume, or pasted text",
+            "Provide company name and job title",
+            "Generate and save to Documents"
+          ],
+          "cannot": [
+            "Generate without a job description (required)",
+            "Generate without an AI provider key connected"
+          ]
+        },
+        {
+          "id": "documents",
+          "name": "Documents",
+          "route": "/app/documents",
+          "screenshot": "mod-documents",
+          "summary": "All generated/uploaded resumes and cover letters; click to view or download.",
+          "can": [
+            "Switch between Resumes and Cover letters tabs",
+            "View and download stored files"
+          ],
+          "cannot": [
+            "Create documents here (use Generate Resume / Cover Letter)",
+            "Edit a document's raw content in place"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "profile-account",
+      "name": "Profile & Account",
+      "modules": [
+        {
+          "id": "profile",
+          "name": "Profile",
+          "route": "/app/profile",
+          "screenshot": "mod-profile",
+          "summary": "Your details, profile photo and resume upload used across the app.",
+          "can": [
+            "Edit display name, headline, summary and location",
+            "Upload a profile photo (PNG/JPEG/GIF/WebP)",
+            "Upload a resume (PDF/DOC/DOCX) used when applying"
+          ],
+          "cannot": [
+            "Change the account email (read-only here)",
+            "Upload unsupported file types"
+          ]
+        },
+        {
+          "id": "settings",
+          "name": "Settings",
+          "route": "/app/settings",
+          "screenshot": "mod-settings",
+          "summary": "Appearance, language/date/timezone, dashboard density and notification toggles.",
+          "can": [
+            "Switch Light/Dark theme",
+            "Set language, date format, timezone and dashboard density",
+            "Toggle email and browser push notifications",
+            "Save changes"
+          ],
+          "cannot": [
+            "Persist changes without clicking Save changes"
+          ]
+        },
+        {
+          "id": "notifications",
+          "name": "Notifications",
+          "route": "/app/notifications",
+          "screenshot": "mod-notifications",
+          "summary": "Activity-driven notifications (the sidebar badge reflects the live count).",
+          "can": [
+            "View notifications derived from your real activity",
+            "Click a notification to go to the related page"
+          ],
+          "cannot": [
+            "Create notifications manually",
+            "Receive alerts about other users' activity"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "automation",
+      "name": "Automation & Integrations",
+      "modules": [
+        {
+          "id": "extension",
+          "name": "Browser Extension",
+          "route": "/app/extension",
+          "screenshot": "mod-extension",
+          "summary": "Download and install the Chrome extension for autofill on job sites.",
+          "can": [
+            "Download the packaged extension",
+            "Follow install steps (unzip \u2192 chrome://extensions \u2192 Developer mode \u2192 Load unpacked)",
+            "Use Ctrl/Cmd+Shift+F to autofill after logging in"
+          ],
+          "cannot": [
+            "Install automatically (manual load-unpacked until it's on the Web Store)",
+            "Use it without logging in with the same account"
+          ]
+        },
+        {
+          "id": "api-connection",
+          "name": "API Connection",
+          "route": "/app/api-connection",
+          "screenshot": "mod-api-connection",
+          "summary": "Connect AI provider API keys used for resume and cover-letter generation.",
+          "can": [
+            "Add an API key per provider (OpenAI, Gemini, etc.) with an optional label",
+            "Set a default key used across the website and extension",
+            "Store multiple keys via labels; keys are stored masked"
+          ],
+          "cannot": [
+            "See a full key again after saving (only a masked version is shown)",
+            "Share keys with other users",
+            "Generate AI content without at least one connected key"
+          ]
+        },
+        {
+          "id": "autofill-form-fields",
+          "name": "Autofill Form Fields",
+          "route": "/app/autofill-form-fields",
+          "screenshot": "mod-autofill-form-fields",
+          "summary": "Every value autofill can use, pre-filled from Profile and fully editable.",
+          "can": [
+            "Edit personal & contact fields, work authorization and voluntary EEO answers",
+            "Set salary expectations",
+            "Choose which fields autofill is allowed to fill or skip"
+          ],
+          "cannot": [
+            "Fill sensitive EEO fields unless you choose to (default 'Prefer not to answer')",
+            "Guarantee a match on every custom ATS field"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "help",
+      "name": "Help",
+      "modules": [
+        {
+          "id": "help",
+          "name": "Help & Support",
+          "route": "/app/help",
+          "screenshot": "mod-help",
+          "summary": "Quick links and an FAQ covering the main tasks in the portal.",
+          "can": [
+            "Open quick links to key pages",
+            "Expand FAQ answers (resume, cover letter, documents, API keys, profile)"
+          ],
+          "cannot": [
+            "Start a live chat with support from here"
+          ]
+        }
+      ]
+    }
+  ]
+}
