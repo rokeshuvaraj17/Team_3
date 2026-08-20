@@ -547,7 +547,14 @@
           "annotated": [
             { "label": "ann-extension", "caption": "Download the extension and follow the Chrome install steps. The right panel is a quick checklist." }
           ],
-          "summary": "Download and install the Chrome extension for autofill on job sites.",
+          "demos": [
+            { "label": "ext-popup-login", "caption": "1. Open the extension and log in with your MR_Rokesh Job Portal account." },
+            { "label": "ext-popup-account", "caption": "2. Once logged in, your profile (here 'Docs Demo') loads in the Account tab, ready to fill applications." },
+            { "label": "ext-popup-autofill", "caption": "3. The Autofill tab: optionally pick a resume/cover letter, then click 'Autofill current page' (or press Ctrl+Shift+F)." },
+            { "label": "ext-form-before", "caption": "4. A blank job application form on a third-party site — before autofill." },
+            { "label": "ext-form-after", "caption": "5. After Ctrl+Shift+F — first name, last name, email and phone are filled from your profile (verified live)." }
+          ],
+          "summary": "Download and install the Chrome extension for autofill on job sites. Verified live end-to-end (login + autofill).",
           "howto": [
             "Open 'Extension' from the sidebar.",
             "Click 'Download extension' to get the packaged ZIP.",
@@ -615,6 +622,10 @@
           "screenshot": "mod-autofill-form-fields",
           "annotated": [
             { "label": "ann-autofill-form-fields", "caption": "Every value the extension can use, grouped into Personal & contact, Work authorization / EEO, and Salary. 'Autofill settings' controls which fields to skip." }
+          ],
+          "demos": [
+            { "label": "ext-form-before", "caption": "A third-party job application form before autofill." },
+            { "label": "ext-form-after", "caption": "The same form after the extension autofills your saved values — name, email and phone (verified live)." }
           ],
           "summary": "Every value autofill can use, pre-filled from Profile and fully editable.",
           "howto": [

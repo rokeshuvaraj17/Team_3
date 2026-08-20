@@ -3,8 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MR_Rokesh Job Portal — Module Documentation</title>
+<title>Overview — MR_Rokesh Job Portal</title>
 <link rel="icon" href="assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -12,709 +15,94 @@
 <aside class="side">
   <div class="brand">
     <img class="brand-logo" src="assets/logo.png" alt="MR_Rokesh Job Portal logo" />
+    <div class="brand-text">
+      <strong>MR_Rokesh Job Portal</strong>
+      <span>Documentation</span>
+    </div>
   </div>
-  <div class="brand-sub">Product Documentation</div>
   <input id="search" type="search" placeholder="Search features…" autocomplete="off" />
-  <nav>
-    <a href="#top" class="nav-top">Overview</a>
-    <a href="#cat-video" class="nav-top">Video Walkthrough</a>
-    <a href="#cat-guides" class="nav-top">How-to Guides</a>
-    
+  <nav><a href="index.html" class="nav-top active">Overview</a><a href="video.html" class="nav-top">Video Walkthrough</a><a href="guides.html" class="nav-top">How-to Guides</a>
       <div class="nav-group">
         <div class="nav-cat">Getting Started</div>
-        <a href="#mod-login">Sign In</a><a href="#mod-signup">Sign Up</a>
+        <a class="nav-mod" href="mod-login.html" data-search="sign in email + password sign-in to the portal. remember-me and a link to sign up. go to the app url. you'll land on the sign in screen. type the email address you registered with. type your password. use the eye icon to show/hide it if you want to check it. optionally tick 'remember me' to stay signed in on this device. click 'sign in'. on success you're taken straight to your dashboard. new here? click 'sign up' at the bottom to create an account first. email address the email you registered with. password your account password; the eye icon toggles visibility. remember me keeps you signed in on this device. forgot password? link to recover access to your account. sign in button submits your credentials and opens the dashboard. sign in with email and password toggle password visibility and 'remember me' navigate to sign up or forgot password sign in with wrong credentials (shows 'invalid email or password') use google sign-in (button present but not wired to a live oauth flow) reach the dashboard without a valid account">Sign In</a><a class="nav-mod" href="mod-signup.html" data-search="sign up create a new account with name, email and password (min 8 characters). from the sign in screen, click 'sign up'. enter your full name (at least 2 characters). enter a valid email address that isn't already registered. choose a password with at least 8 characters. submit to create your account. continue into the short onboarding to add your profile basics (name, headline, location, phone). name your full name (minimum 2 characters). email a valid, unused email address. password minimum 8 characters. register a new account (name, email, password) proceed into a guided onboarding for profile basics register with a password under 8 characters reuse an email that already exists use an invalid email format">Sign Up</a>
       </div>
       <div class="nav-group">
         <div class="nav-cat">Job Search &amp; Tracking</div>
-        <a href="#mod-dashboard">Dashboard (Job Search)</a><a href="#mod-job-tracker">Job Tracker</a><a href="#mod-analytics">Analytics</a>
+        <a class="nav-mod" href="mod-dashboard.html" data-search="dashboard (job search) search jobs across multiple providers, filter and sort, view details, and save jobs. open the dashboard (the home icon) from the sidebar. choose a provider in 'job source' (arbeitnow, adzuna, jooble, reed, or jsearch). type a role or keyword in the search box (e.g. 'frontend developer'). optionally enter a city or location. refine with the country, salary and job type dropdowns, and set the sort order. click 'search'. matching jobs appear under the 'all jobs' tab. click any job to read the full details on the right. save jobs you like; find them later under the 'saved' tab. use 'clear filters' to reset everything and start over. job source which job board the results come from. different boards cover different regions/roles. keywords / role job title, role or keyword to match. city or location where you want to work; leave blank for anywhere. country / salary / job type filters to narrow the results. relevance sort order for the results. search runs the query against the chosen provider. all jobs / saved tabs switch between search results and jobs you've saved. search jobs by title/keyword and location switch job source provider (arbeitnow, adzuna, jooble, reed, jsearch) filter by country, salary and job type, and sort by relevance open a job to view details and switch between all jobs / saved tabs save jobs for later see results before running a search (empty state until then) return results from a provider you haven't subscribed to (e.g. jsearch needs a rapidapi subscription) submit an application without leaving to the employer's site">Dashboard (Job Search)</a><a class="nav-mod" href="mod-job-tracker.html" data-search="job tracker track jobs you save from the extension or add manually; counts feed analytics. open 'job tracker' from the sidebar. click 'add job' to add one manually, or save jobs from the browser extension (autofill tab → save to job tracker). use 'refresh' to pull in the latest saved jobs. your tracked jobs are counted on the analytics page under 'jobs in tracker'. add job manually add a job you want to track. refresh reload the list to show newly saved jobs. tracked jobs the list of jobs you're tracking. add a tracked job manually see jobs saved from the extension (autofill tab → save to job tracker) refresh the list; tracked counts appear on analytics track jobs while signed out auto-sync application status from external job sites">Job Tracker</a><a class="nav-mod" href="mod-analytics.html" data-search="analytics overview of your activity: resumes, cover letters, jobs applied for, and jobs tracked. open 'analytics' from the sidebar. read the four cards: resumes stored, cover letters stored, jobs applied for, and jobs in tracker. click 'view on job tracker page' to jump to the underlying jobs. read 'how these numbers work' to understand how each count is produced. resumes stored resumes you generated or uploaded. cover letters stored cover letters you generated or uploaded. jobs applied for applications submitted from the dashboard. jobs in tracker jobs you've saved to the job tracker. see counts for resumes stored, cover letters stored, jobs applied, jobs in tracker jump to the job tracker page from the cards read how each number is calculated edit or delete records from analytics (read-only) see other users' data (counts are per-account)">Analytics</a>
       </div>
       <div class="nav-group">
         <div class="nav-cat">Resumes &amp; Cover Letters</div>
-        <a href="#mod-generate-resume">Generate Resume (Hub)</a><a href="#mod-generate-resume-job-based">Job-Based Resume</a><a href="#mod-generate-resume-custom">Custom Resume</a><a href="#mod-generate-resume-builder">Resume Builder (LaTeX)</a><a href="#mod-generate-cover-letter">Generate Cover Letter</a><a href="#mod-documents">Documents</a>
+        <a class="nav-mod" href="mod-generate-resume.html" data-search="generate resume (hub) choose how to create a resume: job based or the latex resume builder. open 'generate resume' from the sidebar. choose 'job based' to have ai tailor a resume to a specific job you pick. or choose 'resume builder (templates)' to fill a latex template step-by-step. follow the chosen flow; the finished resume is saved to documents. job based ai writes a resume tailored to a chosen job posting. resume builder (templates) guided latex template you fill section by section. pick a job-tailored ai flow open the template-based resume builder generate directly from this hub (it routes you to a flow)">Generate Resume (Hub)</a><a class="nav-mod" href="mod-generate-resume-job-based.html" data-search="job-based resume ai tailors a resume to a chosen job, highlighting relevant experience and skills. from generate resume, pick 'job based'. select a job from your search results or saved list (or paste a job description). let the ai generate a tailored resume that emphasizes matching experience and skills. review, then save. it appears in documents for download. job selection the job posting your resume will be tailored to. generate runs the ai to produce the tailored resume (needs a connected api key). pick a job from search or your saved list generate a tailored resume with ai save it to documents tailor without selecting a job generate without an ai provider key connected">Job-Based Resume</a><a class="nav-mod" href="mod-generate-resume-custom.html" data-search="custom resume custom ai resume flow driven by your own inputs. from generate resume, choose the custom flow. provide your own inputs / prompts describing the resume you want. generate and review the ai output. save it to documents for download. custom inputs your prompts/details guiding the ai. generate produces the resume (needs a connected api key). generate a resume from custom prompts/inputs save the output to documents generate without an ai provider key connected">Custom Resume</a><a class="nav-mod" href="mod-generate-resume-builder.html" data-search="resume builder (latex) resumake-style 8-step builder: choose a latex template and fill each section. from generate resume, choose 'resume builder (templates)'. step 1: pick a latex template (click a preview to enlarge, then select it). work through the 8 steps: template, profile, education, work, skills, projects, awards, export. fields pre-fill from your profile where possible — edit as needed. export the finished resume as .tex or json (pdf via the latex output). choose template pick a latex template (template 1 supports latex generation today). 8 steps template → profile → education → work → skills → projects → awards → export. export download as .tex or json. choose a latex template fill profile, education, work, skills, projects and awards across 8 steps export as .tex or json use templates other than template 1 for latex generation yet skip required profile fields the template needs">Resume Builder (LaTeX)</a><a class="nav-mod" href="mod-generate-cover-letter.html" data-search="generate cover letter 4-step ai cover-letter generator from a resume and a job description. open 'generate cover letter' from the sidebar. step 1 – resume &amp; job: pick a saved resume, use the extension's resume, or paste resume text. paste the job description (this field is required). enter the company name and job title. click 'next' and continue through the remaining steps to generate. the cover letter is saved under documents → cover letters. resume saved resume, extension resume, or pasted resume text. job description required — paste the posting the letter should target. company name the employer's name. job title the role you're applying for. next advances the wizard toward generation. use a saved resume, extension resume, or pasted text provide company name and job title generate and save to documents generate without a job description (required) generate without an ai provider key connected">Generate Cover Letter</a><a class="nav-mod" href="mod-documents.html" data-search="documents all generated/uploaded resumes and cover letters; click to view or download. open 'documents' from the sidebar. use the 'resumes' and 'cover letters' tabs to switch document type. click any document to preview it in the pane on the right. download the file from the preview. nothing yet? create one from generate resume or generate cover letter. resumes tab lists your stored resumes. cover letters tab lists your stored cover letters. preview pane shows the selected document with a download option. switch between resumes and cover letters tabs view and download stored files create documents here (use generate resume / cover letter) edit a document's raw content in place">Documents</a>
       </div>
       <div class="nav-group">
         <div class="nav-cat">Profile &amp; Account</div>
-        <a href="#mod-profile">Profile</a><a href="#mod-settings">Settings</a><a href="#mod-notifications">Notifications</a>
+        <a class="nav-mod" href="mod-profile.html" data-search="profile your details, profile photo and resume upload used across the app. open 'profile' from the sidebar (or the account area). under 'basic info', set your display name (required) — this is how you appear in the app. add a headline (e.g. 'software engineer') and a short summary / bio. note the email is read-only here (it's your account login). in 'location', pick your country and optionally add city / region and state. on the right, drag &amp; drop or click to upload a profile photo (png/jpeg/gif/webp). also on the right, upload your resume (pdf/doc/docx) — it's used when you apply to jobs. save your changes. these details pre-fill resumes, cover letters and autofill. display name required. the name shown on your profile and documents. email read-only. your account email / login. headline a one-line professional title, e.g. 'software engineer'. summary a short bio describing your experience and goals. country your country (used for job matching and forms). city / region optional city or region. state optional state / province. photo upload profile picture. allowed: png, jpeg, gif, webp. resume upload your resume file. allowed: pdf, doc, docx. used when applying. edit display name, headline, summary and location upload a profile photo (png/jpeg/gif/webp) upload a resume (pdf/doc/docx) used when applying change the account email (read-only here) upload unsupported file types">Profile</a><a class="nav-mod" href="mod-settings.html" data-search="settings appearance, language/date/timezone, dashboard density and notification toggles. open 'settings' from the sidebar. under 'appearance', switch between light and dark theme (you can also use the icon in the top-right). under 'website &amp; app preferences', set language, date format, timezone and dashboard density. under 'general &amp; notifications', toggle email notifications and browser push notifications. click 'save changes' to persist everything. appearance (light/dark) app theme; also toggled by the top-right icon. language interface language. date format how dates are displayed (e.g. mm/dd/yyyy). timezone your timezone for timestamps. dashboard density how much content shows per row on the dashboard. notifications email and browser push notification toggles. save changes persists your settings — nothing is saved until you click it. switch light/dark theme set language, date format, timezone and dashboard density toggle email and browser push notifications save changes persist changes without clicking save changes">Settings</a><a class="nav-mod" href="mod-notifications.html" data-search="notifications activity-driven notifications (the sidebar badge reflects the live count). open 'notifications' from the sidebar (the bell icon shows a live count). read notifications generated from your activity (e.g. 'create your first resume', 'you're tracking n jobs'). click a notification to jump to the related page. the badge clears as you address the items. notification list activity-based prompts and updates. sidebar badge live count of current notifications. view notifications derived from your real activity click a notification to go to the related page create notifications manually receive alerts about other users' activity">Notifications</a>
       </div>
       <div class="nav-group">
         <div class="nav-cat">Automation &amp; Integrations</div>
-        <a href="#mod-extension">Browser Extension</a><a href="#mod-api-connection">API Connection</a><a href="#mod-autofill-form-fields">Autofill Form Fields</a>
+        <a class="nav-mod" href="mod-extension.html" data-search="browser extension download and install the chrome extension for autofill on job sites. verified live end-to-end (login + autofill). open 'extension' from the sidebar. click 'download extension' to get the packaged zip. unzip the file on your computer. open chrome and go to chrome://extensions. turn on 'developer mode' (top-right toggle). click 'load unpacked' and select the unzipped 'dist' folder. the team 3 icon appears in your toolbar. log in with the same account. on any job page, press ctrl+shift+f (cmd+shift+f on mac) to autofill. download extension downloads the extension package (zip). install steps unzip → chrome://extensions → developer mode → load unpacked. autofill shortcut ctrl/cmd+shift+f fills forms on job pages once logged in. download the packaged extension follow install steps (unzip → chrome://extensions → developer mode → load unpacked) use ctrl/cmd+shift+f to autofill after logging in install automatically (manual load-unpacked until it's on the web store) use it without logging in with the same account">Browser Extension</a><a class="nav-mod" href="mod-api-connection.html" data-search="api connection connect ai provider api keys used for resume and cover-letter generation. open 'api connection' from the sidebar. choose your ai provider (openai, gemini, etc.). optionally add a label (e.g. 'work', 'personal') to organize multiple keys. paste your api key into the 'api key' field (the eye icon reveals it). click 'connect api key' to save it securely (only a masked version is shown afterward). under 'connected keys', set a default key used across the website and extension. provider the ai service the key belongs to (openai, gemini, etc.). label (optional) a name to tell multiple keys apart. api key your secret key; stored securely and shown masked after saving. connect api key saves the key to your account. connected keys your saved keys; choose which provider is the default. add an api key per provider (openai, gemini, etc.) with an optional label set a default key used across the website and extension store multiple keys via labels; keys are stored masked see a full key again after saving (only a masked version is shown) share keys with other users generate ai content without at least one connected key">API Connection</a><a class="nav-mod" href="mod-autofill-form-fields.html" data-search="autofill form fields every value autofill can use, pre-filled from profile and fully editable. open 'autofill form fields' from the sidebar. review 'personal &amp; contact' — names, email, phone; many values come from your profile. fill 'work authorization &amp; eeo (voluntary)' only as much as you want (defaults are 'prefer not to answer'). set your salary expectations (min/max). open 'autofill settings' to choose which fields the extension is allowed to fill or should skip. these values are what the extension types into job application forms. personal &amp; contact first/last name, preferred name, pronouns, email, phone (many from profile). work authorization &amp; eeo voluntary answers (sponsorship, veteran, disability, gender, race). salary your minimum and maximum salary expectations. autofill settings choose which fields autofill can fill or must skip. edit personal &amp; contact fields, work authorization and voluntary eeo answers set salary expectations choose which fields autofill is allowed to fill or skip fill sensitive eeo fields unless you choose to (default 'prefer not to answer') guarantee a match on every custom ats field">Autofill Form Fields</a>
       </div>
       <div class="nav-group">
         <div class="nav-cat">Help</div>
-        <a href="#mod-help">Help &amp; Support</a>
-      </div>
-  </nav>
+        <a class="nav-mod" href="mod-help.html" data-search="help &amp; support quick links and an faq covering the main tasks in the portal. open 'help &amp; support' from the sidebar. use the 'quick links' to jump to generate resume, generate cover letter, documents or settings. expand a 'frequently asked questions' item to read the answer. follow the guidance to complete the related task. quick links shortcuts to the most common pages. faq expandable answers to common questions. open quick links to key pages expand faq answers (resume, cover letter, documents, api keys, profile) start a live chat with support from here">Help &amp; Support</a>
+      </div></nav>
 </aside>
-
 <main>
+
   <header id="top" class="hero">
     <h1>MR_Rokesh Job Portal</h1>
     <p class="tagline">AI-powered job search, resume &amp; cover-letter generation, application tracking, and one-click autofill.</p>
     <div class="meta">
       <span class="pill">18 modules documented</span>
       <span class="pill">Live app: <a href="https://team-3-two.vercel.app" target="_blank" rel="noopener">https://team-3-two.vercel.app</a></span>
-      <span class="pill">Captured 2026-08-20 22:29 UTC</span>
+      <span class="pill">Captured 2026-08-20 23:31 UTC</span>
     </div>
-    <p class="note">Every screenshot below is a real, automated capture of the live application. Each module lists exactly what you <b>can</b> and <b>cannot</b> do. Cards with two captures include a <b>Light / Dark</b> theme toggle.</p>
+    <p class="note">Each sidebar option opens its own page with a real, automated screenshot of the live app, red-box annotations, a step-by-step guide, field explanations, and exactly what you <b>can</b> and <b>cannot</b> do.</p>
   </header>
-
-  <section class="cat" id="cat-video">
-    <h2>Video Walkthrough</h2>
-    <div class="video-box">
-      <video controls preload="metadata" playsinline>
-        <source src="assets/walkthrough.webm" type="video/webm" />
-        <track src="assets/walkthrough.vtt" kind="captions" srclang="en" label="English" default />
-        Your browser does not support the video tag.
-      </video>
-      <p class="video-note">A narrated, automated tour of the live app. Captions are a standard WebVTT track (toggle with the CC control).</p>
-    </div>
+  <section class="cat">
+    <h2>Browse the documentation</h2>
+    <div class="dir">
+      <div class="dir-group" id="cat-getting-started">
+        <h3>Getting Started</h3>
+        <ul class="dir-list">
+          <li><a href="mod-login.html">Sign In</a><span>Email + password sign-in to the portal. Remember-me and a link to sign up.</span></li><li><a href="mod-signup.html">Sign Up</a><span>Create a new account with name, email and password (min 8 characters).</span></li>
+        </ul>
+      </div>
+      <div class="dir-group" id="cat-job-search">
+        <h3>Job Search &amp; Tracking</h3>
+        <ul class="dir-list">
+          <li><a href="mod-dashboard.html">Dashboard (Job Search)</a><span>Search jobs across multiple providers, filter and sort, view details, and save jobs.</span></li><li><a href="mod-job-tracker.html">Job Tracker</a><span>Track jobs you save from the extension or add manually; counts feed Analytics.</span></li><li><a href="mod-analytics.html">Analytics</a><span>Overview of your activity: resumes, cover letters, jobs applied for, and jobs tracked.</span></li>
+        </ul>
+      </div>
+      <div class="dir-group" id="cat-resumes">
+        <h3>Resumes &amp; Cover Letters</h3>
+        <ul class="dir-list">
+          <li><a href="mod-generate-resume.html">Generate Resume (Hub)</a><span>Choose how to create a resume: Job based or the LaTeX Resume Builder.</span></li><li><a href="mod-generate-resume-job-based.html">Job-Based Resume</a><span>AI tailors a resume to a chosen job, highlighting relevant experience and skills.</span></li><li><a href="mod-generate-resume-custom.html">Custom Resume</a><span>Custom AI resume flow driven by your own inputs.</span></li><li><a href="mod-generate-resume-builder.html">Resume Builder (LaTeX)</a><span>Resumake-style 8-step builder: choose a LaTeX template and fill each section.</span></li><li><a href="mod-generate-cover-letter.html">Generate Cover Letter</a><span>4-step AI cover-letter generator from a resume and a job description.</span></li><li><a href="mod-documents.html">Documents</a><span>All generated/uploaded resumes and cover letters; click to view or download.</span></li>
+        </ul>
+      </div>
+      <div class="dir-group" id="cat-profile-account">
+        <h3>Profile &amp; Account</h3>
+        <ul class="dir-list">
+          <li><a href="mod-profile.html">Profile</a><span>Your details, profile photo and resume upload used across the app.</span></li><li><a href="mod-settings.html">Settings</a><span>Appearance, language/date/timezone, dashboard density and notification toggles.</span></li><li><a href="mod-notifications.html">Notifications</a><span>Activity-driven notifications (the sidebar badge reflects the live count).</span></li>
+        </ul>
+      </div>
+      <div class="dir-group" id="cat-automation">
+        <h3>Automation &amp; Integrations</h3>
+        <ul class="dir-list">
+          <li><a href="mod-extension.html">Browser Extension</a><span>Download and install the Chrome extension for autofill on job sites. Verified live end-to-end (login + autofill).</span></li><li><a href="mod-api-connection.html">API Connection</a><span>Connect AI provider API keys used for resume and cover-letter generation.</span></li><li><a href="mod-autofill-form-fields.html">Autofill Form Fields</a><span>Every value autofill can use, pre-filled from Profile and fully editable.</span></li>
+        </ul>
+      </div>
+      <div class="dir-group" id="cat-help">
+        <h3>Help</h3>
+        <ul class="dir-list">
+          <li><a href="mod-help.html">Help &amp; Support</a><span>Quick links and an FAQ covering the main tasks in the portal.</span></li>
+        </ul>
+      </div></div>
   </section>
-  <section class="cat" id="cat-guides">
-    <h2>How-to Guides</h2>
-    <div class="guides">
-  <article class="guide" id="guide-create-resume" data-search="how to generate a resume open generate resume from the sidebar. pick a path: job based (tailored to a specific job) or resume builder (latex templates). for job based: choose a job from your search or saved list; the app highlights relevant experience and skills. for resume builder: pick a template, then fill profile, education, work, skills, projects and awards across the 8 steps. generate / export. your resume is saved and appears in documents. open documents to view or download it (pdf), or export as .tex / json from the builder.">
-    <div class="mod-head">
-      <h3>How to generate a resume</h3>
-      <code class="route">/app/generate-resume</code>
-    </div>
-    <ol class="steps"><li>Open Generate Resume from the sidebar.</li><li>Pick a path: Job based (tailored to a specific job) or Resume Builder (LaTeX templates).</li><li>For Job based: choose a job from your search or saved list; the app highlights relevant experience and skills.</li><li>For Resume Builder: pick a template, then fill profile, education, work, skills, projects and awards across the 8 steps.</li><li>Generate / export. Your resume is saved and appears in Documents.</li><li>Open Documents to view or download it (PDF), or export as .tex / JSON from the builder.</li></ol>
-    <div class="cc">
-      <div class="can"><h4>You can</h4><ul><li>Create a job-tailored resume with AI</li><li>Build a resume from a LaTeX template step-by-step</li><li>Export as PDF, .tex, or JSON</li><li>Reuse profile data so fields are pre-filled</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Generate without connecting an AI provider key (API Connection) for AI flows</li><li>Use LaTeX templates other than Template 1 yet (others 'coming soon')</li><li>Edit a saved resume's raw content from the Documents page</li></ul></div>
-    </div>
-  </article>
-  <article class="guide" id="guide-cover-letter" data-search="how to generate a cover letter open generate cover letter from the sidebar. step 1: pick a saved resume or paste resume text, then paste the job description (required). add company name and job title. continue through the 4 steps and generate. the cover letter is saved and appears under documents → cover letters.">
-    <div class="mod-head">
-      <h3>How to generate a cover letter</h3>
-      <code class="route">/app/generate-cover-letter</code>
-    </div>
-    <ol class="steps"><li>Open Generate Cover Letter from the sidebar.</li><li>Step 1: pick a saved resume or paste resume text, then paste the Job description (required).</li><li>Add Company name and Job title.</li><li>Continue through the 4 steps and generate.</li><li>The cover letter is saved and appears under Documents → Cover letters.</li></ol>
-    <div class="cc">
-      <div class="can"><h4>You can</h4><ul><li>Generate a cover letter from a resume + job description</li><li>Use resume text pulled from the extension, a saved resume, or pasted text</li><li>Save and download the result from Documents</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Generate without a job description (it is required)</li><li>Generate without an AI provider key connected</li><li>Send the cover letter to an employer from inside the app</li></ul></div>
-    </div>
-  </article>
-  <article class="guide" id="guide-autofill" data-search="how to autofill a job application fill your details in profile and in autofill form fields (extra fields like eeo, salary). install the chrome extension from the extension page and log in with the same account. open a job application page on any site. press ctrl+shift+f (cmd+shift+f on mac) or use the extension to autofill. optionally save the job to job tracker from the extension.">
-    <div class="mod-head">
-      <h3>How to autofill a job application</h3>
-      <code class="route">/app/autofill-form-fields</code>
-    </div>
-    <ol class="steps"><li>Fill your details in Profile and in Autofill Form Fields (extra fields like EEO, salary).</li><li>Install the Chrome extension from the Extension page and log in with the same account.</li><li>Open a job application page on any site.</li><li>Press Ctrl+Shift+F (Cmd+Shift+F on Mac) or use the extension to autofill.</li><li>Optionally save the job to Job Tracker from the extension.</li></ol>
-    <div class="cc">
-      <div class="can"><h4>You can</h4><ul><li>Store every autofill value once and reuse across sites</li><li>Choose which fields autofill is allowed to fill/skip</li><li>Set voluntary EEO answers and salary expectations</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Autofill file uploads automatically on every site (resume upload is manual / drag-drop on some ATS)</li><li>Autofill without installing and logging into the extension</li></ul></div>
-    </div>
-  </article></div>
-  </section>
-
-  
-    <section class="cat" id="cat-getting-started">
-      <h2>Getting Started</h2>
-      <div class="mods">
-        
-  <article class="mod" id="mod-login" data-search="sign in email + password sign-in to the portal. remember-me and a link to sign up. go to the app url. you'll land on the sign in screen. type the email address you registered with. type your password. use the eye icon to show/hide it if you want to check it. optionally tick 'remember me' to stay signed in on this device. click 'sign in'. on success you're taken straight to your dashboard. new here? click 'sign up' at the bottom to create an account first. email address the email you registered with. password your account password; the eye icon toggles visibility. remember me keeps you signed in on this device. forgot password? link to recover access to your account. sign in button submits your credentials and opens the dashboard. sign in with email and password toggle password visibility and 'remember me' navigate to sign up or forgot password sign in with wrong credentials (shows 'invalid email or password') use google sign-in (button present but not wired to a live oauth flow) reach the dashboard without a valid account">
-    <div class="mod-head">
-      <h3>Sign In</h3>
-      <code class="route">/</code>
-    </div>
-    <p class="summary">Email + password sign-in to the portal. Remember-me and a link to sign up.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig">
-      <a class="shot" href="assets/03-auth-login.png" target="_blank" rel="noopener">
-        <img loading="lazy" src="assets/03-auth-login.png" alt="Sign In full page" /></a>
-      <figcaption>Full page view.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Go to the app URL. You'll land on the Sign In screen.</li><li>Type the email address you registered with.</li><li>Type your password. Use the eye icon to show/hide it if you want to check it.</li><li>Optionally tick 'Remember me' to stay signed in on this device.</li><li>Click 'Sign In'. On success you're taken straight to your Dashboard.</li><li>New here? Click 'Sign up' at the bottom to create an account first.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Email address</b> — The email you registered with.</li><li><b>Password</b> — Your account password; the eye icon toggles visibility.</li><li><b>Remember me</b> — Keeps you signed in on this device.</li><li><b>Forgot password?</b> — Link to recover access to your account.</li><li><b>Sign In button</b> — Submits your credentials and opens the Dashboard.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Sign in with email and password</li><li>Toggle password visibility and 'remember me'</li><li>Navigate to Sign up or Forgot password</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Sign in with wrong credentials (shows 'Invalid email or password')</li><li>Use Google sign-in (button present but not wired to a live OAuth flow)</li><li>Reach the dashboard without a valid account</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-signup" data-search="sign up create a new account with name, email and password (min 8 characters). from the sign in screen, click 'sign up'. enter your full name (at least 2 characters). enter a valid email address that isn't already registered. choose a password with at least 8 characters. submit to create your account. continue into the short onboarding to add your profile basics (name, headline, location, phone). name your full name (minimum 2 characters). email a valid, unused email address. password minimum 8 characters. register a new account (name, email, password) proceed into a guided onboarding for profile basics register with a password under 8 characters reuse an email that already exists use an invalid email format">
-    <div class="mod-head">
-      <h3>Sign Up</h3>
-      <code class="route">/signup</code>
-    </div>
-    <p class="summary">Create a new account with name, email and password (min 8 characters).</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig">
-      <a class="shot" href="assets/06-auth-signup.png" target="_blank" rel="noopener">
-        <img loading="lazy" src="assets/06-auth-signup.png" alt="Sign Up full page" /></a>
-      <figcaption>Full page view.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>From the Sign In screen, click 'Sign up'.</li><li>Enter your full name (at least 2 characters).</li><li>Enter a valid email address that isn't already registered.</li><li>Choose a password with at least 8 characters.</li><li>Submit to create your account.</li><li>Continue into the short onboarding to add your profile basics (name, headline, location, phone).</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Name</b> — Your full name (minimum 2 characters).</li><li><b>Email</b> — A valid, unused email address.</li><li><b>Password</b> — Minimum 8 characters.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Register a new account (name, email, password)</li><li>Proceed into a guided onboarding for profile basics</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Register with a password under 8 characters</li><li>Reuse an email that already exists</li><li>Use an invalid email format</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-      </div>
-    </section>
-    <section class="cat" id="cat-job-search">
-      <h2>Job Search &amp; Tracking</h2>
-      <div class="mods">
-        
-  <article class="mod" id="mod-dashboard" data-search="dashboard (job search) search jobs across multiple providers, filter and sort, view details, and save jobs. open the dashboard (the home icon) from the sidebar. choose a provider in 'job source' (arbeitnow, adzuna, jooble, reed, or jsearch). type a role or keyword in the search box (e.g. 'frontend developer'). optionally enter a city or location. refine with the country, salary and job type dropdowns, and set the sort order. click 'search'. matching jobs appear under the 'all jobs' tab. click any job to read the full details on the right. save jobs you like; find them later under the 'saved' tab. use 'clear filters' to reset everything and start over. job source which job board the results come from. different boards cover different regions/roles. keywords / role job title, role or keyword to match. city or location where you want to work; leave blank for anywhere. country / salary / job type filters to narrow the results. relevance sort order for the results. search runs the query against the chosen provider. all jobs / saved tabs switch between search results and jobs you've saved. search jobs by title/keyword and location switch job source provider (arbeitnow, adzuna, jooble, reed, jsearch) filter by country, salary and job type, and sort by relevance open a job to view details and switch between all jobs / saved tabs save jobs for later see results before running a search (empty state until then) return results from a provider you haven't subscribed to (e.g. jsearch needs a rapidapi subscription) submit an application without leaving to the employer's site">
-    <div class="mod-head">
-      <h3>Dashboard (Job Search)</h3>
-      <code class="route">/app</code>
-    </div>
-    <p class="summary">Search jobs across multiple providers, filter and sort, view details, and save jobs.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/11-ann-dashboard.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/11-ann-dashboard.png" alt="Dashboard (Job Search) annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> The job search controls: pick a provider, enter keywords and location, then Search. Filters and result tabs are highlighted.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/16-mod-dashboard.png" data-light="assets/16-mod-dashboard.png" data-dark="assets/17-mod-dashboard-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/16-mod-dashboard.png" alt="Dashboard (Job Search) full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open the Dashboard (the home icon) from the sidebar.</li><li>Choose a provider in 'Job source' (Arbeitnow, Adzuna, Jooble, Reed, or JSearch).</li><li>Type a role or keyword in the search box (e.g. 'Frontend Developer').</li><li>Optionally enter a city or location.</li><li>Refine with the Country, Salary and Job type dropdowns, and set the sort order.</li><li>Click 'Search'. Matching jobs appear under the 'All jobs' tab.</li><li>Click any job to read the full details on the right.</li><li>Save jobs you like; find them later under the 'Saved' tab.</li><li>Use 'Clear filters' to reset everything and start over.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Job source</b> — Which job board the results come from. Different boards cover different regions/roles.</li><li><b>Keywords / role</b> — Job title, role or keyword to match.</li><li><b>City or location</b> — Where you want to work; leave blank for anywhere.</li><li><b>Country / Salary / Job type</b> — Filters to narrow the results.</li><li><b>Relevance</b> — Sort order for the results.</li><li><b>Search</b> — Runs the query against the chosen provider.</li><li><b>All jobs / Saved tabs</b> — Switch between search results and jobs you've saved.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Search jobs by title/keyword and location</li><li>Switch job source provider (Arbeitnow, Adzuna, Jooble, Reed, JSearch)</li><li>Filter by country, salary and job type, and sort by relevance</li><li>Open a job to view details and switch between All jobs / Saved tabs</li><li>Save jobs for later</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>See results before running a search (empty state until then)</li><li>Return results from a provider you haven't subscribed to (e.g. JSearch needs a RapidAPI subscription)</li><li>Submit an application without leaving to the employer's site</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-job-tracker" data-search="job tracker track jobs you save from the extension or add manually; counts feed analytics. open 'job tracker' from the sidebar. click 'add job' to add one manually, or save jobs from the browser extension (autofill tab → save to job tracker). use 'refresh' to pull in the latest saved jobs. your tracked jobs are counted on the analytics page under 'jobs in tracker'. add job manually add a job you want to track. refresh reload the list to show newly saved jobs. tracked jobs the list of jobs you're tracking. add a tracked job manually see jobs saved from the extension (autofill tab → save to job tracker) refresh the list; tracked counts appear on analytics track jobs while signed out auto-sync application status from external job sites">
-    <div class="mod-head">
-      <h3>Job Tracker</h3>
-      <code class="route">/app/job-tracker</code>
-    </div>
-    <p class="summary">Track jobs you save from the extension or add manually; counts feed Analytics.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/14-ann-job-tracker.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/14-ann-job-tracker.png" alt="Job Tracker annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Add jobs manually or from the extension, and refresh the list. Counts feed the Analytics page.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/20-mod-job-tracker.png" data-light="assets/20-mod-job-tracker.png" data-dark="assets/20-mod-job-tracker-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/20-mod-job-tracker.png" alt="Job Tracker full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Job Tracker' from the sidebar.</li><li>Click 'Add job' to add one manually, or save jobs from the browser extension (Autofill tab → Save to Job Tracker).</li><li>Use 'Refresh' to pull in the latest saved jobs.</li><li>Your tracked jobs are counted on the Analytics page under 'Jobs in tracker'.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Add job</b> — Manually add a job you want to track.</li><li><b>Refresh</b> — Reload the list to show newly saved jobs.</li><li><b>Tracked jobs</b> — The list of jobs you're tracking.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Add a tracked job manually</li><li>See jobs saved from the extension (Autofill tab → save to Job Tracker)</li><li>Refresh the list; tracked counts appear on Analytics</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Track jobs while signed out</li><li>Auto-sync application status from external job sites</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-analytics" data-search="analytics overview of your activity: resumes, cover letters, jobs applied for, and jobs tracked. open 'analytics' from the sidebar. read the four cards: resumes stored, cover letters stored, jobs applied for, and jobs in tracker. click 'view on job tracker page' to jump to the underlying jobs. read 'how these numbers work' to understand how each count is produced. resumes stored resumes you generated or uploaded. cover letters stored cover letters you generated or uploaded. jobs applied for applications submitted from the dashboard. jobs in tracker jobs you've saved to the job tracker. see counts for resumes stored, cover letters stored, jobs applied, jobs in tracker jump to the job tracker page from the cards read how each number is calculated edit or delete records from analytics (read-only) see other users' data (counts are per-account)">
-    <div class="mod-head">
-      <h3>Analytics</h3>
-      <code class="route">/app/analytics</code>
-    </div>
-    <p class="summary">Overview of your activity: resumes, cover letters, jobs applied for, and jobs tracked.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/17-ann-analytics.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/17-ann-analytics.png" alt="Analytics annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Four activity cards summarize your resumes, cover letters, applications and tracked jobs. 'How these numbers work' explains each metric.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/24-mod-analytics.png" data-light="assets/24-mod-analytics.png" data-dark="assets/23-mod-analytics-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/24-mod-analytics.png" alt="Analytics full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Analytics' from the sidebar.</li><li>Read the four cards: Resumes stored, Cover letters stored, Jobs applied for, and Jobs in tracker.</li><li>Click 'View on Job Tracker page' to jump to the underlying jobs.</li><li>Read 'How these numbers work' to understand how each count is produced.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Resumes stored</b> — Resumes you generated or uploaded.</li><li><b>Cover letters stored</b> — Cover letters you generated or uploaded.</li><li><b>Jobs applied for</b> — Applications submitted from the Dashboard.</li><li><b>Jobs in tracker</b> — Jobs you've saved to the Job Tracker.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>See counts for resumes stored, cover letters stored, jobs applied, jobs in tracker</li><li>Jump to the Job Tracker page from the cards</li><li>Read how each number is calculated</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Edit or delete records from Analytics (read-only)</li><li>See other users' data (counts are per-account)</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-      </div>
-    </section>
-    <section class="cat" id="cat-resumes">
-      <h2>Resumes &amp; Cover Letters</h2>
-      <div class="mods">
-        
-  <article class="mod" id="mod-generate-resume" data-search="generate resume (hub) choose how to create a resume: job based or the latex resume builder. open 'generate resume' from the sidebar. choose 'job based' to have ai tailor a resume to a specific job you pick. or choose 'resume builder (templates)' to fill a latex template step-by-step. follow the chosen flow; the finished resume is saved to documents. job based ai writes a resume tailored to a chosen job posting. resume builder (templates) guided latex template you fill section by section. pick a job-tailored ai flow open the template-based resume builder generate directly from this hub (it routes you to a flow)">
-    <div class="mod-head">
-      <h3>Generate Resume (Hub)</h3>
-      <code class="route">/app/generate-resume</code>
-    </div>
-    <p class="summary">Choose how to create a resume: Job based or the LaTeX Resume Builder.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/20-ann-generate-resume.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/20-ann-generate-resume.png" alt="Generate Resume (Hub) annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Two ways to create a resume: an AI 'Job based' flow, or the template-driven Resume Builder.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/27-mod-generate-resume.png" data-light="assets/27-mod-generate-resume.png" data-dark="assets/26-mod-generate-resume-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/27-mod-generate-resume.png" alt="Generate Resume (Hub) full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Generate Resume' from the sidebar.</li><li>Choose 'Job based' to have AI tailor a resume to a specific job you pick.</li><li>Or choose 'Resume Builder (templates)' to fill a LaTeX template step-by-step.</li><li>Follow the chosen flow; the finished resume is saved to Documents.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Job based</b> — AI writes a resume tailored to a chosen job posting.</li><li><b>Resume Builder (templates)</b> — Guided LaTeX template you fill section by section.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Pick a job-tailored AI flow</li><li>Open the template-based Resume Builder</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Generate directly from this hub (it routes you to a flow)</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-generate-resume-job-based" data-search="job-based resume ai tailors a resume to a chosen job, highlighting relevant experience and skills. from generate resume, pick 'job based'. select a job from your search results or saved list (or paste a job description). let the ai generate a tailored resume that emphasizes matching experience and skills. review, then save. it appears in documents for download. job selection the job posting your resume will be tailored to. generate runs the ai to produce the tailored resume (needs a connected api key). pick a job from search or your saved list generate a tailored resume with ai save it to documents tailor without selecting a job generate without an ai provider key connected">
-    <div class="mod-head">
-      <h3>Job-Based Resume</h3>
-      <code class="route">/app/generate-resume/job-based</code>
-    </div>
-    <p class="summary">AI tailors a resume to a chosen job, highlighting relevant experience and skills.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/31-mod-generate-resume-job-based.png" data-light="assets/31-mod-generate-resume-job-based.png" data-dark="assets/29-mod-generate-resume-job-based-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/31-mod-generate-resume-job-based.png" alt="Job-Based Resume full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>From Generate Resume, pick 'Job based'.</li><li>Select a job from your search results or saved list (or paste a job description).</li><li>Let the AI generate a tailored resume that emphasizes matching experience and skills.</li><li>Review, then save. It appears in Documents for download.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Job selection</b> — The job posting your resume will be tailored to.</li><li><b>Generate</b> — Runs the AI to produce the tailored resume (needs a connected API key).</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Pick a job from search or your saved list</li><li>Generate a tailored resume with AI</li><li>Save it to Documents</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Tailor without selecting a job</li><li>Generate without an AI provider key connected</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-generate-resume-custom" data-search="custom resume custom ai resume flow driven by your own inputs. from generate resume, choose the custom flow. provide your own inputs / prompts describing the resume you want. generate and review the ai output. save it to documents for download. custom inputs your prompts/details guiding the ai. generate produces the resume (needs a connected api key). generate a resume from custom prompts/inputs save the output to documents generate without an ai provider key connected">
-    <div class="mod-head">
-      <h3>Custom Resume</h3>
-      <code class="route">/app/generate-resume/custom</code>
-    </div>
-    <p class="summary">Custom AI resume flow driven by your own inputs.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/34-mod-generate-resume-custom.png" data-light="assets/34-mod-generate-resume-custom.png" data-dark="assets/32-mod-generate-resume-custom-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/34-mod-generate-resume-custom.png" alt="Custom Resume full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>From Generate Resume, choose the custom flow.</li><li>Provide your own inputs / prompts describing the resume you want.</li><li>Generate and review the AI output.</li><li>Save it to Documents for download.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Custom inputs</b> — Your prompts/details guiding the AI.</li><li><b>Generate</b> — Produces the resume (needs a connected API key).</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Generate a resume from custom prompts/inputs</li><li>Save the output to Documents</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Generate without an AI provider key connected</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-generate-resume-builder" data-search="resume builder (latex) resumake-style 8-step builder: choose a latex template and fill each section. from generate resume, choose 'resume builder (templates)'. step 1: pick a latex template (click a preview to enlarge, then select it). work through the 8 steps: template, profile, education, work, skills, projects, awards, export. fields pre-fill from your profile where possible — edit as needed. export the finished resume as .tex or json (pdf via the latex output). choose template pick a latex template (template 1 supports latex generation today). 8 steps template → profile → education → work → skills → projects → awards → export. export download as .tex or json. choose a latex template fill profile, education, work, skills, projects and awards across 8 steps export as .tex or json use templates other than template 1 for latex generation yet skip required profile fields the template needs">
-    <div class="mod-head">
-      <h3>Resume Builder (LaTeX)</h3>
-      <code class="route">/app/generate-resume/builder</code>
-    </div>
-    <p class="summary">Resumake-style 8-step builder: choose a LaTeX template and fill each section.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/37-mod-generate-resume-builder.png" data-light="assets/37-mod-generate-resume-builder.png" data-dark="assets/35-mod-generate-resume-builder-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/37-mod-generate-resume-builder.png" alt="Resume Builder (LaTeX) full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>From Generate Resume, choose 'Resume Builder (templates)'.</li><li>Step 1: pick a LaTeX template (click a preview to enlarge, then select it).</li><li>Work through the 8 steps: Template, Profile, Education, Work, Skills, Projects, Awards, Export.</li><li>Fields pre-fill from your Profile where possible — edit as needed.</li><li>Export the finished resume as .tex or JSON (PDF via the LaTeX output).</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Choose Template</b> — Pick a LaTeX template (Template 1 supports LaTeX generation today).</li><li><b>8 steps</b> — Template → Profile → Education → Work → Skills → Projects → Awards → Export.</li><li><b>Export</b> — Download as .tex or JSON.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Choose a LaTeX template</li><li>Fill profile, education, work, skills, projects and awards across 8 steps</li><li>Export as .tex or JSON</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Use templates other than Template 1 for LaTeX generation yet</li><li>Skip required profile fields the template needs</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-generate-cover-letter" data-search="generate cover letter 4-step ai cover-letter generator from a resume and a job description. open 'generate cover letter' from the sidebar. step 1 – resume &amp; job: pick a saved resume, use the extension's resume, or paste resume text. paste the job description (this field is required). enter the company name and job title. click 'next' and continue through the remaining steps to generate. the cover letter is saved under documents → cover letters. resume saved resume, extension resume, or pasted resume text. job description required — paste the posting the letter should target. company name the employer's name. job title the role you're applying for. next advances the wizard toward generation. use a saved resume, extension resume, or pasted text provide company name and job title generate and save to documents generate without a job description (required) generate without an ai provider key connected">
-    <div class="mod-head">
-      <h3>Generate Cover Letter</h3>
-      <code class="route">/app/generate-cover-letter</code>
-    </div>
-    <p class="summary">4-step AI cover-letter generator from a resume and a job description.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/23-ann-generate-cover-letter.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/23-ann-generate-cover-letter.png" alt="Generate Cover Letter annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Step 1 of the 4-step wizard: choose/paste a resume, paste the job description (required), add company and title, then Next.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/40-mod-generate-cover-letter.png" data-light="assets/40-mod-generate-cover-letter.png" data-dark="assets/38-mod-generate-cover-letter-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/40-mod-generate-cover-letter.png" alt="Generate Cover Letter full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Generate Cover Letter' from the sidebar.</li><li>Step 1 – Resume &amp; Job: pick a saved resume, use the extension's resume, or paste resume text.</li><li>Paste the Job description (this field is required).</li><li>Enter the Company name and Job title.</li><li>Click 'Next' and continue through the remaining steps to generate.</li><li>The cover letter is saved under Documents → Cover letters.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Resume</b> — Saved resume, extension resume, or pasted resume text.</li><li><b>Job description</b> — Required — paste the posting the letter should target.</li><li><b>Company name</b> — The employer's name.</li><li><b>Job title</b> — The role you're applying for.</li><li><b>Next</b> — Advances the wizard toward generation.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Use a saved resume, extension resume, or pasted text</li><li>Provide company name and job title</li><li>Generate and save to Documents</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Generate without a job description (required)</li><li>Generate without an AI provider key connected</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-documents" data-search="documents all generated/uploaded resumes and cover letters; click to view or download. open 'documents' from the sidebar. use the 'resumes' and 'cover letters' tabs to switch document type. click any document to preview it in the pane on the right. download the file from the preview. nothing yet? create one from generate resume or generate cover letter. resumes tab lists your stored resumes. cover letters tab lists your stored cover letters. preview pane shows the selected document with a download option. switch between resumes and cover letters tabs view and download stored files create documents here (use generate resume / cover letter) edit a document's raw content in place">
-    <div class="mod-head">
-      <h3>Documents</h3>
-      <code class="route">/app/documents</code>
-    </div>
-    <p class="summary">All generated/uploaded resumes and cover letters; click to view or download.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/26-ann-documents.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/26-ann-documents.png" alt="Documents annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Switch between the Resumes and Cover letters tabs; click an item to preview or download it in the pane on the right.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/43-mod-documents.png" data-light="assets/43-mod-documents.png" data-dark="assets/41-mod-documents-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/43-mod-documents.png" alt="Documents full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Documents' from the sidebar.</li><li>Use the 'Resumes' and 'Cover letters' tabs to switch document type.</li><li>Click any document to preview it in the pane on the right.</li><li>Download the file from the preview.</li><li>Nothing yet? Create one from Generate Resume or Generate Cover Letter.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Resumes tab</b> — Lists your stored resumes.</li><li><b>Cover letters tab</b> — Lists your stored cover letters.</li><li><b>Preview pane</b> — Shows the selected document with a download option.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Switch between Resumes and Cover letters tabs</li><li>View and download stored files</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Create documents here (use Generate Resume / Cover Letter)</li><li>Edit a document's raw content in place</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-      </div>
-    </section>
-    <section class="cat" id="cat-profile-account">
-      <h2>Profile &amp; Account</h2>
-      <div class="mods">
-        
-  <article class="mod" id="mod-profile" data-search="profile your details, profile photo and resume upload used across the app. open 'profile' from the sidebar (or the account area). under 'basic info', set your display name (required) — this is how you appear in the app. add a headline (e.g. 'software engineer') and a short summary / bio. note the email is read-only here (it's your account login). in 'location', pick your country and optionally add city / region and state. on the right, drag &amp; drop or click to upload a profile photo (png/jpeg/gif/webp). also on the right, upload your resume (pdf/doc/docx) — it's used when you apply to jobs. save your changes. these details pre-fill resumes, cover letters and autofill. display name required. the name shown on your profile and documents. email read-only. your account email / login. headline a one-line professional title, e.g. 'software engineer'. summary a short bio describing your experience and goals. country your country (used for job matching and forms). city / region optional city or region. state optional state / province. photo upload profile picture. allowed: png, jpeg, gif, webp. resume upload your resume file. allowed: pdf, doc, docx. used when applying. edit display name, headline, summary and location upload a profile photo (png/jpeg/gif/webp) upload a resume (pdf/doc/docx) used when applying change the account email (read-only here) upload unsupported file types">
-    <div class="mod-head">
-      <h3>Profile</h3>
-      <code class="route">/app/profile</code>
-    </div>
-    <p class="summary">Your details, profile photo and resume upload used across the app.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/41-ann-profile.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/41-ann-profile.png" alt="Profile annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Basic info (left) plus Photo and Resume upload (right). Display name is required; email is read-only.</figcaption>
-      </figure><figure class="fig fig--ann">
-        <a class="shot" href="assets/44-ann-profile-location.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/44-ann-profile-location.png" alt="Profile annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Location section: choose your country; city, region and state are optional.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/61-mod-profile.png" data-light="assets/61-mod-profile.png" data-dark="assets/56-mod-profile-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/61-mod-profile.png" alt="Profile full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Profile' from the sidebar (or the account area).</li><li>Under 'Basic info', set your Display name (required) — this is how you appear in the app.</li><li>Add a Headline (e.g. 'Software Engineer') and a short Summary / bio.</li><li>Note the Email is read-only here (it's your account login).</li><li>In 'Location', pick your Country and optionally add City / Region and State.</li><li>On the right, drag &amp; drop or click to upload a Profile photo (PNG/JPEG/GIF/WebP).</li><li>Also on the right, upload your Resume (PDF/DOC/DOCX) — it's used when you apply to jobs.</li><li>Save your changes. These details pre-fill resumes, cover letters and autofill.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Display name</b> — Required. The name shown on your profile and documents.</li><li><b>Email</b> — Read-only. Your account email / login.</li><li><b>Headline</b> — A one-line professional title, e.g. 'Software Engineer'.</li><li><b>Summary</b> — A short bio describing your experience and goals.</li><li><b>Country</b> — Your country (used for job matching and forms).</li><li><b>City / Region</b> — Optional city or region.</li><li><b>State</b> — Optional state / province.</li><li><b>Photo upload</b> — Profile picture. Allowed: PNG, JPEG, GIF, WebP.</li><li><b>Resume upload</b> — Your resume file. Allowed: PDF, DOC, DOCX. Used when applying.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Edit display name, headline, summary and location</li><li>Upload a profile photo (PNG/JPEG/GIF/WebP)</li><li>Upload a resume (PDF/DOC/DOCX) used when applying</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Change the account email (read-only here)</li><li>Upload unsupported file types</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-settings" data-search="settings appearance, language/date/timezone, dashboard density and notification toggles. open 'settings' from the sidebar. under 'appearance', switch between light and dark theme (you can also use the icon in the top-right). under 'website &amp; app preferences', set language, date format, timezone and dashboard density. under 'general &amp; notifications', toggle email notifications and browser push notifications. click 'save changes' to persist everything. appearance (light/dark) app theme; also toggled by the top-right icon. language interface language. date format how dates are displayed (e.g. mm/dd/yyyy). timezone your timezone for timestamps. dashboard density how much content shows per row on the dashboard. notifications email and browser push notification toggles. save changes persists your settings — nothing is saved until you click it. switch light/dark theme set language, date format, timezone and dashboard density toggle email and browser push notifications save changes persist changes without clicking save changes">
-    <div class="mod-head">
-      <h3>Settings</h3>
-      <code class="route">/app/settings</code>
-    </div>
-    <p class="summary">Appearance, language/date/timezone, dashboard density and notification toggles.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/47-ann-settings.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/47-ann-settings.png" alt="Settings annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Appearance (Light/Dark), Website &amp; app preferences, and notification toggles. Remember to click 'Save changes'.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/65-mod-settings.png" data-light="assets/65-mod-settings.png" data-dark="assets/14-mod-settings-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/65-mod-settings.png" alt="Settings full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Settings' from the sidebar.</li><li>Under 'Appearance', switch between Light and Dark theme (you can also use the icon in the top-right).</li><li>Under 'Website &amp; app preferences', set Language, Date format, Timezone and Dashboard density.</li><li>Under 'General &amp; notifications', toggle Email notifications and Browser push notifications.</li><li>Click 'Save changes' to persist everything.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Appearance (Light/Dark)</b> — App theme; also toggled by the top-right icon.</li><li><b>Language</b> — Interface language.</li><li><b>Date format</b> — How dates are displayed (e.g. MM/DD/YYYY).</li><li><b>Timezone</b> — Your timezone for timestamps.</li><li><b>Dashboard density</b> — How much content shows per row on the dashboard.</li><li><b>Notifications</b> — Email and browser push notification toggles.</li><li><b>Save changes</b> — Persists your settings — nothing is saved until you click it.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Switch Light/Dark theme</li><li>Set language, date format, timezone and dashboard density</li><li>Toggle email and browser push notifications</li><li>Save changes</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Persist changes without clicking Save changes</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-notifications" data-search="notifications activity-driven notifications (the sidebar badge reflects the live count). open 'notifications' from the sidebar (the bell icon shows a live count). read notifications generated from your activity (e.g. 'create your first resume', 'you're tracking n jobs'). click a notification to jump to the related page. the badge clears as you address the items. notification list activity-based prompts and updates. sidebar badge live count of current notifications. view notifications derived from your real activity click a notification to go to the related page create notifications manually receive alerts about other users' activity">
-    <div class="mod-head">
-      <h3>Notifications</h3>
-      <code class="route">/app/notifications</code>
-    </div>
-    <p class="summary">Activity-driven notifications (the sidebar badge reflects the live count).</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/29-ann-notifications.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/29-ann-notifications.png" alt="Notifications annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Notifications are generated from your real activity; the sidebar badge shows the live unread count.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/47-mod-notifications.png" data-light="assets/47-mod-notifications.png" data-dark="assets/44-mod-notifications-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/47-mod-notifications.png" alt="Notifications full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Notifications' from the sidebar (the bell icon shows a live count).</li><li>Read notifications generated from your activity (e.g. 'Create your first resume', 'You're tracking N jobs').</li><li>Click a notification to jump to the related page.</li><li>The badge clears as you address the items.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Notification list</b> — Activity-based prompts and updates.</li><li><b>Sidebar badge</b> — Live count of current notifications.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>View notifications derived from your real activity</li><li>Click a notification to go to the related page</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Create notifications manually</li><li>Receive alerts about other users' activity</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-      </div>
-    </section>
-    <section class="cat" id="cat-automation">
-      <h2>Automation &amp; Integrations</h2>
-      <div class="mods">
-        
-  <article class="mod" id="mod-extension" data-search="browser extension download and install the chrome extension for autofill on job sites. open 'extension' from the sidebar. click 'download extension' to get the packaged zip. unzip the file on your computer. open chrome and go to chrome://extensions. turn on 'developer mode' (top-right toggle). click 'load unpacked' and select the unzipped 'dist' folder. the team 3 icon appears in your toolbar. log in with the same account. on any job page, press ctrl+shift+f (cmd+shift+f on mac) to autofill. download extension downloads the extension package (zip). install steps unzip → chrome://extensions → developer mode → load unpacked. autofill shortcut ctrl/cmd+shift+f fills forms on job pages once logged in. download the packaged extension follow install steps (unzip → chrome://extensions → developer mode → load unpacked) use ctrl/cmd+shift+f to autofill after logging in install automatically (manual load-unpacked until it's on the web store) use it without logging in with the same account">
-    <div class="mod-head">
-      <h3>Browser Extension</h3>
-      <code class="route">/app/extension</code>
-    </div>
-    <p class="summary">Download and install the Chrome extension for autofill on job sites.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/32-ann-extension.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/32-ann-extension.png" alt="Browser Extension annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Download the extension and follow the Chrome install steps. The right panel is a quick checklist.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/50-mod-extension.png" data-light="assets/50-mod-extension.png" data-dark="assets/47-mod-extension-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/50-mod-extension.png" alt="Browser Extension full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Extension' from the sidebar.</li><li>Click 'Download extension' to get the packaged ZIP.</li><li>Unzip the file on your computer.</li><li>Open Chrome and go to chrome://extensions.</li><li>Turn on 'Developer mode' (top-right toggle).</li><li>Click 'Load unpacked' and select the unzipped 'dist' folder.</li><li>The Team 3 icon appears in your toolbar. Log in with the same account.</li><li>On any job page, press Ctrl+Shift+F (Cmd+Shift+F on Mac) to autofill.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Download extension</b> — Downloads the extension package (ZIP).</li><li><b>Install steps</b> — Unzip → chrome://extensions → Developer mode → Load unpacked.</li><li><b>Autofill shortcut</b> — Ctrl/Cmd+Shift+F fills forms on job pages once logged in.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Download the packaged extension</li><li>Follow install steps (unzip → chrome://extensions → Developer mode → Load unpacked)</li><li>Use Ctrl/Cmd+Shift+F to autofill after logging in</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Install automatically (manual load-unpacked until it's on the Web Store)</li><li>Use it without logging in with the same account</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-api-connection" data-search="api connection connect ai provider api keys used for resume and cover-letter generation. open 'api connection' from the sidebar. choose your ai provider (openai, gemini, etc.). optionally add a label (e.g. 'work', 'personal') to organize multiple keys. paste your api key into the 'api key' field (the eye icon reveals it). click 'connect api key' to save it securely (only a masked version is shown afterward). under 'connected keys', set a default key used across the website and extension. provider the ai service the key belongs to (openai, gemini, etc.). label (optional) a name to tell multiple keys apart. api key your secret key; stored securely and shown masked after saving. connect api key saves the key to your account. connected keys your saved keys; choose which provider is the default. add an api key per provider (openai, gemini, etc.) with an optional label set a default key used across the website and extension store multiple keys via labels; keys are stored masked see a full key again after saving (only a masked version is shown) share keys with other users generate ai content without at least one connected key">
-    <div class="mod-head">
-      <h3>API Connection</h3>
-      <code class="route">/app/api-connection</code>
-    </div>
-    <p class="summary">Connect AI provider API keys used for resume and cover-letter generation.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/35-ann-api-connection.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/35-ann-api-connection.png" alt="API Connection annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Add a key in three steps: choose a provider, paste the key (with an optional label), then Connect. Saved keys and the default appear below.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/53-mod-api-connection.png" data-light="assets/53-mod-api-connection.png" data-dark="assets/50-mod-api-connection-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/53-mod-api-connection.png" alt="API Connection full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'API Connection' from the sidebar.</li><li>Choose your AI Provider (OpenAI, Gemini, etc.).</li><li>Optionally add a Label (e.g. 'Work', 'Personal') to organize multiple keys.</li><li>Paste your API key into the 'API key' field (the eye icon reveals it).</li><li>Click 'Connect API key' to save it securely (only a masked version is shown afterward).</li><li>Under 'Connected keys', set a default key used across the website and extension.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Provider</b> — The AI service the key belongs to (OpenAI, Gemini, etc.).</li><li><b>Label (optional)</b> — A name to tell multiple keys apart.</li><li><b>API key</b> — Your secret key; stored securely and shown masked after saving.</li><li><b>Connect API key</b> — Saves the key to your account.</li><li><b>Connected keys</b> — Your saved keys; choose which provider is the default.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Add an API key per provider (OpenAI, Gemini, etc.) with an optional label</li><li>Set a default key used across the website and extension</li><li>Store multiple keys via labels; keys are stored masked</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>See a full key again after saving (only a masked version is shown)</li><li>Share keys with other users</li><li>Generate AI content without at least one connected key</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-  <article class="mod" id="mod-autofill-form-fields" data-search="autofill form fields every value autofill can use, pre-filled from profile and fully editable. open 'autofill form fields' from the sidebar. review 'personal &amp; contact' — names, email, phone; many values come from your profile. fill 'work authorization &amp; eeo (voluntary)' only as much as you want (defaults are 'prefer not to answer'). set your salary expectations (min/max). open 'autofill settings' to choose which fields the extension is allowed to fill or should skip. these values are what the extension types into job application forms. personal &amp; contact first/last name, preferred name, pronouns, email, phone (many from profile). work authorization &amp; eeo voluntary answers (sponsorship, veteran, disability, gender, race). salary your minimum and maximum salary expectations. autofill settings choose which fields autofill can fill or must skip. edit personal &amp; contact fields, work authorization and voluntary eeo answers set salary expectations choose which fields autofill is allowed to fill or skip fill sensitive eeo fields unless you choose to (default 'prefer not to answer') guarantee a match on every custom ats field">
-    <div class="mod-head">
-      <h3>Autofill Form Fields</h3>
-      <code class="route">/app/autofill-form-fields</code>
-    </div>
-    <p class="summary">Every value autofill can use, pre-filled from Profile and fully editable.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/38-ann-autofill-form-fields.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/38-ann-autofill-form-fields.png" alt="Autofill Form Fields annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Every value the extension can use, grouped into Personal &amp; contact, Work authorization / EEO, and Salary. 'Autofill settings' controls which fields to skip.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/57-mod-autofill-form-fields.png" data-light="assets/57-mod-autofill-form-fields.png" data-dark="assets/53-mod-autofill-form-fields-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/57-mod-autofill-form-fields.png" alt="Autofill Form Fields full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Autofill Form Fields' from the sidebar.</li><li>Review 'Personal &amp; contact' — names, email, phone; many values come from your Profile.</li><li>Fill 'Work authorization &amp; EEO (voluntary)' only as much as you want (defaults are 'Prefer not to answer').</li><li>Set your Salary expectations (min/max).</li><li>Open 'Autofill settings' to choose which fields the extension is allowed to fill or should skip.</li><li>These values are what the extension types into job application forms.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Personal &amp; contact</b> — First/last name, preferred name, pronouns, email, phone (many from Profile).</li><li><b>Work authorization &amp; EEO</b> — Voluntary answers (sponsorship, veteran, disability, gender, race).</li><li><b>Salary</b> — Your minimum and maximum salary expectations.</li><li><b>Autofill settings</b> — Choose which fields autofill can fill or must skip.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Edit personal &amp; contact fields, work authorization and voluntary EEO answers</li><li>Set salary expectations</li><li>Choose which fields autofill is allowed to fill or skip</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Fill sensitive EEO fields unless you choose to (default 'Prefer not to answer')</li><li>Guarantee a match on every custom ATS field</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-      </div>
-    </section>
-    <section class="cat" id="cat-help">
-      <h2>Help</h2>
-      <div class="mods">
-        
-  <article class="mod" id="mod-help" data-search="help &amp; support quick links and an faq covering the main tasks in the portal. open 'help &amp; support' from the sidebar. use the 'quick links' to jump to generate resume, generate cover letter, documents or settings. expand a 'frequently asked questions' item to read the answer. follow the guidance to complete the related task. quick links shortcuts to the most common pages. faq expandable answers to common questions. open quick links to key pages expand faq answers (resume, cover letter, documents, api keys, profile) start a live chat with support from here">
-    <div class="mod-head">
-      <h3>Help &amp; Support</h3>
-      <code class="route">/app/help</code>
-    </div>
-    <p class="summary">Quick links and an FAQ covering the main tasks in the portal.</p>
-    <div class="mod-grid">
-      <div class="mod-visual"><figure class="fig fig--ann">
-        <a class="shot" href="assets/50-ann-help.png" target="_blank" rel="noopener">
-          <img loading="lazy" src="assets/50-ann-help.png" alt="Help &amp; Support annotated" /></a>
-        <figcaption><span class="tag-ann">Annotated</span> Quick links to key pages plus an expandable FAQ covering the main tasks.</figcaption>
-      </figure><figure class="fig">
-      <div class="shot-wrap">
-        <div class="shot-toggle">
-          <button class="on" data-mode="light">Light</button>
-          <button data-mode="dark">Dark</button>
-        </div>
-        <a class="shot" href="assets/69-mod-help.png" data-light="assets/69-mod-help.png" data-dark="assets/59-mod-help-dark.png" target="_blank" rel="noopener">
-          <img loading="lazy" class="shot-img" src="assets/69-mod-help.png" alt="Help &amp; Support full page" />
-        </a>
-      </div>
-      <figcaption>Full page — switch between Light and Dark theme.</figcaption>
-    </figure></div>
-      <div class="mod-text">
-        <h4 class="mt">Step&nbsp;by&nbsp;step</h4><ol class="steps"><li>Open 'Help &amp; Support' from the sidebar.</li><li>Use the 'Quick links' to jump to Generate Resume, Generate Cover Letter, Documents or Settings.</li><li>Expand a 'Frequently asked questions' item to read the answer.</li><li>Follow the guidance to complete the related task.</li></ol>
-        <h4 class="mt">Fields &amp; controls</h4><ul class="fieldlist"><li><b>Quick links</b> — Shortcuts to the most common pages.</li><li><b>FAQ</b> — Expandable answers to common questions.</li></ul>
-        <div class="cc mt">
-      <div class="can"><h4>You can</h4><ul><li>Open quick links to key pages</li><li>Expand FAQ answers (resume, cover letter, documents, API keys, profile)</li></ul></div>
-      <div class="cannot"><h4>You cannot</h4><ul><li>Start a live chat with support from here</li></ul></div>
-    </div>
-      </div>
-    </div>
-  </article>
-      </div>
-    </section>
-
   <footer>
-    <p>MR_Rokesh Job Portal · Module Documentation · Generated 2026-08-20 22:29 UTC · Demo capture account: docs.demo@mrrokesh.com</p>
+    <p>MR_Rokesh Job Portal · Documentation · Generated 2026-08-20 23:31 UTC · Demo capture account: docs.demo@mrrokesh.com</p>
   </footer>
 </main>
-
 <div id="lightbox" class="lightbox" hidden><img alt="" /></div>
 <script src="app.js"></script>
 </body>

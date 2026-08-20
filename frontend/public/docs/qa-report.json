@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-20T22:29:21.765Z",
+  "timestamp": "2026-08-20T23:31:58.769Z",
   "consecutivePasses": 4,
   "industrialStandard": true,
   "history": [
@@ -8,8 +8,9 @@
       "allOk": true,
       "live": {
         "ok": true,
-        "status": 200,
-        "len": 72796
+        "indexStatus": 200,
+        "moduleStatus": 200,
+        "len": 24159
       }
     },
     {
@@ -17,8 +18,9 @@
       "allOk": true,
       "live": {
         "ok": true,
-        "status": 200,
-        "len": 72796
+        "indexStatus": 200,
+        "moduleStatus": 200,
+        "len": 24159
       }
     },
     {
@@ -26,8 +28,9 @@
       "allOk": true,
       "live": {
         "ok": true,
-        "status": 200,
-        "len": 72796
+        "indexStatus": 200,
+        "moduleStatus": 200,
+        "len": 24159
       }
     },
     {
@@ -35,8 +38,9 @@
       "allOk": true,
       "live": {
         "ok": true,
-        "status": 200,
-        "len": 72796
+        "indexStatus": 200,
+        "moduleStatus": 200,
+        "len": 24159
       }
     }
   ]

@@ -1,15 +1,14 @@
 (function(){
   var search=document.getElementById('search');
-  var cards=[].slice.call(document.querySelectorAll('.mod,.guide'));
   if(search){search.addEventListener('input',function(){
     var q=search.value.trim().toLowerCase();
-    cards.forEach(function(c){
-      var hay=c.getAttribute('data-search')||'';
-      c.classList.toggle('hidden', q && hay.indexOf(q)===-1);
+    document.querySelectorAll('nav .nav-mod').forEach(function(a){
+      var hay=(a.getAttribute('data-search')||'')+' '+a.textContent.toLowerCase();
+      a.classList.toggle('nav-hidden', q && hay.indexOf(q)===-1);
     });
-    document.querySelectorAll('.cat').forEach(function(sec){
-      var vis=sec.querySelectorAll('.mod:not(.hidden),.guide:not(.hidden)').length;
-      sec.classList.toggle('hidden', q && vis===0);
+    document.querySelectorAll('.nav-group').forEach(function(g){
+      var vis=g.querySelectorAll('.nav-mod:not(.nav-hidden)').length;
+      g.classList.toggle('nav-hidden', q && vis===0);
     });
   });}
   document.querySelectorAll('.shot-toggle').forEach(function(tg){
