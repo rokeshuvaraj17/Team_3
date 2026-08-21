@@ -1,0 +1,299 @@
+{
+  "steps": [
+    {
+      "step": 3,
+      "action": "screenshot",
+      "label": "auth-login",
+      "file": "03-auth-login.png",
+      "highlights": 0
+    },
+    {
+      "step": 6,
+      "action": "screenshot",
+      "label": "auth-signup",
+      "file": "06-auth-signup.png",
+      "highlights": 0
+    },
+    {
+      "step": 16,
+      "action": "screenshot",
+      "label": "mod-dashboard",
+      "file": "16-mod-dashboard.png",
+      "highlights": 0
+    },
+    {
+      "step": 17,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-002-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 17,
+      "action": "auto_explore",
+      "breadcrumb_label": "Drag & drop or click\n\nPNG, JPEG, GIF, WebP only",
+      "file": "explore-003-drag---drop-or-click--png--jpeg--gif--we.png"
+    },
+    {
+      "step": 17,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-003-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 17,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-005-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 17,
+      "action": "auto_explore",
+      "breadcrumb_label": "Drag & drop or click\n\nPNG, JPEG, GIF, WebP only",
+      "file": "explore-006-drag---drop-or-click--png--jpeg--gif--we.png"
+    },
+    {
+      "step": 17,
+      "action": "auto_explore",
+      "breadcrumb_label": "Search",
+      "file": "explore-006-search.png"
+    },
+    {
+      "step": 17,
+      "action": "auto_explore_summary",
+      "total_elements_explored": 6,
+      "auto_detected_inline_edits": 0
+    },
+    {
+      "step": 20,
+      "action": "screenshot",
+      "label": "mod-job-tracker",
+      "file": "20-mod-job-tracker.png",
+      "highlights": 0
+    },
+    {
+      "step": 21,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-002-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 21,
+      "action": "auto_explore",
+      "breadcrumb_label": "Drag & drop or click\n\nPNG, JPEG, GIF, WebP only",
+      "file": "explore-003-drag---drop-or-click--png--jpeg--gif--we.png"
+    },
+    {
+      "step": 21,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-003-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 21,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-005-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 21,
+      "action": "auto_explore",
+      "breadcrumb_label": "Drag & drop or click\n\nPNG, JPEG, GIF, WebP only",
+      "file": "explore-006-drag---drop-or-click--png--jpeg--gif--we.png"
+    },
+    {
+      "step": 21,
+      "action": "auto_explore",
+      "breadcrumb_label": "Refresh",
+      "file": "explore-006-refresh.png"
+    },
+    {
+      "step": 21,
+      "action": "auto_explore_summary",
+      "total_elements_explored": 6,
+      "auto_detected_inline_edits": 0
+    },
+    {
+      "step": 24,
+      "action": "screenshot",
+      "label": "mod-analytics",
+      "file": "24-mod-analytics.png",
+      "highlights": 0
+    },
+    {
+      "step": 27,
+      "action": "screenshot",
+      "label": "mod-generate-resume",
+      "file": "27-mod-generate-resume.png",
+      "highlights": 0
+    },
+    {
+      "step": 28,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-001-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 28,
+      "action": "auto_explore_summary",
+      "total_elements_explored": 1,
+      "auto_detected_inline_edits": 0
+    },
+    {
+      "step": 31,
+      "action": "screenshot",
+      "label": "mod-generate-resume-job-based",
+      "file": "31-mod-generate-resume-job-based.png",
+      "highlights": 0
+    },
+    {
+      "step": 34,
+      "action": "screenshot",
+      "label": "mod-generate-resume-custom",
+      "file": "34-mod-generate-resume-custom.png",
+      "highlights": 0
+    },
+    {
+      "step": 37,
+      "action": "screenshot",
+      "label": "mod-generate-resume-builder",
+      "file": "37-mod-generate-resume-builder.png",
+      "highlights": 0
+    },
+    {
+      "step": 40,
+      "action": "screenshot",
+      "label": "mod-generate-cover-letter",
+      "file": "40-mod-generate-cover-letter.png",
+      "highlights": 0
+    },
+    {
+      "step": 43,
+      "action": "screenshot",
+      "label": "mod-documents",
+      "file": "43-mod-documents.png",
+      "highlights": 0
+    },
+    {
+      "step": 44,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-001-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 44,
+      "action": "auto_explore_summary",
+      "total_elements_explored": 1,
+      "auto_detected_inline_edits": 0
+    },
+    {
+      "step": 47,
+      "action": "screenshot",
+      "label": "mod-notifications",
+      "file": "47-mod-notifications.png",
+      "highlights": 0
+    },
+    {
+      "step": 50,
+      "action": "screenshot",
+      "label": "mod-extension",
+      "file": "50-mod-extension.png",
+      "highlights": 0
+    },
+    {
+      "step": 53,
+      "action": "screenshot",
+      "label": "mod-api-connection",
+      "file": "53-mod-api-connection.png",
+      "highlights": 0
+    },
+    {
+      "step": 54,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-001-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 54,
+      "action": "auto_explore_summary",
+      "total_elements_explored": 1,
+      "auto_detected_inline_edits": 0
+    },
+    {
+      "step": 57,
+      "action": "screenshot",
+      "label": "mod-autofill-form-fields",
+      "file": "57-mod-autofill-form-fields.png",
+      "highlights": 0
+    },
+    {
+      "step": 58,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-001-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 58,
+      "action": "auto_explore",
+      "breadcrumb_label": "Choose which fields autofill can fill",
+      "file": "explore-002-choose-which-fields-autofill-can-fill.png"
+    },
+    {
+      "step": 58,
+      "action": "auto_explore_summary",
+      "total_elements_explored": 2,
+      "auto_detected_inline_edits": 0
+    },
+    {
+      "step": 61,
+      "action": "screenshot",
+      "label": "mod-profile",
+      "file": "61-mod-profile.png",
+      "highlights": 0
+    },
+    {
+      "step": 62,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-001-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 62,
+      "action": "auto_explore",
+      "breadcrumb_label": "Drag & drop or click\n\nPNG, JPEG, GIF, WebP only",
+      "file": "explore-002-drag---drop-or-click--png--jpeg--gif--we.png"
+    },
+    {
+      "step": 62,
+      "action": "auto_explore_summary",
+      "total_elements_explored": 2,
+      "auto_detected_inline_edits": 0
+    },
+    {
+      "step": 65,
+      "action": "screenshot",
+      "label": "mod-settings",
+      "file": "65-mod-settings.png",
+      "highlights": 0
+    },
+    {
+      "step": 66,
+      "action": "auto_explore",
+      "breadcrumb_label": "DO\n\nDocs Demo\n\ndocs.demo@mrrokesh.com",
+      "file": "explore-001-do--docs-demo--docs-demo-mrrokesh-com.png"
+    },
+    {
+      "step": 66,
+      "action": "auto_explore_summary",
+      "total_elements_explored": 1,
+      "auto_detected_inline_edits": 0
+    },
+    {
+      "step": 69,
+      "action": "screenshot",
+      "label": "mod-help",
+      "file": "69-mod-help.png",
+      "highlights": 0
+    }
+  ],
+  "video": null
+}

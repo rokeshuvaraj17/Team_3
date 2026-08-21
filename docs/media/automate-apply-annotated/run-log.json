@@ -1,0 +1,103 @@
+{
+  "steps": [
+    {
+      "step": 11,
+      "action": "screenshot",
+      "label": "ann-dashboard",
+      "file": "11-ann-dashboard.png",
+      "highlights": 12
+    },
+    {
+      "step": 14,
+      "action": "screenshot",
+      "label": "ann-job-tracker",
+      "file": "14-ann-job-tracker.png",
+      "highlights": 4
+    },
+    {
+      "step": 17,
+      "action": "screenshot",
+      "label": "ann-analytics",
+      "file": "17-ann-analytics.png",
+      "highlights": 5
+    },
+    {
+      "step": 20,
+      "action": "screenshot",
+      "label": "ann-generate-resume",
+      "file": "20-ann-generate-resume.png",
+      "highlights": 2
+    },
+    {
+      "step": 23,
+      "action": "screenshot",
+      "label": "ann-generate-cover-letter",
+      "file": "23-ann-generate-cover-letter.png",
+      "highlights": 6
+    },
+    {
+      "step": 26,
+      "action": "screenshot",
+      "label": "ann-documents",
+      "file": "26-ann-documents.png",
+      "highlights": 3
+    },
+    {
+      "step": 29,
+      "action": "screenshot",
+      "label": "ann-notifications",
+      "file": "29-ann-notifications.png",
+      "highlights": 1
+    },
+    {
+      "step": 32,
+      "action": "screenshot",
+      "label": "ann-extension",
+      "file": "32-ann-extension.png",
+      "highlights": 3
+    },
+    {
+      "step": 35,
+      "action": "screenshot",
+      "label": "ann-api-connection",
+      "file": "35-ann-api-connection.png",
+      "highlights": 5
+    },
+    {
+      "step": 38,
+      "action": "screenshot",
+      "label": "ann-autofill-form-fields",
+      "file": "38-ann-autofill-form-fields.png",
+      "highlights": 4
+    },
+    {
+      "step": 41,
+      "action": "screenshot",
+      "label": "ann-profile",
+      "file": "41-ann-profile.png",
+      "highlights": 6
+    },
+    {
+      "step": 44,
+      "action": "screenshot",
+      "label": "ann-profile-location",
+      "file": "44-ann-profile-location.png",
+      "highlights": 4
+    },
+    {
+      "step": 47,
+      "action": "screenshot",
+      "label": "ann-settings",
+      "file": "47-ann-settings.png",
+      "highlights": 5
+    },
+    {
+      "step": 50,
+      "action": "screenshot",
+      "label": "ann-help",
+      "file": "50-ann-help.png",
+      "highlights": 2
+    }
+  ],
+  "video": null
+}

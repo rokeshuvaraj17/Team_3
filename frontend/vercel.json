@@ -1,4 +1,7 @@
 {
+  "redirects": [
+    { "source": "/docs", "destination": "/docs/", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/((?!team3-extension\\.zip$|docs($|/)).*)", "destination": "/index.html" }
   ]

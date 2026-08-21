@@ -1,0 +1,117 @@
+{
+  "steps": [
+    {
+      "step": 14,
+      "action": "screenshot",
+      "label": "mod-settings-dark",
+      "file": "14-mod-settings-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 17,
+      "action": "screenshot",
+      "label": "mod-dashboard-dark",
+      "file": "17-mod-dashboard-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 20,
+      "action": "screenshot",
+      "label": "mod-job-tracker-dark",
+      "file": "20-mod-job-tracker-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 23,
+      "action": "screenshot",
+      "label": "mod-analytics-dark",
+      "file": "23-mod-analytics-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 26,
+      "action": "screenshot",
+      "label": "mod-generate-resume-dark",
+      "file": "26-mod-generate-resume-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 29,
+      "action": "screenshot",
+      "label": "mod-generate-resume-job-based-dark",
+      "file": "29-mod-generate-resume-job-based-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 32,
+      "action": "screenshot",
+      "label": "mod-generate-resume-custom-dark",
+      "file": "32-mod-generate-resume-custom-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 35,
+      "action": "screenshot",
+      "label": "mod-generate-resume-builder-dark",
+      "file": "35-mod-generate-resume-builder-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 38,
+      "action": "screenshot",
+      "label": "mod-generate-cover-letter-dark",
+      "file": "38-mod-generate-cover-letter-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 41,
+      "action": "screenshot",
+      "label": "mod-documents-dark",
+      "file": "41-mod-documents-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 44,
+      "action": "screenshot",
+      "label": "mod-notifications-dark",
+      "file": "44-mod-notifications-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 47,
+      "action": "screenshot",
+      "label": "mod-extension-dark",
+      "file": "47-mod-extension-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 50,
+      "action": "screenshot",
+      "label": "mod-api-connection-dark",
+      "file": "50-mod-api-connection-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 53,
+      "action": "screenshot",
+      "label": "mod-autofill-form-fields-dark",
+      "file": "53-mod-autofill-form-fields-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 56,
+      "action": "screenshot",
+      "label": "mod-profile-dark",
+      "file": "56-mod-profile-dark.png",
+      "highlights": 0
+    },
+    {
+      "step": 59,
+      "action": "screenshot",
+      "label": "mod-help-dark",
+      "file": "59-mod-help-dark.png",
+      "highlights": 0
+    }
+  ],
+  "video": null
+}

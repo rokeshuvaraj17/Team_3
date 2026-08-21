@@ -1,40 +1,10 @@
 {
-  "timestamp": "2026-08-20T23:31:58.769Z",
-  "consecutivePasses": 4,
-  "industrialStandard": true,
+  "timestamp": "2026-08-20T23:42:47.021Z",
+  "consecutivePasses": 1,
+  "industrialStandard": false,
   "history": [
     {
       "outer": 1,
-      "allOk": true,
-      "live": {
-        "ok": true,
-        "indexStatus": 200,
-        "moduleStatus": 200,
-        "len": 24159
-      }
-    },
-    {
-      "outer": 2,
-      "allOk": true,
-      "live": {
-        "ok": true,
-        "indexStatus": 200,
-        "moduleStatus": 200,
-        "len": 24159
-      }
-    },
-    {
-      "outer": 3,
-      "allOk": true,
-      "live": {
-        "ok": true,
-        "indexStatus": 200,
-        "moduleStatus": 200,
-        "len": 24159
-      }
-    },
-    {
-      "outer": 4,
       "allOk": true,
       "live": {
         "ok": true,
