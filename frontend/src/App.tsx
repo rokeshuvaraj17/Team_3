@@ -27,6 +27,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<SignInCard2 />} />
+        <Route path="/login" element={<SignInCard2 />} />
         <Route path="/signup" element={<SignUpCard />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/oauth/extension" element={<AuthorizeExtensionPage />} />

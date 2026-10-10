@@ -53,6 +53,7 @@ const frontendDistCandidates = [
 ]
 const frontendDist = frontendDistCandidates.find((dir) => fs.existsSync(path.join(dir, 'index.html')))
 if (frontendDist) {
+  app.get(['/login', '/login/'], (req, res) => res.redirect(302, '/'))
   app.use(express.static(frontendDist))
   app.use((req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next()
