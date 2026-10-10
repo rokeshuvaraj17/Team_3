@@ -1,3 +1,5 @@
+const path = require('path')
+const fs = require('fs')
 const express = require('express')
 const cors = require('cors')
 const { ALLOWED_ORIGINS } = require('./config/env')
@@ -44,6 +46,18 @@ app.use('/api/analytics', analyticsRoutes)
 app.use('/api/job-tracker', jobTrackerRoutes)
 app.use('/api/api-keys', apiKeysRoutes)
 app.use('/api/api-key-providers', apiKeyProvidersRoutes)
+
+const frontendDist = path.join(__dirname, '../../frontend/dist')
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist))
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+    if (req.path.startsWith('/api')) return next()
+    res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
+      if (err) next(err)
+    })
+  })
+}
 
 // Global error handler
 app.use(errorHandler)
