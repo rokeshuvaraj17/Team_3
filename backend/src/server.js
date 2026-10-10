@@ -1,5 +1,6 @@
 const embedded = require('./config/embedded-db')
 const migrate = require('./config/migrate')
+const importSecondary = require('./config/import-secondary')
 
 if (embedded.isEnabled()) {
   embedded.startInBackground()
@@ -15,6 +16,13 @@ async function start() {
       await migrate.ensure()
     } catch (err) {
       console.error('[db] schema migrate failed:', err.message)
+    }
+    if (String(process.env.COPY_SECONDARY_TO_PRIMARY || '').trim() === '1') {
+      try {
+        await importSecondary.run()
+      } catch (err) {
+        console.error('[db] import from secondary failed:', err.message)
+      }
     }
   }
 
