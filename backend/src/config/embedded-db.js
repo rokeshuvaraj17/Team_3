@@ -1,7 +1,11 @@
 const path = require('path')
 const fs = require('fs')
+const crypto = require('crypto')
 
 let client = null
+let mode = 'none'
+let fileState = { users: [] }
+let ready = Promise.resolve()
 
 const BOOTSTRAP_SQL = `
 CREATE TABLE IF NOT EXISTS users (
@@ -14,7 +18,6 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at      timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT uq_users_email UNIQUE (email)
 );
-
 CREATE TABLE IF NOT EXISTS user_profiles (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id           uuid NOT NULL UNIQUE,
@@ -29,20 +32,16 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   website_url       text,
   linkedin_url      text,
   created_at        timestamptz NOT NULL DEFAULT now(),
-  updated_at        timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT fk_user_profiles_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+  updated_at        timestamptz NOT NULL DEFAULT now()
 );
-
 CREATE TABLE IF NOT EXISTS user_autofill (
-  id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id            uuid NOT NULL UNIQUE,
-  data               jsonb NOT NULL DEFAULT '{}',
+  id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id             uuid NOT NULL UNIQUE,
+  data                jsonb NOT NULL DEFAULT '{}',
   excluded_field_keys jsonb NOT NULL DEFAULT '[]',
-  created_at         timestamptz NOT NULL DEFAULT now(),
-  updated_at         timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT fk_user_autofill_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+  created_at          timestamptz NOT NULL DEFAULT now(),
+  updated_at          timestamptz NOT NULL DEFAULT now()
 );
-
 CREATE TABLE IF NOT EXISTS job_tracker (
   id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id            uuid NOT NULL,
@@ -59,10 +58,8 @@ CREATE TABLE IF NOT EXISTS job_tracker (
   application_status text DEFAULT 'not_applied',
   job_posting_url    text,
   created_at         timestamptz NOT NULL DEFAULT now(),
-  updated_at         timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT fk_job_tracker_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+  updated_at         timestamptz NOT NULL DEFAULT now()
 );
-
 CREATE TABLE IF NOT EXISTS resumes (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id      uuid NOT NULL,
@@ -71,10 +68,8 @@ CREATE TABLE IF NOT EXISTS resumes (
   is_primary   boolean NOT NULL DEFAULT false,
   html_content text,
   uploaded_at  timestamptz NOT NULL DEFAULT now(),
-  created_at   timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT fk_resumes_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+  created_at   timestamptz NOT NULL DEFAULT now()
 );
-
 CREATE TABLE IF NOT EXISTS cover_letters (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id      uuid NOT NULL,
@@ -83,10 +78,8 @@ CREATE TABLE IF NOT EXISTS cover_letters (
   file_url     text NOT NULL,
   html_content text,
   created_at   timestamptz NOT NULL DEFAULT now(),
-  updated_at   timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT fk_cover_letters_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+  updated_at   timestamptz NOT NULL DEFAULT now()
 );
-
 CREATE TABLE IF NOT EXISTS api_key_providers (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   slug          text NOT NULL UNIQUE,
@@ -96,7 +89,6 @@ CREATE TABLE IF NOT EXISTS api_key_providers (
   display_order int NOT NULL DEFAULT 0,
   created_at    timestamptz NOT NULL DEFAULT now()
 );
-
 CREATE TABLE IF NOT EXISTS user_api_keys (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id      uuid NOT NULL,
@@ -106,11 +98,8 @@ CREATE TABLE IF NOT EXISTS user_api_keys (
   is_active    boolean NOT NULL DEFAULT true,
   last_used_at timestamptz,
   created_at   timestamptz NOT NULL DEFAULT now(),
-  updated_at   timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT fk_user_api_keys_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-  CONSTRAINT fk_user_api_keys_provider FOREIGN KEY (provider_id) REFERENCES api_key_providers (id) ON DELETE RESTRICT
+  updated_at   timestamptz NOT NULL DEFAULT now()
 );
-
 INSERT INTO api_key_providers (slug, name, description, base_url, display_order)
 VALUES
   ('openai', 'OpenAI', 'GPT-4, GPT-3.5, and other OpenAI models', 'https://api.openai.com/v1', 10),
@@ -125,20 +114,118 @@ function isEnabled() {
   return raw === '1' || raw === 'true' || raw === 'yes'
 }
 
-async function start() {
+function filePath() {
+  const dir = process.env.EMBEDDED_PG_DIR || path.join(process.cwd(), 'data')
+  fs.mkdirSync(dir, { recursive: true })
+  return path.join(dir, 'users.json')
+}
+
+function loadFile() {
+  try {
+    fileState = JSON.parse(fs.readFileSync(filePath(), 'utf8'))
+    if (!Array.isArray(fileState.users)) fileState = { users: [] }
+  } catch {
+    fileState = { users: [] }
+  }
+}
+
+function saveFile() {
+  fs.writeFileSync(filePath(), JSON.stringify(fileState, null, 2))
+}
+
+function fileQuery(text, params = []) {
+  const sql = String(text).replace(/\s+/g, ' ').trim()
+  const lower = sql.toLowerCase()
+
+  if (lower.startsWith('insert into public.users') || lower.startsWith('insert into users')) {
+    const [name, email, passwordHash, emailVerified] = params
+    if (fileState.users.some((u) => u.email.toLowerCase() === String(email).toLowerCase())) {
+      const err = new Error('duplicate key')
+      err.code = '23505'
+      throw err
+    }
+    const row = {
+      id: crypto.randomUUID(),
+      name,
+      email,
+      password_hash: passwordHash,
+      email_verified: Boolean(emailVerified),
+      created_at: new Date().toISOString(),
+    }
+    fileState.users.push(row)
+    saveFile()
+    return { rows: [row] }
+  }
+
+  if (lower.includes('from public.users') || lower.includes('from users')) {
+    if (lower.includes('where email')) {
+      const email = String(params[0] || '')
+      const row = fileState.users.find((u) => u.email.toLowerCase() === email.toLowerCase())
+      return { rows: row ? [row] : [] }
+    }
+    if (lower.includes('where id') || lower.includes('where email =') === false) {
+      const id = String(params[0] || '')
+      const row = fileState.users.find((u) => u.id === id)
+      if (lower.includes('select email')) {
+        return { rows: row ? [{ email: row.email }] : [] }
+      }
+      return { rows: row ? [row] : [] }
+    }
+  }
+
+  if (lower.startsWith('update public.users') || lower.startsWith('update users')) {
+    const [passwordHash, email] = params
+    const row = fileState.users.find((u) => u.email.toLowerCase() === String(email).toLowerCase())
+    if (!row) return { rows: [] }
+    row.password_hash = passwordHash
+    saveFile()
+    return { rows: [row] }
+  }
+
+  return { rows: [] }
+}
+
+async function startPglite() {
   const { PGlite } = require('@electric-sql/pglite')
   const dataDir = process.env.EMBEDDED_PG_DIR || path.join(process.cwd(), 'data', 'pglite')
   fs.mkdirSync(dataDir, { recursive: true })
-  client = new PGlite(dataDir)
-  await client.waitReady
-  await client.exec(BOOTSTRAP_SQL)
+  const pg = new PGlite(dataDir)
+  await Promise.race([
+    pg.waitReady,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('PGlite startup timeout')), 8000)),
+  ])
+  await pg.exec(BOOTSTRAP_SQL)
+  client = pg
+  mode = 'pglite'
   console.log(`[db] embedded PGlite ready at ${dataDir}`)
+}
+
+function startFile() {
+  loadFile()
+  mode = 'file'
+  console.log(`[db] embedded file store ready at ${filePath()}`)
+}
+
+async function start() {
+  try {
+    await startPglite()
+  } catch (err) {
+    console.error('[db] PGlite unavailable, using file store:', err.message)
+    startFile()
+  }
   return client
 }
 
+function startInBackground() {
+  ready = start()
+  return ready
+}
+
 async function query(text, params) {
-  if (!client) throw new Error('Embedded database not started')
-  return client.query(text, params)
+  await ready
+  if (mode === 'pglite') return client.query(text, params)
+  if (mode === 'file') return fileQuery(text, params)
+  throw new Error('Embedded database not started')
 }
 
 const adapter = {
@@ -148,7 +235,8 @@ const adapter = {
       primaryConfigured: true,
       secondaryConfigured: false,
       embedded: true,
-      nodes: [{ name: 'embedded', up: Boolean(client) }],
+      mode,
+      nodes: [{ name: 'embedded', up: mode !== 'none' }],
     }
   },
   isConnectionError() {
@@ -156,4 +244,4 @@ const adapter = {
   },
 }
 
-module.exports = { isEnabled, start, adapter }
+module.exports = { isEnabled, start, startInBackground, adapter }
