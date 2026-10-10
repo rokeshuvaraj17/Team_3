@@ -1,5 +1,5 @@
 // Production backend + website (same Rokesh Cloud service).
-export const API_BASE = 'https://l5plk72uzd4w2ihzii2xkixy.host.rokeshcloud.com';
+export const API_BASE = 'https://slnsemtf6k4drwpatpoq2ghu.host.rokeshcloud.com';
 // export const API_BASE = 'http://localhost:3000';
 
 export interface ApiResponse<T> {
