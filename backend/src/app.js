@@ -47,8 +47,12 @@ app.use('/api/job-tracker', jobTrackerRoutes)
 app.use('/api/api-keys', apiKeysRoutes)
 app.use('/api/api-key-providers', apiKeyProvidersRoutes)
 
-const frontendDist = path.join(__dirname, '../../frontend/dist')
-if (fs.existsSync(frontendDist)) {
+const frontendDistCandidates = [
+  path.join(__dirname, '../../frontend/dist'),
+  path.join(__dirname, '../public/web'),
+]
+const frontendDist = frontendDistCandidates.find((dir) => fs.existsSync(path.join(dir, 'index.html')))
+if (frontendDist) {
   app.use(express.static(frontendDist))
   app.use((req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next()
