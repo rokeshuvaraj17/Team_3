@@ -2,112 +2,9 @@ const path = require('path')
 const fs = require('fs')
 const crypto = require('crypto')
 
-let client = null
 let mode = 'none'
 let fileState = { users: [] }
 let ready = Promise.resolve()
-
-const BOOTSTRAP_SQL = `
-CREATE TABLE IF NOT EXISTS users (
-  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name            text NOT NULL,
-  email           text NOT NULL,
-  password_hash   text NOT NULL,
-  email_verified  boolean NOT NULL DEFAULT false,
-  created_at      timestamptz NOT NULL DEFAULT now(),
-  updated_at      timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT uq_users_email UNIQUE (email)
-);
-CREATE TABLE IF NOT EXISTS user_profiles (
-  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id           uuid NOT NULL UNIQUE,
-  display_name      text NOT NULL,
-  headline          text,
-  summary           text,
-  location          text,
-  location_country  text,
-  state             text,
-  profile_image_url text,
-  phone             text,
-  website_url       text,
-  linkedin_url      text,
-  created_at        timestamptz NOT NULL DEFAULT now(),
-  updated_at        timestamptz NOT NULL DEFAULT now()
-);
-CREATE TABLE IF NOT EXISTS user_autofill (
-  id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id             uuid NOT NULL UNIQUE,
-  data                jsonb NOT NULL DEFAULT '{}',
-  excluded_field_keys jsonb NOT NULL DEFAULT '[]',
-  created_at          timestamptz NOT NULL DEFAULT now(),
-  updated_at          timestamptz NOT NULL DEFAULT now()
-);
-CREATE TABLE IF NOT EXISTS job_tracker (
-  id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id            uuid NOT NULL,
-  company_name       text,
-  position_title     text,
-  location           text,
-  min_salary         numeric(12, 2),
-  max_salary         numeric(12, 2),
-  currency           text,
-  salary_period      text,
-  job_type           text,
-  job_description    text,
-  notes              text,
-  application_status text DEFAULT 'not_applied',
-  job_posting_url    text,
-  created_at         timestamptz NOT NULL DEFAULT now(),
-  updated_at         timestamptz NOT NULL DEFAULT now()
-);
-CREATE TABLE IF NOT EXISTS resumes (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id      uuid NOT NULL,
-  name         text NOT NULL,
-  file_url     text NOT NULL,
-  is_primary   boolean NOT NULL DEFAULT false,
-  html_content text,
-  uploaded_at  timestamptz NOT NULL DEFAULT now(),
-  created_at   timestamptz NOT NULL DEFAULT now()
-);
-CREATE TABLE IF NOT EXISTS cover_letters (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id      uuid NOT NULL,
-  job_id       uuid,
-  title        text NOT NULL,
-  file_url     text NOT NULL,
-  html_content text,
-  created_at   timestamptz NOT NULL DEFAULT now(),
-  updated_at   timestamptz NOT NULL DEFAULT now()
-);
-CREATE TABLE IF NOT EXISTS api_key_providers (
-  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug          text NOT NULL UNIQUE,
-  name          text NOT NULL,
-  description   text,
-  base_url      text,
-  display_order int NOT NULL DEFAULT 0,
-  created_at    timestamptz NOT NULL DEFAULT now()
-);
-CREATE TABLE IF NOT EXISTS user_api_keys (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id      uuid NOT NULL,
-  provider_id  uuid NOT NULL,
-  label        text,
-  api_key_enc  text NOT NULL,
-  is_active    boolean NOT NULL DEFAULT true,
-  last_used_at timestamptz,
-  created_at   timestamptz NOT NULL DEFAULT now(),
-  updated_at   timestamptz NOT NULL DEFAULT now()
-);
-INSERT INTO api_key_providers (slug, name, description, base_url, display_order)
-VALUES
-  ('openai', 'OpenAI', 'GPT-4, GPT-3.5, and other OpenAI models', 'https://api.openai.com/v1', 10),
-  ('gemini', 'Google Gemini', 'Gemini Pro and other Google AI models', 'https://generativelanguage.googleapis.com', 20),
-  ('anthropic', 'Anthropic', 'Claude models', 'https://api.anthropic.com', 30),
-  ('openrouter', 'OpenRouter', 'Unified API for many models', 'https://openrouter.ai/api/v1', 40)
-ON CONFLICT (slug) DO NOTHING;
-`
 
 function isEnabled() {
   const raw = String(process.env.EMBEDDED_PG || '').trim().toLowerCase()
@@ -185,21 +82,6 @@ function fileQuery(text, params = []) {
   return { rows: [] }
 }
 
-async function startPglite() {
-  const { PGlite } = require('@electric-sql/pglite')
-  const dataDir = process.env.EMBEDDED_PG_DIR || path.join(process.cwd(), 'data', 'pglite')
-  fs.mkdirSync(dataDir, { recursive: true })
-  const pg = new PGlite(dataDir)
-  await Promise.race([
-    pg.waitReady,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('PGlite startup timeout')), 8000)),
-  ])
-  await pg.exec(BOOTSTRAP_SQL)
-  client = pg
-  mode = 'pglite'
-  console.log(`[db] embedded PGlite ready at ${dataDir}`)
-}
-
 function startFile() {
   loadFile()
   mode = 'file'
@@ -207,13 +89,7 @@ function startFile() {
 }
 
 async function start() {
-  try {
-    await startPglite()
-  } catch (err) {
-    console.error('[db] PGlite unavailable, using file store:', err.message)
-    startFile()
-  }
-  return client
+  startFile()
 }
 
 function startInBackground() {
@@ -223,7 +99,6 @@ function startInBackground() {
 
 async function query(text, params) {
   await ready
-  if (mode === 'pglite') return client.query(text, params)
   if (mode === 'file') return fileQuery(text, params)
   throw new Error('Embedded database not started')
 }
