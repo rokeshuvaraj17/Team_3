@@ -1,5 +1,10 @@
 const { Pool } = require('pg')
 const env = require('./env')
+const embedded = require('./embedded-db')
+
+if (embedded.isEnabled()) {
+  module.exports = embedded.adapter
+} else {
 
 // =============================================================================
 // Dual-database layer with automatic failover.
@@ -201,3 +206,4 @@ const db = nodes.length
   : null
 
 module.exports = db
+}

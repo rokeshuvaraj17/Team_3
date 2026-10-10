@@ -8,7 +8,12 @@ function handleDbError(err, context) {
     console.error(`${context}: Database host not found (check DATABASE_URL and network)`, err.message)
     return { status: 503, body: { error: 'Database unavailable. Check connection settings and network.' } }
   }
-  if (code === 'ECONNREFUSED' || code === 'ECONNRESET' || code === 'ETIMEDOUT') {
+  if (
+    code === 'ECONNREFUSED' ||
+    code === 'ECONNRESET' ||
+    code === 'ETIMEDOUT' ||
+    /timeout|terminat|ECONN|ENOTFOUND|unavailable/i.test(message)
+  ) {
     console.error(`${context}: Database connection failed`, err.message)
     return { status: 503, body: { error: 'Database unavailable. Cannot reach the database server.' } }
   }
