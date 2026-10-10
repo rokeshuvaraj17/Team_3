@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "MR_Rokesh Job Portal login and autofill profile data",
   "permissions": ["storage", "activeTab", "scripting", "sidePanel", "tabs", "identity"],
-  "host_permissions": ["https://team-3-lvlf.onrender.com/*", "https://lxqmn6ipzdgyz5zf0dgtoxsu.host.rokeshcloud.com/*", "http://localhost:3000/*", "http://localhost:5173/*", "http://localhost:5174/*", "https://team-3-two.vercel.app/*", "<all_urls>"],
+  "host_permissions": ["https://saznwc3bdsw1r9wf10n2py0z.host.rokeshcloud.com/*", "http://localhost:3000/*", "http://localhost:5173/*", "http://localhost:5174/*", "<all_urls>"],
   "background": { "service_worker": "background.js", "type": "module" },
   "content_scripts": [
     { "matches": ["<all_urls>"], "js": ["content.js"], "css": ["content.css"], "run_at": "document_idle" }

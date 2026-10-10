@@ -1,10 +1,9 @@
 import { apiFetch, API_BASE } from '../utils/api.js';
 // Web app base URL for Job Tracker and profile edit.
 // Dev: when API_BASE is http://localhost:3000 use http://localhost:5173.
-// Prod: default to deployed frontend at https://team-3-two.vercel.app.
 const FRONTEND_BASE = API_BASE.includes('localhost')
     ? 'http://localhost:5174'
-    : 'https://team-3-two.vercel.app';
+    : API_BASE.replace(/\/$/, '');
 const EXTENSION_CLIENT_ID = 'mrrokesh-job-portal-extension';
 import { scrapeJobPage } from '../scraper.js';
 const THEME_KEY = 'team3-extension-theme';
