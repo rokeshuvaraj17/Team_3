@@ -77,10 +77,32 @@ async function run() {
     const { rows } = await src.query(`
       select table_name from information_schema.tables
       where table_schema = 'public' and table_type = 'BASE TABLE'
-      order by table_name
     `)
+    const preferred = [
+      'users',
+      'api_key_providers',
+      'companies',
+      'user_profiles',
+      'resumes',
+      'cover_letters',
+      'user_autofill',
+      'user_autofill_custom_fields',
+      'user_api_keys',
+      'job_tracker',
+      'jobs',
+      'job_applications',
+    ]
+    const names = rows.map((r) => r.table_name)
+    const skip = new Set(['replication_log'])
+    const ordered = [
+      ...preferred.filter((t) => names.includes(t)),
+      ...names.filter((t) => !preferred.includes(t) && !skip.has(t)).sort(),
+    ]
+    await dest.query("select set_config('app.replicating', 'on', false)")
+    await dest.query('delete from public.user_api_keys')
+    await dest.query('delete from public.api_key_providers')
     let total = 0
-    for (const { table_name: table } of rows) {
+    for (const table of ordered) {
       const exists = await dest.query('select to_regclass($1) as t', [`public.${table}`])
       if (!exists.rows[0].t) {
         console.log(`[import] skip ${table}: missing on destination`)
@@ -88,6 +110,7 @@ async function run() {
       }
       total += await copyTable(src, dest, table)
     }
+    await dest.query("select set_config('app.replicating', 'off', false)")
     console.log(`[import] done, ${total} new rows from secondary`)
     return total
   } finally {
