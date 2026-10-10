@@ -45,7 +45,11 @@ function primarySslConfig(url) {
   const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(host)
   const isBareIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
   if (isLocal || isBareIp) return false
-  return { rejectUnauthorized: false }
+  // Managed clouds require SSL. Coolify / Rokesh internal Postgres does not.
+  if (/\.supabase\.|neon\.tech|amazonaws\.com/i.test(host)) {
+    return { rejectUnauthorized: false }
+  }
+  return false
 }
 
 function buildPrimaryPool() {
