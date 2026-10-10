@@ -1,0 +1,9 @@
+**/node_modules
+**/.env
+**/.git
+**/dist
+frontend/dist
+**/*.log
+**/.DS_Store
+team3-extension.zip
+docs/media

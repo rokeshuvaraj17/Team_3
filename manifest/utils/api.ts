@@ -1,6 +1,6 @@
-// Production backend. For local testing, switch to 'http://localhost:3000'.
-export const API_BASE = 'http://localhost:3000';
-// export const API_BASE = 'https://team-3-lvlf.onrender.com';
+// Production backend + website (same Rokesh Cloud service).
+export const API_BASE = 'https://xgwdkishenhm2owfww0g0zqz.host.rokeshcloud.com';
+// export const API_BASE = 'http://localhost:3000';
 
 export interface ApiResponse<T> {
   data?: T;

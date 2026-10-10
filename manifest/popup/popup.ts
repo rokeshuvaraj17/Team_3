@@ -5,7 +5,7 @@ import { apiFetch, API_BASE } from '../utils/api.js';
 // Prod: default to deployed frontend at https://team-3-two.vercel.app.
 const FRONTEND_BASE = API_BASE.includes('localhost')
   ? 'http://localhost:5174'
-  : 'https://team-3-two.vercel.app';
+  : API_BASE.replace(/\/$/, '');
 const EXTENSION_CLIENT_ID = 'mrrokesh-job-portal-extension';
 import { scrapeJobPage } from '../scraper.js';
 
