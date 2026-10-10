@@ -3,14 +3,14 @@ services:
     name: jobflow-backend
     env: node
     rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm install && npm run build:web
     startCommand: npm start
     autoDeploy: true
     envVars:
       # Comma-separated list of frontend origins allowed by CORS (no trailing slash).
       # Add every deployed frontend domain here (e.g. your Vercel URL).
       - key: ALLOWED_ORIGINS
-        value: https://team-3-two.vercel.app
+        value: https://team-3-lvlf.onrender.com,https://team-3-two.vercel.app,https://lxqmn6ipzdgyz5zf0dgtoxsu.host.rokeshcloud.com
       # Set these in the Render dashboard or via the blueprint UI.
       - key: DATABASE_URL
         sync: false

@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
+    "build:web": "npm ci --prefix ../frontend && npx --prefix ../frontend vite build",
     "dev": "nodemon src/server.js",
     "start:legacy": "node server.js",
     "db:copy": "node scripts/copy-db.js",

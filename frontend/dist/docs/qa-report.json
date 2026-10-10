@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-08-20T23:42:47.021Z",
+  "consecutivePasses": 1,
+  "industrialStandard": false,
+  "history": [
+    {
+      "outer": 1,
+      "allOk": true,
+      "live": {
+        "ok": true,
+        "indexStatus": 200,
+        "moduleStatus": 200,
+        "len": 24159
+      }
+    }
+  ]
+}

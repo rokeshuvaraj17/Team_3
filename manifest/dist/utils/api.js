@@ -1,5 +1,5 @@
 // Production backend + website (same Rokesh Cloud service).
-export const API_BASE = 'https://slnsemtf6k4drwpatpoq2ghu.host.rokeshcloud.com';
+export const API_BASE = 'https://team-3-lvlf.onrender.com';
 /**
  * Reusable fetch wrapper. Optionally attaches stored auth (x-user-id).
  * Handles JSON parsing and error handling.
