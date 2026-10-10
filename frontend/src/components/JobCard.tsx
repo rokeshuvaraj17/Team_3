@@ -1,4 +1,4 @@
-import { Briefcase, MapPin, Building2, DollarSign, Bookmark, EyeOff } from 'lucide-react'
+import { Briefcase, MapPin, DollarSign, Bookmark, EyeOff } from 'lucide-react'
 import type { UnifiedJob } from '@/types/jobs'
 import { stripDescriptionToPlainText } from '@/components/JobDescription'
 
@@ -24,68 +24,66 @@ function formatPosted(created: string): string {
 }
 
 export function JobCard({ job, isSelected, onSelect, onSave, onHide, saved }: JobCardProps) {
+  const initials = (job.companyDisplay || '?').trim().slice(0, 2).toUpperCase()
   return (
     <article
       role="button"
       tabIndex={0}
       onClick={onSelect}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect()}
-      className={`text-left w-full rounded-xl border bg-white p-4 transition-all hover:shadow-md ${
-        isSelected ? 'border-blue-400 ring-2 ring-blue-200 shadow-md' : 'border-slate-200 hover:border-slate-300'
+      className={`group text-left w-full rounded-lg border bg-white dark:bg-slate-800 p-4 cursor-pointer transition-shadow hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
+        isSelected
+          ? 'border-blue-600 shadow-[inset_4px_0_0_#0a66c2] shadow-md'
+          : 'border-slate-200 dark:border-slate-700'
       }`}
     >
       <div className="flex gap-3">
-        <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center">
-          <Building2 className="h-6 w-6 text-slate-500" />
+        <div className="flex-shrink-0 w-12 h-12 rounded bg-blue-50 dark:bg-slate-700 text-blue-700 dark:text-blue-300 flex items-center justify-center font-semibold text-sm">
+          {initials}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-semibold text-slate-900 text-base leading-tight">{job.title}</h3>
-            <span className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-500 capitalize">{job.source}</span>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-semibold text-blue-600 dark:text-blue-300 text-base leading-snug group-hover:underline">{job.title}</h3>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onSave() }}
+              aria-label={saved ? 'Unsave job' : 'Save job'}
+              className={`p-1.5 -m-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 ${saved ? 'text-blue-600' : 'text-slate-500'}`}
+            >
+              <Bookmark className={`h-5 w-5 ${saved ? 'fill-current' : ''}`} />
+            </button>
           </div>
-          <p className="text-slate-600 text-sm mt-0.5">{job.companyDisplay}</p>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-slate-500">
-            {job.locationDisplay && (
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="h-3.5 w-3 flex-shrink-0" />
-                {job.locationDisplay}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1">
-              <Briefcase className="h-3.5 w-3 flex-shrink-0" />
-              {job.contractDisplay}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <DollarSign className="h-3.5 w-3 flex-shrink-0" />
+          <p className="text-slate-900 dark:text-slate-100 text-sm mt-0.5">{job.companyDisplay}</p>
+          {job.locationDisplay && (
+            <p className="inline-flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+              {job.locationDisplay}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2 mt-2">
+            <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+              <DollarSign className="h-3 w-3" />
               {job.salaryDisplay}
             </span>
+            <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+              <Briefcase className="h-3 w-3" />
+              {job.contractDisplay}
+            </span>
+            <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-slate-700 text-blue-700 dark:text-blue-300 capitalize">{job.source}</span>
           </div>
           {job.description && (
-            <p className="text-slate-600 text-sm mt-2 line-clamp-2">{stripDescriptionToPlainText(job.description)}</p>
+            <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 line-clamp-2">{stripDescriptionToPlainText(job.description)}</p>
           )}
-          {job.categoryLabel && (
-            <p className="text-xs text-slate-500 mt-2">{job.categoryLabel}</p>
-          )}
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-            <span className="text-xs text-slate-400">{formatPosted(job.created)}</span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onHide() }}
-                className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-700 text-xs font-medium"
-              >
-                <EyeOff className="h-3.5 w-3" />
-                Hide
-              </button>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onSave() }}
-                className={`inline-flex items-center gap-1 text-xs font-medium ${saved ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                <Bookmark className={`h-3.5 w-3 ${saved ? 'fill-current' : ''}`} />
-                Save
-              </button>
-            </div>
+          <div className="flex items-center justify-between mt-3">
+            <span className="text-xs text-slate-500">{formatPosted(job.created)}{job.categoryLabel ? ` · ${job.categoryLabel}` : ''}</span>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onHide() }}
+              className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 text-xs font-medium"
+            >
+              <EyeOff className="h-3.5 w-3.5" />
+              Hide
+            </button>
           </div>
         </div>
       </div>

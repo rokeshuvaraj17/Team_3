@@ -33,4 +33,8 @@ module.exports = {
   CLOUDINARY_API_KEY: process.env.cloudinary_api_key || process.env.CLOUDINARY_API_KEY || '',
   CLOUDINARY_API_SECRET: process.env.cloudinary_api_secret || process.env.CLOUDINARY_API_SECRET || '',
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || '',
+  NOTIFY_API_KEY: (process.env.NOTIFY_API_KEY || '').trim(),
+  NOTIFY_API_BASE: (process.env.NOTIFY_API_BASE || 'https://notifications.rokeshcloud.com/v1').replace(/\/$/, ''),
+  NOTIFY_APP_NAME: process.env.NOTIFY_APP_NAME || 'Rokesh Job Portal',
+  NOTIFY_FROM: process.env.NOTIFY_FROM || 'MR Rokesh Softwares <noreply@notifications.rokeshcloud.com>',
 }

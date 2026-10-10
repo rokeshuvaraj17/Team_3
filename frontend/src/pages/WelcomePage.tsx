@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { getStoredUser, setStoredUser } from '@/lib/auth'
 import { apiUrl } from '@/lib/api'
 import { DashboardJobList } from '@/components/DashboardJobList'
@@ -9,6 +9,8 @@ type User = { id: string; name?: string; email?: string; email_verified?: boolea
 export function WelcomePage() {
   const location = useLocation()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const query = searchParams.get('q') ?? ''
   const stateUser = location.state?.user as User | undefined
   const storedUser = getStoredUser()
   const user = stateUser ?? storedUser
@@ -63,7 +65,7 @@ export function WelcomePage() {
 
   return (
     <div className="flex flex-1 min-h-0 w-full">
-      <DashboardJobList />
+      <DashboardJobList key={query} initialQuery={query} />
     </div>
   )
 }

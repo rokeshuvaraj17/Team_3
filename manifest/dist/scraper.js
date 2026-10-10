@@ -9,10 +9,11 @@ export function scrapeJobPage() {
         const h = el;
         return (h.innerText != null ? h.innerText : (el.textContent || '')).trim();
     }
-    const url = window.location.href;
+    const host = window.location.hostname.toLowerCase();
+    const onSite = (domain) => host === domain || host.endsWith('.' + domain);
     let title = '', company = '', location = '', description = '', source = '';
     try {
-        if (url.includes('linkedin.com')) {
+        if (onSite('linkedin.com')) {
             source = 'LinkedIn';
             title =
                 document.querySelector('.job-details-jobs-unified-top-card__job-title, .jobs-unified-top-card__job-title, .t-24.t-bold, [data-tracking-control-name="public_jobs_topcard-title"]')?.textContent?.trim() ||
@@ -49,7 +50,7 @@ export function scrapeJobPage() {
                     description = getText(main).substring(0, 15000);
             }
         }
-        else if (url.includes('naukri.com')) {
+        else if (onSite('naukri.com')) {
             source = 'Naukri';
             title =
                 document.querySelector('h1.title, h1[itemprop="title"], .jd-header-title')?.textContent?.trim() ||
@@ -64,7 +65,7 @@ export function scrapeJobPage() {
             const descEl = document.querySelector('.job-description, #jobDescriptionText, .description, [class*="job-desc"]');
             description = getText(descEl) || getText(document.querySelector('.detail-desc')) || '';
         }
-        else if (url.includes('indeed.com')) {
+        else if (onSite('indeed.com')) {
             source = 'Indeed';
             title =
                 document.querySelector('.jobsearch-JobInfoHeader-title, h1[data-testid="jobsearch-JobInfoHeader-title"]')?.textContent?.trim() ||
@@ -78,7 +79,7 @@ export function scrapeJobPage() {
             const descEl = document.querySelector('#jobDescriptionText, .jobsearch-jobDescriptionText');
             description = getText(descEl) || '';
         }
-        else if (url.includes('greenhouse.io')) {
+        else if (onSite('greenhouse.io')) {
             source = 'Greenhouse';
             title = document.querySelector('.app-title, h1.heading')?.textContent?.trim() || '';
             company = document.querySelector('.company-name, span.company-name')?.textContent?.trim() || '';
@@ -86,7 +87,7 @@ export function scrapeJobPage() {
             const descEl = document.querySelector('#content, .content');
             description = getText(descEl) || '';
         }
-        else if (url.includes('lever.co')) {
+        else if (onSite('lever.co')) {
             source = 'Lever';
             title = document.querySelector('.posting-headline h2')?.textContent?.trim() || '';
             company = '';
@@ -98,7 +99,7 @@ export function scrapeJobPage() {
                 .join('\n\n')
                 .trim();
         }
-        else if (url.includes('myworkdayjobs.com')) {
+        else if (onSite('myworkdayjobs.com')) {
             source = 'Workday';
             title =
                 document.querySelector('[data-automation-id="jobPostingHeader"], h2')?.textContent?.trim() || '';
@@ -107,7 +108,7 @@ export function scrapeJobPage() {
             const descEl = document.querySelector('[data-automation-id="jobPostingDescription"]');
             description = getText(descEl) || '';
         }
-        else if (url.includes('glassdoor.com')) {
+        else if (onSite('glassdoor.com')) {
             source = 'Glassdoor';
             title = document.querySelector('[data-test="job-title"], .e1tk4kwz4')?.textContent?.trim() || '';
             company = document.querySelector('[data-test="employer-name"], .e1tk4kwz1')?.textContent?.trim() || '';

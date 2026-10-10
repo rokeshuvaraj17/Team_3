@@ -7,10 +7,11 @@
       const h = el;
       return (h.innerText != null ? h.innerText : el.textContent || "").trim();
     }
-    const url = window.location.href;
+    const host = window.location.hostname.toLowerCase();
+    const onSite = (domain) => host === domain || host.endsWith("." + domain);
     let title = "", company = "", location = "", description = "", source = "";
     try {
-      if (url.includes("linkedin.com")) {
+      if (onSite("linkedin.com")) {
         source = "LinkedIn";
         title = document.querySelector(
           '.job-details-jobs-unified-top-card__job-title, .jobs-unified-top-card__job-title, .t-24.t-bold, [data-tracking-control-name="public_jobs_topcard-title"]'
@@ -44,42 +45,42 @@
           const main = document.querySelector('main, [role="main"], #main');
           if (main) description = getText(main).substring(0, 15e3);
         }
-      } else if (url.includes("naukri.com")) {
+      } else if (onSite("naukri.com")) {
         source = "Naukri";
         title = document.querySelector('h1.title, h1[itemprop="title"], .jd-header-title')?.textContent?.trim() || document.querySelector("h1")?.textContent?.trim() || "";
         company = document.querySelector('.jd-header-comp-name a, .company-name, [itemprop="hiringOrganization"]')?.textContent?.trim() || "";
         location = document.querySelector('.loc, .location, [itemprop="jobLocation"]')?.textContent?.trim() || "";
         const descEl = document.querySelector('.job-description, #jobDescriptionText, .description, [class*="job-desc"]');
         description = getText(descEl) || getText(document.querySelector(".detail-desc")) || "";
-      } else if (url.includes("indeed.com")) {
+      } else if (onSite("indeed.com")) {
         source = "Indeed";
         title = document.querySelector('.jobsearch-JobInfoHeader-title, h1[data-testid="jobsearch-JobInfoHeader-title"]')?.textContent?.trim() || "";
         company = document.querySelector('[data-testid="inlineHeader-companyName"], .jobsearch-InlineCompanyRating-companyHeader a')?.textContent?.trim() || "";
         location = document.querySelector('[data-testid="inlineHeader-companyLocation"], .jobsearch-InlineCompanyRating-companyHeader + div')?.textContent?.trim() || "";
         const descEl = document.querySelector("#jobDescriptionText, .jobsearch-jobDescriptionText");
         description = getText(descEl) || "";
-      } else if (url.includes("greenhouse.io")) {
+      } else if (onSite("greenhouse.io")) {
         source = "Greenhouse";
         title = document.querySelector(".app-title, h1.heading")?.textContent?.trim() || "";
         company = document.querySelector(".company-name, span.company-name")?.textContent?.trim() || "";
         location = document.querySelector(".location, .body--metadata")?.textContent?.trim() || "";
         const descEl = document.querySelector("#content, .content");
         description = getText(descEl) || "";
-      } else if (url.includes("lever.co")) {
+      } else if (onSite("lever.co")) {
         source = "Lever";
         title = document.querySelector(".posting-headline h2")?.textContent?.trim() || "";
         company = "";
         location = document.querySelector(".posting-categories .sort-by-time, .location")?.textContent?.trim() || "";
         const sections = document.querySelectorAll(".posting-page .section-wrapper");
         description = Array.from(sections).map((s) => getText(s)).join("\n\n").trim();
-      } else if (url.includes("myworkdayjobs.com")) {
+      } else if (onSite("myworkdayjobs.com")) {
         source = "Workday";
         title = document.querySelector('[data-automation-id="jobPostingHeader"], h2')?.textContent?.trim() || "";
         company = document.querySelector('[data-automation-id="company"]')?.textContent?.trim() || "";
         location = document.querySelector('[data-automation-id="locations"]')?.textContent?.trim() || "";
         const descEl = document.querySelector('[data-automation-id="jobPostingDescription"]');
         description = getText(descEl) || "";
-      } else if (url.includes("glassdoor.com")) {
+      } else if (onSite("glassdoor.com")) {
         source = "Glassdoor";
         title = document.querySelector('[data-test="job-title"], .e1tk4kwz4')?.textContent?.trim() || "";
         company = document.querySelector('[data-test="employer-name"], .e1tk4kwz1')?.textContent?.trim() || "";
@@ -149,8 +150,8 @@
     "glassdoor.com"
   ];
   function isJobSite() {
-    const href = window.location.href;
-    return JOB_SITE_PATTERNS.some((p) => href.includes(p));
+    const host = window.location.hostname.toLowerCase();
+    return JOB_SITE_PATTERNS.some((p) => host === p || host.endsWith("." + p));
   }
   function injectFAB() {
     if (document.getElementById("team3-job-fab")) return;
@@ -165,28 +166,40 @@
     </svg>
     <span>Save to MR_Rokesh Job Portal</span>
   `;
+    const FAB_ICON = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <rect x="2" y="3" width="20" height="18" rx="3"/>
+      <path d="M8 7h8M8 11h8M8 15h5"/>
+    </svg>
+    <span>Save to MR_Rokesh Job Portal</span>
+  `;
+    const CHECK_ICON = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M20 6L9 17l-5-5"/>
+    </svg>
+  `;
+    const flash = (label, ok) => {
+      fab.innerHTML = `${CHECK_ICON}<span>${label}</span>`;
+      fab.classList.toggle("team3-fab-success", ok);
+      setTimeout(() => {
+        fab.innerHTML = FAB_ICON;
+        fab.classList.remove("team3-fab-success");
+      }, 2e3);
+    };
     fab.addEventListener("click", () => {
       const result = scrapeJobPage();
+      if (!result.description) {
+        flash("Couldn't read this job", false);
+        return;
+      }
       chrome.runtime.sendMessage(
         { type: "JOB_SCRAPED", data: { ...result, url: window.location.href } },
         () => {
-          fab.innerHTML = `
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M20 6L9 17l-5-5"/>
-          </svg>
-          <span>Saved!</span>
-        `;
-          fab.classList.add("team3-fab-success");
-          setTimeout(() => {
-            fab.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <rect x="2" y="3" width="20" height="18" rx="3"/>
-              <path d="M8 7h8M8 11h8M8 15h5"/>
-            </svg>
-            <span>Save to MR_Rokesh Job Portal</span>
-          `;
-            fab.classList.remove("team3-fab-success");
-          }, 2e3);
+          if (chrome.runtime.lastError) {
+            flash("Save failed - reload page", false);
+            return;
+          }
+          flash("Saved!", true);
         }
       );
     });
@@ -272,7 +285,7 @@
       el.getAttribute("data-automation-id"),
       label
     ].filter(Boolean);
-    return normalize(parts.join(" "));
+    return parts.map(normalize).filter(Boolean).join(" ");
   }
   var FIELD_SYNONYMS = {
     zip_code: ["zip", "zipcode", "postal", "postalcode", "postalcode"],
@@ -286,7 +299,7 @@
     state: ["state", "region", "province"],
     country: ["country", "nation"],
     date_of_birth: ["dob", "dateofbirth", "birthdate"],
-    current_job_title: ["jobtitle", "job title", "title", "position"],
+    current_job_title: ["jobtitle", "currenttitle", "position"],
     current_company: ["company", "employer", "organization", "company name"]
   };
   var STATE_ABBREV = {
@@ -351,22 +364,15 @@
     return v;
   }
   function findMatchingKey(meta, fields) {
-    const keys = Object.keys(fields).sort((a, b) => b.length - a.length);
-    for (const key of keys) {
-      const normalizedKey = normalize(key);
-      const exact = meta === normalizedKey;
-      const wordBoundary = meta.includes(" " + normalizedKey) || meta.startsWith(normalizedKey + " ") || meta.endsWith(" " + normalizedKey);
-      if (exact || wordBoundary || meta.includes(normalizedKey)) {
-        return key;
-      }
-      const synonyms = FIELD_SYNONYMS[key];
-      if (synonyms) {
-        for (const syn of synonyms) {
-          const n = normalize(syn);
-          if (meta === n || meta.includes(" " + n) || meta.includes(n)) return key;
-        }
-      }
+    const parts = meta.split(" ").filter(Boolean);
+    const candidates = [];
+    for (const key of Object.keys(fields)) {
+      candidates.push({ token: normalize(key), key });
+      for (const syn of FIELD_SYNONYMS[key] ?? []) candidates.push({ token: normalize(syn), key });
     }
+    candidates.sort((a, b) => b.token.length - a.token.length);
+    for (const c of candidates) if (c.token && parts.includes(c.token)) return c.key;
+    for (const c of candidates) if (c.token.length >= 5 && meta.includes(c.token)) return c.key;
     return null;
   }
   function normalizeValueForField(el, key, value, meta) {
@@ -381,9 +387,7 @@
       return digits;
     }
     if (metaLower.includes("zip") || metaLower.includes("postal")) {
-      const digits = str.replace(/\D/g, "");
-      if (digits.length < 5) return "";
-      return digits;
+      return /^[\d\s-]+$/.test(str) ? str.replace(/\D/g, "") : str;
     }
     if (type === "number") {
       return str.replace(/[^\d.]/g, "");
@@ -396,7 +400,7 @@
     if (metaLower.includes("phone") || el.type === "tel") {
       const digits = rawValue.replace(/\D/g, "");
       next = digits.length > 10 ? digits.slice(-10) : digits;
-    } else if (metaLower.includes("zip") || metaLower.includes("postal")) {
+    } else if ((metaLower.includes("zip") || metaLower.includes("postal")) && /^[\d\s-]+$/.test(rawValue.trim())) {
       next = rawValue.replace(/\D/g, "");
     }
     if (!next) return;
@@ -469,8 +473,10 @@
     if (type === "email") return "email";
     return "text";
   }
-  var AUTOFILL_DEBUG = true;
+  var AUTOFILL_DEBUG = false;
+  var apiMatchUnavailable = false;
   async function runAutofillEngineViaAPI(payload, root) {
+    if (apiMatchUnavailable) return false;
     const doc = root instanceof Document ? root : root.getRootNode();
     const apiBase = payload.apiBase;
     const userId = payload.userId ?? "";
@@ -493,7 +499,7 @@
         fields,
         userData: payload.fields,
         excluded: payload.excluded,
-        includeDebug: true
+        includeDebug: AUTOFILL_DEBUG
       };
       if (payload.api_key_id) body.api_key_id = payload.api_key_id;
       if (payload.resumeText && payload.resumeText.trim()) body.resumeText = payload.resumeText.trim();
@@ -513,8 +519,10 @@
         if (values.length !== elements.length && !useFallback) {
           if (AUTOFILL_DEBUG) console.warn("[MR_Rokesh Job Portal Autofill] Length mismatch: API returned", values.length, "values for", elements.length, "fields.");
         }
+        apiMatchUnavailable = true;
         return false;
       }
+      elements.forEach((el) => el.setAttribute(ATTR, "1"));
       for (let i = 0; i < elements.length; i++) {
         const el = elements[i];
         const rawValue = values[i];
@@ -557,9 +565,20 @@
     element.dispatchEvent(new Event("change", { bubbles: true }));
     element.blur();
   }
+  function pickOption(options, value) {
+    const val = value.toLowerCase().trim();
+    if (!val) return null;
+    const text = (o) => (o.textContent || "").trim().toLowerCase();
+    const usable = options.filter((o) => o.value !== "" || text(o) !== "");
+    const exact = usable.find((o) => text(o) === val || (o.value || "").trim().toLowerCase() === val);
+    if (exact) return exact;
+    const word = new RegExp("(^|[^a-z0-9])" + val.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "([^a-z0-9]|$)", "i");
+    const wordMatch = usable.find((o) => word.test(text(o)));
+    if (wordMatch) return wordMatch;
+    return usable.find((o) => o.value !== "" && text(o).includes(val)) ?? null;
+  }
   function fillSelectEngine(select, value) {
     const options = Array.from(select.options);
-    const valLower = value.toLowerCase().trim();
     if (select.multiple) {
       const toSelect = value.split(/[,;|]/).map((s) => s.trim().toLowerCase()).filter(Boolean);
       options.forEach((opt) => {
@@ -571,9 +590,7 @@
       select.dispatchEvent(new Event("input", { bubbles: true }));
       return true;
     }
-    const match = options.find(
-      (opt) => (opt.textContent || "").toLowerCase().includes(valLower) || (opt.value || "").toLowerCase() === valLower
-    );
+    const match = pickOption(options, value);
     if (match) {
       select.value = match.value;
       select.dispatchEvent(new Event("change", { bubbles: true }));
@@ -585,13 +602,15 @@
   function fillRadioEngine(name, value, doc) {
     const radios = Array.from(doc.querySelectorAll('input[type="radio"]')).filter((r) => r.name === name);
     const valLower = value.toLowerCase().trim();
-    radios.forEach((radio) => {
-      if ((radio.value || "").toLowerCase().includes(valLower) || valLower.includes((radio.value || "").toLowerCase())) {
-        radio.checked = true;
-        radio.dispatchEvent(new Event("change", { bubbles: true }));
-        radio.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-    });
+    if (!valLower) return;
+    const labelOf = (r) => (r.labels?.[0]?.textContent || "").trim().toLowerCase();
+    const candidates = (r) => [(r.value || "").trim().toLowerCase(), labelOf(r)].filter(Boolean);
+    const match = radios.find((r) => candidates(r).some((c) => c === valLower)) ?? radios.find((r) => candidates(r).some((c) => new RegExp("(^|[^a-z0-9])" + valLower.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "([^a-z0-9]|$)").test(c)));
+    if (match) {
+      match.checked = true;
+      match.dispatchEvent(new Event("change", { bubbles: true }));
+      match.dispatchEvent(new Event("input", { bubbles: true }));
+    }
   }
   function fillCheckboxEngine(checkbox, value) {
     const shouldCheck = value === true || typeof value === "string" && (value.toLowerCase() === "yes" || value.toLowerCase() === "true" || value.trim() === "1");
@@ -614,15 +633,18 @@
     if (!listbox) return;
     const options = Array.from(listbox.querySelectorAll('[role="option"]'));
     const valLower = value.toLowerCase().trim();
-    for (const opt of options) {
-      const el2 = opt;
-      const text = (el2.textContent || el2.innerText || "").toLowerCase();
-      const dataVal = (el2.getAttribute("data-value") || el2.getAttribute("value") || "").toLowerCase();
-      if (text.includes(valLower) || dataVal.includes(valLower) || valLower.includes(text) || valLower.includes(dataVal)) {
-        el2.click();
-        return;
-      }
-    }
+    const read = (o) => ({
+      text: (o.textContent || "").trim().toLowerCase(),
+      dataVal: (o.getAttribute("data-value") || o.getAttribute("value") || "").trim().toLowerCase()
+    });
+    const target = options.find((o) => {
+      const r = read(o);
+      return r.text === valLower || r.dataVal === valLower;
+    }) ?? options.find((o) => {
+      const r = read(o);
+      return r.text && r.text.includes(valLower) || r.dataVal && r.dataVal.includes(valLower);
+    });
+    target?.click();
   }
   function isCombobox(el) {
     return el.getAttribute("role") === "combobox" || !!el.closest('[role="combobox"]');
@@ -753,6 +775,7 @@
   }
   function applyAutofillEngine(payload) {
     lastTablePayload = payload;
+    apiMatchUnavailable = false;
     if (autofillMutationObserver) {
       autofillMutationObserver.disconnect();
       autofillMutationObserver = null;
@@ -883,26 +906,13 @@
       const text = [name, id, placeholder, label].join(" ");
       const matches = nameIdPlaceholderPatterns.some((re) => re.test(text));
       if (!matches) continue;
-      const val = value.trim().toLowerCase();
-      const options = Array.from(sel.options);
-      for (const opt of options) {
-        const optVal = (opt.getAttribute("value") || "").trim().toLowerCase();
-        const optText = (opt.textContent || "").trim().toLowerCase();
-        if (optVal === val || optText === val || optText.includes(val) || optVal.includes(val)) {
-          sel.value = opt.getAttribute("value") ?? opt.value;
-          sel.dispatchEvent(new Event("change", { bubbles: true }));
-          sel.dispatchEvent(new Event("input", { bubbles: true }));
-          sel.setAttribute(ATTR, "1");
-          return true;
-        }
-      }
-      try {
-        sel.value = value;
-        sel.dispatchEvent(new Event("change", { bubbles: true }));
-        sel.setAttribute(ATTR, "1");
-        return true;
-      } catch {
-      }
+      const match = pickOption(Array.from(sel.options), value);
+      if (!match) continue;
+      sel.value = match.value;
+      sel.dispatchEvent(new Event("change", { bubbles: true }));
+      sel.dispatchEvent(new Event("input", { bubbles: true }));
+      sel.setAttribute(ATTR, "1");
+      return true;
     }
     return false;
   }
@@ -981,7 +991,11 @@
     const linkedInRe = /https?:\/\/(www\.)?linkedin\.com\/[^\s]+/i;
     const githubRe = /https?:\/\/(www\.)?github\.com\/[^\s]+/i;
     const email = (text.match(emailRe)?.[0] ?? "").trim();
-    const phone = (text.match(phoneRe)?.[0] ?? "").replace(/\s+/g, " ").trim();
+    const phoneMatch = Array.from(text.matchAll(new RegExp(phoneRe.source, "g"))).find((m) => {
+      const n = m[0].replace(/\D/g, "").length;
+      return n >= 10 && n <= 15;
+    });
+    const phone = (phoneMatch?.[0] ?? "").replace(/\s+/g, " ").trim();
     const linkedinUrl = (text.match(linkedInRe)?.[0] ?? "").trim();
     const githubUrl = (text.match(githubRe)?.[0] ?? "").trim();
     let firstName = "";
@@ -1019,12 +1033,24 @@
     const div = document.createElement("div");
     div.id = "team3-autofill-file-hint";
     div.style.cssText = `
-    position: fixed; bottom: 20px; right: 20px; z-index: 2147483646;
+    position: fixed; bottom: 84px; right: 20px; z-index: 2147483646;
     max-width: 280px; padding: 12px 14px; border-radius: 10px;
     background: #1e293b; color: #e2e8f0; font-size: 12px; font-family: system-ui, sans-serif;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   `;
-    div.innerHTML = coverLetterFileUrl ? `Resume/cover letter <strong>file uploads</strong> must be done manually. <a href="${coverLetterFileUrl}" target="_blank" rel="noopener" style="color: #93c5fd;">Download cover letter</a>` : "Resume and cover letter <strong>file uploads</strong> must be done manually (e.g. from Documents).";
+    const note = document.createElement("span");
+    note.textContent = "Resume and cover letter file uploads must be done manually (e.g. from Documents).";
+    div.appendChild(note);
+    if (coverLetterFileUrl && /^https?:\/\//i.test(coverLetterFileUrl)) {
+      div.appendChild(document.createTextNode(" "));
+      const link = document.createElement("a");
+      link.href = coverLetterFileUrl;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.style.color = "#93c5fd";
+      link.textContent = "Download cover letter";
+      div.appendChild(link);
+    }
     document.body.appendChild(div);
     setTimeout(() => div.remove(), 8e3);
   }
@@ -1108,13 +1134,37 @@
     else showFileUploadHint(void 0);
     tryFillResumeFileUpload(doc, payload.resumeFileUrl);
   }
+  var resumeFileCache = /* @__PURE__ */ new Map();
+  function fetchResumeFile(url) {
+    const cached = resumeFileCache.get(url);
+    if (cached) return cached;
+    const p = new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage({ type: "FETCH_FILE", data: { url } }, (resp) => {
+          if (chrome.runtime.lastError || !resp?.success || !resp.base64) {
+            resolve(null);
+            return;
+          }
+          const bin = atob(resp.base64);
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          resolve(new File([bytes], "resume.pdf", { type: resp.mime || "application/pdf" }));
+        });
+      } catch {
+        resolve(null);
+      }
+    });
+    resumeFileCache.set(url, p);
+    p.then((f) => {
+      if (!f) resumeFileCache.delete(url);
+    });
+    return p;
+  }
   async function uploadResumeToInput(fileInput, resumeFileUrl) {
     if (fileInput.hasAttribute(DATA_UPLOADED)) return false;
     try {
-      const response = await fetch(resumeFileUrl, { mode: "cors" });
-      if (!response.ok) return false;
-      const blob = await response.blob();
-      const file = new File([blob], "resume.pdf", { type: blob.type || "application/pdf" });
+      const file = await fetchResumeFile(resumeFileUrl);
+      if (!file) return false;
       const dt = new DataTransfer();
       dt.items.add(file);
       fileInput.files = dt.files;
@@ -1131,16 +1181,14 @@
     if (card) card.remove();
   }
   async function createDraggableResumeCard(resumeFileUrl) {
-    removeDraggableResumeCard();
+    if (document.getElementById("team3-resume-drag")) return;
     let file = null;
     try {
-      const response = await fetch(resumeFileUrl, { mode: "cors" });
-      if (!response.ok) return;
-      const blob = await response.blob();
-      file = new File([blob], "resume.pdf", { type: blob.type || "application/pdf" });
+      file = await fetchResumeFile(resumeFileUrl);
     } catch {
       return;
     }
+    if (!file) return;
     const card = document.createElement("div");
     card.id = "team3-resume-drag";
     card.style.cssText = "position:fixed;bottom:20px;right:20px;z-index:999999;background:#1f2937;color:#fff;padding:12px 36px 12px 12px;border-radius:8px;cursor:grab;font-family:system-ui,sans-serif;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);user-select:none;";
@@ -1167,11 +1215,9 @@
     document.body.appendChild(card);
   }
   async function runResumeUploadAndFallback(doc, resumeFileUrl) {
-    removeDraggableResumeCard();
-    const fileInputs = Array.from(doc.querySelectorAll('input[type="file"]')).filter(
-      (el) => !el.hasAttribute(DATA_UPLOADED)
-    );
-    let anyUploaded = false;
+    const allFileInputs = Array.from(doc.querySelectorAll('input[type="file"]'));
+    const fileInputs = allFileInputs.filter((el) => !el.hasAttribute(DATA_UPLOADED));
+    let anyUploaded = allFileInputs.some((el) => el.hasAttribute(DATA_UPLOADED));
     for (const input of fileInputs) {
       const name = (input.getAttribute("name") || "").toLowerCase();
       const id = (input.getAttribute("id") || "").toLowerCase();
@@ -1180,15 +1226,14 @@
       const text = [name, id, accept, label].join(" ");
       if (!/resume|cv|curriculum|attachment|upload|pdf/.test(text)) continue;
       const ok = await uploadResumeToInput(input, resumeFileUrl);
-      if (ok) {
-        anyUploaded = true;
-        removeDraggableResumeCard();
-      }
+      if (ok) anyUploaded = true;
+    }
+    if (anyUploaded) {
+      removeDraggableResumeCard();
+      return;
     }
     const dropzone = doc.querySelector("[data-automation-id*='file'], [data-automation-id*='upload'], [role='button'][aria-label*='upload'], [role='button'][aria-label*='resume']");
-    const hasDropzone = !!dropzone;
-    const noFileInputs = fileInputs.length === 0;
-    if (!anyUploaded && (noFileInputs || hasDropzone)) {
+    if (allFileInputs.length === 0 || dropzone) {
       await createDraggableResumeCard(resumeFileUrl);
     }
   }

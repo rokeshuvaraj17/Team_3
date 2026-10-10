@@ -51,3 +51,11 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: NOTIFY_API_KEY
+        sync: false
+      - key: NOTIFY_API_BASE
+        value: https://notifications.rokeshcloud.com/v1
+      - key: NOTIFY_APP_NAME
+        value: Rokesh Job Portal
+      - key: NOTIFY_FROM
+        value: MR Rokesh Softwares <noreply@notifications.rokeshcloud.com>

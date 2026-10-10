@@ -3,8 +3,8 @@
   "name": "MR_Rokesh Job Portal Extension",
   "version": "1.0.0",
   "description": "MR_Rokesh Job Portal login and autofill profile data",
-  "permissions": ["storage", "activeTab", "scripting", "sidePanel","tabs"],
-  "host_permissions": ["https://team-3-lvlf.onrender.com/*", "http://localhost:3000/*", "http://localhost:5173/*", "<all_urls>"],
+  "permissions": ["storage", "activeTab", "scripting", "sidePanel", "tabs", "identity"],
+  "host_permissions": ["https://team-3-lvlf.onrender.com/*", "http://localhost:3000/*", "http://localhost:5173/*", "http://localhost:5174/*", "https://team-3-two.vercel.app/*", "<all_urls>"],
   "background": { "service_worker": "background.js", "type": "module" },
   "content_scripts": [
     { "matches": ["<all_urls>"], "js": ["content.js"], "css": ["content.css"], "run_at": "document_idle" }

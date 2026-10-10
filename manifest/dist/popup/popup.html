@@ -54,18 +54,13 @@
       <!-- Account & Profile (combined) -->
       <section id="tab-account" class="tab-content active">
         <div id="loginView">
-          <h2 class="section-header">MR_Rokesh Job Portal Login</h2>
-          <form id="loginForm">
-            <div class="input-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" required autocomplete="email" />
-            </div>
-            <div class="input-group">
-              <label for="password">Password</label>
-              <input type="password" id="password" required autocomplete="current-password" />
-            </div>
-            <button type="submit" id="submitBtn" class="btn btn-primary btn-full">Log in</button>
-          </form>
+          <h2 class="section-header">Connect your portal account</h2>
+          <p class="settings-desc">Sign in on MR Rokesh Job Portal and approve what this extension can access. Your password stays on the website.</p>
+          <button type="button" id="oauthLoginBtn" class="btn btn-primary btn-full">Continue with Job Portal</button>
+          <p class="settings-desc" style="margin-top:10px;">
+            Need an account?
+            <a id="createAccountLink" href="#" target="_blank" rel="noopener">Create one</a>
+          </p>
           <div id="status" role="status"></div>
         </div>
         <div id="loggedInView" class="hidden">

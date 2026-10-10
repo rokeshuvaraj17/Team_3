@@ -1,7 +1,5 @@
 import type { AutofillProfile } from './types';
-
-// Must match manifest/utils/api.ts. Production backend; for local use http://localhost:3000.
-const API_BASE = 'https://team-3-lvlf.onrender.com';
+import { API_BASE } from './utils/api.js';
 
 const SIDEBAR_PREF_KEY = 'useSidebar';
 
@@ -86,6 +84,24 @@ chrome.runtime.onMessage.addListener(
           source: d?.source ?? '',
         },
       }).then(() => safeSendResponse(sendResponse, { success: true }));
+      return true;
+    }
+    if (message.type === 'FETCH_FILE') {
+      // Content scripts run under the job site's origin, so cross-origin file fetches fail there; fetch here instead.
+      const url = (message.data as { url?: string } | undefined)?.url ?? '';
+      (async () => {
+        try {
+          if (!/^https?:\/\//i.test(url)) throw new Error('Invalid URL');
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const bytes = new Uint8Array(await res.arrayBuffer());
+          let bin = '';
+          for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+          safeSendResponse(sendResponse, { success: true, base64: btoa(bin), mime: res.headers.get('content-type') || 'application/pdf' } as unknown as { success?: boolean });
+        } catch (err) {
+          safeSendResponse(sendResponse, { success: false, error: err instanceof Error ? err.message : String(err) } as unknown as { error?: string });
+        }
+      })();
       return true;
     }
     if (message.type === 'AUTOFILL_API') {

@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { SignInCard2 } from '@/components/ui/sign-in-card-2'
 import { SignUpCard } from '@/components/ui/sign-up-card'
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage'
+import { AuthorizeExtensionPage } from '@/pages/AuthorizeExtensionPage'
 import { WelcomePage } from '@/pages/WelcomePage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
 import { ProfilePage } from '@/pages/ProfilePage'
@@ -26,6 +28,8 @@ function App() {
       <Routes>
         <Route path="/" element={<SignInCard2 />} />
         <Route path="/signup" element={<SignUpCard />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/oauth/extension" element={<AuthorizeExtensionPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/app" element={<AppLayout />}>
           <Route index element={<WelcomePage />} />

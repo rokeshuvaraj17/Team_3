@@ -56,9 +56,9 @@ function buildAdzunaParams(filters: JobFiltersState, page: number): URLSearchPar
   return p
 }
 
-export function DashboardJobList() {
+export function DashboardJobList({ initialQuery = '' }: { initialQuery?: string }) {
   const [jobSource, setJobSource] = useState<JobSource>('arbeitnow')
-  const [filters, setFilters] = useState<JobFiltersState>(DEFAULT_FILTERS)
+  const [filters, setFilters] = useState<JobFiltersState>({ ...DEFAULT_FILTERS, what: initialQuery })
   const [jobs, setJobs] = useState<UnifiedJob[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)

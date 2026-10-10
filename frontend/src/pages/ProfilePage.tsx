@@ -298,7 +298,7 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-1 min-h-0 w-full">
+    <div className="flex flex-col lg:flex-row flex-1 min-h-0 w-full overflow-y-auto lg:overflow-visible">
       <input
         ref={photoInputRef}
         type="file"
@@ -314,11 +314,11 @@ export function ProfilePage() {
         onChange={handleResumeFile}
       />
       {/* Left: form - scrollable */}
-      <div className="flex-1 min-w-0 overflow-auto">
+      <div className="lg:flex-1 min-w-0 lg:overflow-auto">
         <div className="max-w-xl mx-auto px-4 py-6 lg:py-8">
           <div className="mb-6">
             <h1 className="text-2xl font-semibold text-slate-900">Profile</h1>
-            <p className="text-slate-500 text-sm mt-1">Manage your details. Photo and resumes are on the right.</p>
+            <p className="text-slate-500 text-sm mt-1">Manage your details. Photo and resumes are below on small screens, on the right on large ones.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -581,8 +581,8 @@ export function ProfilePage() {
       </div>
 
       {/* Right: photo + resumes - sticky sidebar */}
-      <div className="hidden lg:flex flex-col w-[320px] flex-shrink-0 border-l border-slate-200 bg-slate-50/50">
-        <div className="sticky top-0 overflow-auto py-6 px-5 space-y-6">
+      <div className="flex flex-col w-full lg:w-[320px] flex-shrink-0 border-t lg:border-t-0 lg:border-l border-slate-200 bg-slate-50/50">
+        <div className="lg:sticky lg:top-0 lg:overflow-auto py-6 px-4 sm:px-5 space-y-6">
           {/* Photo upload */}
           <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div className="p-4 border-b border-slate-100">

@@ -128,3 +128,11 @@ main{margin-left:264px;padding:34px 40px 80px;max-width:1180px}
   .dir{grid-template-columns:1fr}
   .pager .pg{max-width:none}
 }
+/* Small phones: keep media and code inside the viewport, tighten spacing */
+img,video,iframe{max-width:100%;height:auto}
+pre,table{max-width:100%;overflow-x:auto}
+@media(max-width:480px){
+  main{padding:60px 14px 48px}
+  .hero h1{font-size:25px}
+  .tagline{font-size:15.5px}
+}

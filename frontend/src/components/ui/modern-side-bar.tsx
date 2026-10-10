@@ -13,7 +13,6 @@ import {
   FileOutput,
   Bell,
   KeyRound,
-  Search,
   HelpCircle,
   PenLine,
   Puzzle,
@@ -23,7 +22,6 @@ import {
 import { getStoredUser, clearStoredUser } from '@/lib/auth'
 import { apiUrl } from '@/lib/api'
 import { useNotifications } from '@/lib/useNotifications'
-import logoUrl from '@/images/transparent.png'
 
 interface NavigationItem {
   id: string
@@ -106,7 +104,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
     <>
       <button
         onClick={toggleSidebar}
-        className="fixed top-6 left-6 z-50 p-3 rounded-lg bg-white dark:bg-slate-800 shadow-md border border-slate-100 dark:border-slate-700 md:hidden hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200"
+        className="fixed top-2 left-3 z-50 p-2 rounded-full text-slate-600 md:hidden hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200"
         aria-label="Toggle sidebar"
       >
         {isOpen ? <X className="h-5 w-5 text-slate-600 dark:text-slate-300" /> : <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" />}
@@ -123,35 +121,17 @@ export function Sidebar({ className = '' }: SidebarProps) {
       <aside
         className={`
           flex flex-col flex-shrink-0 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 ease-in-out
-          h-screen fixed top-0 left-0 z-40
+          h-screen fixed top-0 left-0 z-40 pt-14 md:pt-0
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-          ${isCollapsed ? 'w-28' : 'w-72'}
+          ${isCollapsed ? 'w-20' : 'w-64'}
           md:translate-x-0 md:relative md:h-full md:z-auto
           ${className}
         `}
       >
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/80">
-          {!isCollapsed && (
-            <div className="flex items-center space-x-2.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center flex-shrink-0 shadow-sm ring-1 ring-slate-200 dark:ring-slate-600 overflow-hidden">
-                <img src={logoUrl} alt="MR_Rokesh logo" className="w-full h-full object-contain p-1" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate">
-                  MR_Rokesh
-                </span>
-                <span className="text-xs text-slate-500 dark:text-slate-400 truncate">Job Portal</span>
-              </div>
-            </div>
-          )}
-          {isCollapsed && (
-            <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center mx-auto flex-shrink-0 shadow-sm ring-1 ring-slate-200 dark:ring-slate-600 overflow-hidden">
-              <img src={logoUrl} alt="MR_Rokesh logo" className="w-full h-full object-contain p-1" />
-            </div>
-          )}
+        <div className={`hidden md:flex px-3 pt-3 ${isCollapsed ? 'justify-center' : 'justify-end'}`}>
           <button
             onClick={toggleCollapse}
-            className="hidden md:flex p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200"
+            className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {isCollapsed ? (
@@ -161,19 +141,6 @@ export function Sidebar({ className = '' }: SidebarProps) {
             )}
           </button>
         </div>
-
-        {!isCollapsed && (
-          <div className="px-4 py-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              />
-            </div>
-          </div>
-        )}
 
         <nav className="flex-1 px-3 py-2 overflow-y-auto">
           <ul className="space-y-0.5">
@@ -193,8 +160,8 @@ export function Sidebar({ className = '' }: SidebarProps) {
                     onClick={closeOnMobile}
                     className={`
                       relative
-                      w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-md text-left transition-all duration-200 group
-                      ${isActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100'}
+                      w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-md text-left transition-colors duration-150 group
+                      ${isActive ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold shadow-[inset_3px_0_0_#0a66c2]' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100'}
                       ${isCollapsed ? 'justify-center px-2' : ''}
                     `}
                     title={isCollapsed ? item.name : undefined}

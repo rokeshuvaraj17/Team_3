@@ -68,11 +68,17 @@ test('auth routes run requireDb before signup and login controllers', () => {
   const ctrl = require('../src/controllers/auth.controller')
   const requireDb = require('../src/middleware/requireDb')
 
+  const signupOtpPost = getRouteLayer(router, '/signup/otp', 'post')
   const signupPost = getRouteLayer(router, '/signup', 'post')
   const loginPost = getRouteLayer(router, '/login', 'post')
+  const forgotPost = getRouteLayer(router, '/forgot-password', 'post')
+  const resetPost = getRouteLayer(router, '/forgot-password/reset', 'post')
 
+  assert.deepEqual(signupOtpPost.route.stack.map((layer) => layer.handle), [requireDb, ctrl.signupStart])
   assert.deepEqual(signupPost.route.stack.map((layer) => layer.handle), [requireDb, ctrl.signup])
   assert.deepEqual(loginPost.route.stack.map((layer) => layer.handle), [requireDb, ctrl.login])
+  assert.deepEqual(forgotPost.route.stack.map((layer) => layer.handle), [requireDb, ctrl.forgotPassword])
+  assert.deepEqual(resetPost.route.stack.map((layer) => layer.handle), [requireDb, ctrl.resetPassword])
 })
 
 test('profile routes compose auth, requireDb, and the expected controller handlers', () => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence, useMotionValue, useTransform, useReducedMotion } from 'framer-motion'
-import { Mail, Lock, Eye, EyeOff, ArrowRight, User } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
+import logoUrl from '@/images/transparent.png'
 import { cn } from '@/lib/utils'
 import { validateSignUp, type SignUpErrors } from '@/lib/validation'
 import { apiUrl } from '@/lib/api'
@@ -31,27 +31,12 @@ export function SignUpCard() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [errors, setErrors] = useState<SignUpErrors>({})
   const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [otp, setOtp] = useState('')
+  const [otpEmailMasked, setOtpEmailMasked] = useState('')
+  const [step, setStep] = useState<'details' | 'otp'>('details')
   const [isLoading, setIsLoading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [focusedInput, setFocusedInput] = useState<'name' | 'email' | 'password' | 'confirmPassword' | null>(null)
   const navigate = useNavigate()
-  const prefersReducedMotion = useReducedMotion()
-
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-  const rotateX = useTransform(mouseY, [-300, 300], [10, -10])
-  const rotateY = useTransform(mouseX, [-300, 300], [-10, 10])
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    mouseX.set(e.clientX - rect.left - rect.width / 2)
-    mouseY.set(e.clientY - rect.top - rect.height / 2)
-  }
-
-  const handleMouseLeave = () => {
-    mouseX.set(0)
-    mouseY.set(0)
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,17 +47,39 @@ export function SignUpCard() {
     setTouched({ name: true, email: true, password: true, confirmPassword: true })
 
     if (Object.keys(nextErrors).length > 0) return
+    if (step === 'otp' && !otp.trim()) {
+      setSubmitError('Enter the verification code sent to your email')
+      return
+    }
 
     setIsLoading(true)
     try {
+      if (step === 'details') {
+        const res = await fetch(apiUrl('/api/signup/otp'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          if (res.status === 409) setErrors((prev) => ({ ...prev, email: data.error || 'An account with this email already exists' }))
+          else setSubmitError(data.error || 'Something went wrong. Please try again.')
+          return
+        }
+        setOtp('')
+        setOtpEmailMasked(data.emailMasked || email.trim())
+        setStep('otp')
+        return
+      }
+
       const res = await fetch(apiUrl('/api/signup'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password, code: otp.trim() }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        if (res.status === 409) setErrors((e) => ({ ...e, email: data.error || 'An account with this email already exists' }))
+        if (res.status === 409) setErrors((prev) => ({ ...prev, email: data.error || 'An account with this email already exists' }))
         else setSubmitError(data.error || 'Something went wrong. Please try again.')
         return
       }
@@ -86,292 +93,152 @@ export function SignUpCard() {
 
   const showError = (field: keyof SignUpErrors) => touched[field] && errors[field]
 
-  const inputBase =
-    'w-full bg-white/5 border-transparent focus:border-white/20 text-white placeholder:text-white/30 h-10 transition-all duration-300 pl-10 pr-10 focus:bg-white/10'
-  const inputError = 'border-red-400/50 focus:border-red-400/70'
+  const inputBase = 'h-11 rounded border-slate-400 text-slate-900 text-base focus-visible:border-blue-600 focus-visible:ring-blue-600/30'
+  const inputError = 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30'
+
+  const field = (
+    id: 'name' | 'email',
+    label: string,
+    type: string,
+    value: string,
+    set: (v: string) => void,
+    autoComplete: string,
+  ) => (
+    <div>
+      <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      <Input
+        id={id}
+        type={type}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={(e) => {
+          set(e.target.value)
+          if (errors[id]) setErrors((prev) => ({ ...prev, [id]: undefined }))
+        }}
+        onBlur={() => setTouched((t) => ({ ...t, [id]: true }))}
+        className={cn(inputBase, showError(id) && inputError)}
+        aria-invalid={!!showError(id)}
+      />
+      {showError(id) && <p className="mt-1 text-xs text-red-600">{errors[id]}</p>}
+    </div>
+  )
 
   return (
-    <div className="min-h-screen w-screen bg-black relative overflow-hidden flex items-center justify-center py-8">
-      <div className="absolute inset-0 bg-gradient-to-br from-sky-600/30 via-slate-950/40 to-orange-600/30" />
-      <div
-        className="absolute inset-0 opacity-[0.03] mix-blend-soft-light"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '200px 200px',
-        }}
-      />
-      <div className="absolute top-1/4 left-0 w-[60vh] h-[60vh] rounded-full bg-sky-500/25 blur-[100px]" />
-      <div className="absolute top-1/4 right-0 w-[60vh] h-[60vh] rounded-full bg-orange-500/30 blur-[100px]" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[90vh] h-[70vh] rounded-t-full bg-orange-600/15 blur-[80px]" />
+    <div className="min-h-screen w-full bg-slate-50 flex flex-col">
+      <header className="h-16 px-6 md:px-12 flex items-center gap-2">
+        <img src={logoUrl} alt="MR_Rokesh logo" className="h-9 w-9 object-contain" />
+        <span className="font-semibold text-slate-900 text-lg tracking-tight">
+          MR_Rokesh <span className="text-blue-600">Jobs</span>
+        </span>
+      </header>
 
-      <div className="absolute left-1/4 top-1/4 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(255,255,255,0.06)_0%,_transparent_70%)]" />
-      <div className="absolute right-1/4 bottom-1/4 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(255,255,255,0.06)_0%,_transparent_70%)]" />
+      <main className="flex-1 flex flex-col items-center px-4 pb-12">
+        <h1 className="text-3xl font-light text-slate-900 text-center mt-4 mb-6">Make the most of your professional life</h1>
+        <form onSubmit={handleSubmit} noValidate className="w-full max-w-[400px] bg-white rounded-lg shadow-md p-6 space-y-4">
+          {field('name', 'Full name', 'text', name, setName, 'name')}
+          {field('email', 'Email', 'email', email, setEmail, 'email')}
 
-      <motion.div
-        initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="w-full max-w-sm relative z-10 px-4"
-        style={{ perspective: 1500 }}
-      >
-        <motion.div
-          className="relative"
-          style={{ rotateX, rotateY }}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
-          <div className="relative group">
-            <div className="absolute -inset-[0.5px] rounded-2xl bg-gradient-to-r from-white/3 via-white/7 to-white/3 opacity-0 group-hover:opacity-70 transition-opacity duration-500" />
-            <div className="relative bg-black/40 rounded-2xl p-6 border border-white/[0.05] shadow-2xl overflow-hidden">
-              <div
-                className="absolute inset-0 opacity-[0.03]"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, white 0.5px, transparent 0.5px), linear-gradient(45deg, white 0.5px, transparent 0.5px)`,
-                  backgroundSize: '30px 30px',
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">Password (8+ characters)</label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }))
+                  if (errors.confirmPassword && e.target.value !== confirmPassword)
+                    setErrors((prev) => ({ ...prev, confirmPassword: 'Passwords do not match' }))
+                  else if (errors.confirmPassword && e.target.value === confirmPassword)
+                    setErrors((prev) => ({ ...prev, confirmPassword: undefined }))
                 }}
+                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                className={cn(inputBase, 'pr-10', showError('password') && inputError)}
+                aria-invalid={!!showError('password')}
               />
-
-              <div className="text-center space-y-1 mb-5">
-                <motion.div
-                  initial={prefersReducedMotion ? false : { scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: 'spring', duration: 0.8 }}
-                  className="mx-auto w-10 h-10 rounded-full border border-white/10 flex items-center justify-center relative overflow-hidden"
-                >
-                  <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70">S</span>
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
-                </motion.div>
-                <motion.h1
-                  initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80"
-                >
-                  Create account
-                </motion.h1>
-                <motion.p
-                  initial={prefersReducedMotion ? false : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-white/60 text-xs"
-                >
-                  Sign up for MR_Rokesh Job Portal
-                </motion.p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-3">
-                  {/* Name */}
-                  <motion.div
-                    className={`relative ${focusedInput === 'name' ? 'z-10' : ''}`}
-                    whileHover={{ scale: 1.01 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  >
-                    <div className="relative flex items-center overflow-hidden rounded-lg">
-                      <User
-                        className={`absolute left-3 w-4 h-4 transition-all duration-300 z-10 pointer-events-none ${
-                          focusedInput === 'name' ? 'text-white' : 'text-white/40'
-                        }`}
-                      />
-                      <Input
-                        type="text"
-                        placeholder="Full name"
-                        value={name}
-                        onChange={(e) => {
-                          setName(e.target.value)
-                          if (errors.name) setErrors((e) => ({ ...e, name: undefined }))
-                        }}
-                        onFocus={() => setFocusedInput('name')}
-                        onBlur={() => { setFocusedInput(null); setTouched((t) => ({ ...t, name: true })) }}
-                        className={cn(inputBase, 'pr-3', showError('name') && inputError)}
-                        aria-invalid={!!showError('name')}
-                      />
-                    </div>
-                    {showError('name') && (
-                      <p className="mt-1 text-xs text-red-400">{errors.name}</p>
-                    )}
-                  </motion.div>
-
-                  {/* Email */}
-                  <motion.div
-                    className={`relative ${focusedInput === 'email' ? 'z-10' : ''}`}
-                    whileHover={{ scale: 1.01 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  >
-                    <div className="relative flex items-center overflow-hidden rounded-lg">
-                      <Mail
-                        className={`absolute left-3 w-4 h-4 transition-all duration-300 z-10 pointer-events-none ${
-                          focusedInput === 'email' ? 'text-white' : 'text-white/40'
-                        }`}
-                      />
-                      <Input
-                        type="email"
-                        placeholder="Email address"
-                        value={email}
-                        onChange={(e) => {
-                          setEmail(e.target.value)
-                          if (errors.email) setErrors((e) => ({ ...e, email: undefined }))
-                        }}
-                        onFocus={() => setFocusedInput('email')}
-                        onBlur={() => { setFocusedInput(null); setTouched((t) => ({ ...t, email: true })) }}
-                        className={cn(inputBase, 'pr-3', showError('email') && inputError)}
-                        aria-invalid={!!showError('email')}
-                      />
-                    </div>
-                    {showError('email') && (
-                      <p className="mt-1 text-xs text-red-400">{errors.email}</p>
-                    )}
-                  </motion.div>
-
-                  {/* Password */}
-                  <motion.div
-                    className={`relative ${focusedInput === 'password' ? 'z-10' : ''}`}
-                    whileHover={{ scale: 1.01 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  >
-                    <div className="relative flex items-center overflow-hidden rounded-lg">
-                      <Lock
-                        className={`absolute left-3 w-4 h-4 transition-all duration-300 z-10 pointer-events-none ${
-                          focusedInput === 'password' ? 'text-white' : 'text-white/40'
-                        }`}
-                      />
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Password (min 8 characters)"
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value)
-                          if (errors.password) setErrors((e) => ({ ...e, password: undefined }))
-                          if (errors.confirmPassword && e.target.value !== confirmPassword)
-                            setErrors((e) => ({ ...e, confirmPassword: 'Passwords do not match' }))
-                          else if (errors.confirmPassword && e.target.value === confirmPassword)
-                            setErrors((e) => ({ ...e, confirmPassword: undefined }))
-                        }}
-                        onFocus={() => setFocusedInput('password')}
-                        onBlur={() => { setFocusedInput(null); setTouched((t) => ({ ...t, password: true })) }}
-                        className={cn(inputBase, showError('password') && inputError)}
-                        aria-invalid={!!showError('password')}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 text-white/40 hover:text-white transition-colors duration-300"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                    {showError('password') && (
-                      <p className="mt-1 text-xs text-red-400">{errors.password}</p>
-                    )}
-                  </motion.div>
-
-                  {/* Confirm Password */}
-                  <motion.div
-                    className={`relative ${focusedInput === 'confirmPassword' ? 'z-10' : ''}`}
-                    whileHover={{ scale: 1.01 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  >
-                    <div className="relative flex items-center overflow-hidden rounded-lg">
-                      <Lock
-                        className={`absolute left-3 w-4 h-4 transition-all duration-300 z-10 pointer-events-none ${
-                          focusedInput === 'confirmPassword' ? 'text-white' : 'text-white/40'
-                        }`}
-                      />
-                      <Input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="Confirm password"
-                        value={confirmPassword}
-                        onChange={(e) => {
-                          setConfirmPassword(e.target.value)
-                          if (errors.confirmPassword) setErrors((e) => ({ ...e, confirmPassword: undefined }))
-                        }}
-                        onFocus={() => setFocusedInput('confirmPassword')}
-                        onBlur={() => { setFocusedInput(null); setTouched((t) => ({ ...t, confirmPassword: true })) }}
-                        className={cn(inputBase, showError('confirmPassword') && inputError)}
-                        aria-invalid={!!showError('confirmPassword')}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 text-white/40 hover:text-white transition-colors duration-300"
-                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                    {showError('confirmPassword') && (
-                      <p className="mt-1 text-xs text-red-400">{errors.confirmPassword}</p>
-                    )}
-                  </motion.div>
-                </div>
-
-                {submitError && (
-                  <p className="text-sm text-red-400 text-center">{submitError}</p>
-                )}
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full relative group/button mt-5"
-                >
-                  <div className="absolute inset-0 bg-white/10 rounded-lg blur-lg opacity-0 group-hover/button:opacity-70 transition-opacity duration-300" />
-                  <div className="relative overflow-hidden bg-white text-black font-medium h-10 rounded-lg transition-all duration-300 flex items-center justify-center">
-                    {isLoading && (
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 -z-10"
-                        animate={{ x: ['-100%', '100%'] }}
-                        transition={{ duration: 1.5, ease: 'easeInOut', repeat: Infinity, repeatDelay: 1 }}
-                      />
-                    )}
-                    <AnimatePresence mode="wait">
-                      {isLoading ? (
-                        <motion.div
-                          key="loading"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="flex items-center justify-center"
-                        >
-                          <div className="w-4 h-4 border-2 border-black/70 border-t-transparent rounded-full animate-spin" />
-                        </motion.div>
-                      ) : (
-                        <motion.span
-                          key="button-text"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="flex items-center justify-center gap-1 text-sm font-medium"
-                        >
-                          Create account
-                          <ArrowRight className="w-3 h-3 group-hover/button:translate-x-1 transition-transform duration-300" />
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </motion.button>
-
-                <motion.p
-                  className="text-center text-xs text-white/60 mt-4"
-                  initial={prefersReducedMotion ? false : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  Already have an account?{' '}
-                  <Link to="/" className="relative inline-block group/signin">
-                    <span className="relative z-10 text-white group-hover/signin:text-white/70 transition-colors duration-300 font-medium">
-                      Sign in
-                    </span>
-                    <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-white group-hover/signin:w-full transition-all duration-300" />
-                  </Link>
-                </motion.p>
-              </form>
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-600" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
+            {showError('password') && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
           </div>
-        </motion.div>
-      </motion.div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-1">Confirm password</label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value)
+                  if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: undefined }))
+                }}
+                onBlur={() => setTouched((t) => ({ ...t, confirmPassword: true }))}
+                className={cn(inputBase, 'pr-10', showError('confirmPassword') && inputError)}
+                aria-invalid={!!showError('confirmPassword')}
+              />
+              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-600" aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>
+                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            {showError('confirmPassword') && <p className="mt-1 text-xs text-red-600">{errors.confirmPassword}</p>}
+          </div>
+
+          {step === 'otp' && (
+            <div>
+              <label htmlFor="otp" className="block text-sm font-medium text-slate-700 mb-1">Verification code</label>
+              <Input
+                id="otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                className={cn(inputBase, 'tracking-[0.3em]')}
+                placeholder="000000"
+              />
+              <p className="mt-2 text-sm text-slate-600">
+                We sent a one-time code to <span className="font-medium text-slate-800">{otpEmailMasked}</span>.
+              </p>
+              <div className="mt-2 flex items-center gap-3 text-sm">
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => {
+                    setStep('details')
+                    setOtp('')
+                    setSubmitError(null)
+                  }}
+                  className="font-semibold text-slate-600 hover:text-slate-800 hover:underline disabled:opacity-60"
+                >
+                  Edit details
+                </button>
+              </div>
+            </div>
+          )}
+
+          {submitError && (
+            <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">{submitError}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold text-base transition-colors flex items-center justify-center"
+          >
+            {isLoading ? <div className="w-5 h-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin" /> : step === 'otp' ? 'Verify and create account' : 'Agree & Join'}
+          </button>
+        </form>
+
+        <p className="text-sm text-slate-700 mt-6">
+          Already on MR_Rokesh Jobs?{' '}
+          <Link to="/" className="font-semibold text-blue-600 hover:text-blue-800 hover:underline">Sign in</Link>
+        </p>
+      </main>
     </div>
   )
 }

@@ -4,28 +4,43 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Brand colors — derived from the MR ROKESH logo (fire & ice dragons).
- * The app was originally built on the `blue` palette as its primary accent,
- * so we remap `blue` to the logo's signature FIRE ORANGE. This recolors every
- * `blue-*` utility (buttons, active nav, focus rings, links) app-wide from here.
- * The ice-blue side of the logo is represented via `sky`/`cyan` accents.
+ * Design tokens — professional job-portal look (LinkedIn / Indeed / Naukri).
+ * The app was originally built on the `blue` palette as its primary accent, so
+ * remapping `blue` here recolors every button, active nav item, focus ring and
+ * link app-wide. `slate-50` doubles as the page canvas (LinkedIn-style warm
+ * light gray) and cards/borders are softened to match.
  */
 @theme {
-  --color-blue-50: #fff5ec;
-  --color-blue-100: #ffe7d2;
-  --color-blue-200: #fecba4;
-  --color-blue-300: #fda86c;
-  --color-blue-400: #fb7d39;
-  --color-blue-500: #f4591f;
-  --color-blue-600: #e84a12;
-  --color-blue-700: #bd380e;
-  --color-blue-800: #962e13;
-  --color-blue-900: #792913;
-  --color-blue-950: #411106;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-blue-50: #eaf3fc;
+  --color-blue-100: #d3e6f8;
+  --color-blue-200: #a8cdf0;
+  --color-blue-300: #70b5f9;
+  --color-blue-400: #378fe9;
+  --color-blue-500: #1a78d4;
+  --color-blue-600: #0a66c2;
+  --color-blue-700: #004182;
+  --color-blue-800: #003369;
+  --color-blue-900: #022a52;
+  --color-blue-950: #011a35;
+
+  --color-slate-50: #f4f2ee;
+  --color-slate-100: #ebe8e3;
+  --color-slate-200: #e0dfdc;
+  --color-slate-300: #cfcdc9;
+
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
+
+  --shadow-sm: 0 0 0 1px rgb(0 0 0 / 0.08);
+  --shadow-md: 0 0 0 1px rgb(0 0 0 / 0.08), 0 2px 6px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 0 0 1px rgb(0 0 0 / 0.08), 0 6px 18px rgb(0 0 0 / 0.12);
 }
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -40,12 +55,22 @@
 
 body {
   margin: 0;
+  background-color: #f4f2ee;
+  color: #191919;
   min-width: 320px;
   min-height: 100vh;
 }
 
 .dark body {
-  background-color: rgb(15 23 42);
+  background-color: #000000;
+  color: #e8e6e3;
+}
+
+/* Dark mode uses LinkedIn's neutral near-black surfaces instead of blue-tinted slate */
+.dark {
+  --color-slate-700: #38434f;
+  --color-slate-800: #1b1f23;
+  --color-slate-900: #000000;
 }
 
 /* Job description typography (sanitized HTML from APIs) */
@@ -86,11 +111,11 @@ body {
   color: rgb(51 65 85);
 }
 .job-description a {
-  color: #e84a12;
+  color: #0a66c2;
   text-decoration: underline;
 }
 .job-description a:hover {
-  color: #bd380e;
+  color: #004182;
 }
 .job-description blockquote {
   border-left: 3px solid rgb(203 213 225);

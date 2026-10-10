@@ -2,9 +2,10 @@ import { apiFetch, API_BASE } from '../utils/api.js';
 // Web app base URL for Job Tracker and profile edit.
 // Dev: when API_BASE is http://localhost:3000 use http://localhost:5173.
 // Prod: default to deployed frontend at https://team-3-two.vercel.app.
-const FRONTEND_BASE = API_BASE.includes('localhost:3000')
-    ? API_BASE.replace(/:3000\/?$/, ':5173')
+const FRONTEND_BASE = API_BASE.includes('localhost')
+    ? 'http://localhost:5174'
     : 'https://team-3-two.vercel.app';
+const EXTENSION_CLIENT_ID = 'mrrokesh-job-portal-extension';
 import { scrapeJobPage } from '../scraper.js';
 const THEME_KEY = 'team3-extension-theme';
 function applyTheme(theme) {
@@ -17,10 +18,8 @@ function applyTheme(theme) {
 // --- DOM refs ---
 const loginView = document.getElementById('loginView');
 const loggedInView = document.getElementById('loggedInView');
-const form = document.getElementById('loginForm');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const submitBtn = document.getElementById('submitBtn');
+const oauthLoginBtn = document.getElementById('oauthLoginBtn');
+const createAccountLink = document.getElementById('createAccountLink');
 const statusEl = document.getElementById('status');
 const profileImage = document.getElementById('profileImage');
 const profileInitials = document.getElementById('profileInitials');
@@ -151,7 +150,7 @@ function drawDefaultIconToImageData() {
         ctx.font = `bold ${Math.round(size * 0.55)}px system-ui, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('T', r, r);
+        ctx.fillText('M', r, r);
         result[size] = ctx.getImageData(0, 0, size, size);
     }
     return result;
@@ -309,8 +308,7 @@ async function loadProfileTab() {
 }
 function copyToClipboard(text) {
     if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(text);
-        showToast('Copied!');
+        navigator.clipboard.writeText(text).then(() => showToast('Copied!'), () => showToast('Could not copy.', true));
     }
 }
 function renderProfileTab(profile, resumes, coverLetters, userEmail) {
@@ -386,26 +384,28 @@ function renderProfileTab(profile, resumes, coverLetters, userEmail) {
             summaryEl.onclick = () => copyToClipboard(summary);
         }
     }
-    const hasLinks = !!(profile?.linkedin_url?.trim() || profile?.website_url?.trim());
+    const linkedinHref = safeHttpUrl(profile?.linkedin_url);
+    const websiteHref = safeHttpUrl(profile?.website_url);
+    const hasLinks = !!(linkedinHref || websiteHref);
     if (linksSection)
         linksSection.classList.toggle('hidden', !hasLinks);
     linksContainer.innerHTML = '';
-    if (profile?.linkedin_url?.trim()) {
+    if (linkedinHref) {
         const a = document.createElement('a');
         a.className = 'profile-link-item';
-        a.href = profile.linkedin_url;
+        a.href = linkedinHref;
         a.target = '_blank';
         a.rel = 'noopener';
-        a.textContent = `LinkedIn · ${profile.linkedin_url}`;
+        a.textContent = `LinkedIn · ${linkedinHref}`;
         linksContainer.appendChild(a);
     }
-    if (profile?.website_url?.trim()) {
+    if (websiteHref) {
         const a = document.createElement('a');
         a.className = 'profile-link-item';
-        a.href = profile.website_url;
+        a.href = websiteHref;
         a.target = '_blank';
         a.rel = 'noopener';
-        a.textContent = `Website · ${profile.website_url}`;
+        a.textContent = `Website · ${websiteHref}`;
         linksContainer.appendChild(a);
     }
     resumesContainer.innerHTML = '';
@@ -420,8 +420,7 @@ function renderProfileTab(profile, resumes, coverLetters, userEmail) {
         previewLink.textContent = 'Preview';
         previewLink.addEventListener('click', (e) => {
             e.preventDefault();
-            const base = API_BASE.replace(/\/$/, '');
-            window.open(`${base}/documents`, '_blank');
+            window.open(`${FRONTEND_BASE.replace(/\/$/, '')}/app/documents`, '_blank');
         });
         div.appendChild(previewLink);
         resumesContainer.appendChild(div);
@@ -438,10 +437,12 @@ function renderProfileTab(profile, resumes, coverLetters, userEmail) {
         const div = document.createElement('div');
         div.className = 'profile-upload-item';
         div.innerHTML = `<span>${escapeHtml(c.title)}</span>`;
-        if (c.file_url) {
+        const coverHref = safeHttpUrl(c.file_url);
+        if (coverHref) {
             const a = document.createElement('a');
-            a.href = c.file_url;
+            a.href = coverHref;
             a.target = '_blank';
+            a.rel = 'noopener';
             a.textContent = 'Open';
             div.appendChild(a);
         }
@@ -454,6 +455,11 @@ function renderProfileTab(profile, resumes, coverLetters, userEmail) {
         empty.textContent = 'No cover letters.';
         coverLettersContainer.appendChild(empty);
     }
+}
+/** Only allow http(s) links from server data; anything else (javascript:, data:) is dropped. */
+function safeHttpUrl(url) {
+    const u = (url ?? '').trim();
+    return /^https?:\/\//i.test(u) ? u : null;
 }
 function escapeHtml(s) {
     const div = document.createElement('div');
@@ -543,8 +549,13 @@ async function loadResumeAccountList() {
         btn.className = 'btn btn-ghost btn-full';
         if (state.resumeSource === 'account' && state.selectedResumeId === r.id)
             btn.classList.add('selected');
-        const primaryBadge = r.is_primary ? '<span class="resume-primary-badge">Primary</span>' : '';
-        btn.innerHTML = `${r.name}${primaryBadge}`;
+        btn.textContent = r.name;
+        if (r.is_primary) {
+            const badge = document.createElement('span');
+            badge.className = 'resume-primary-badge';
+            badge.textContent = 'Primary';
+            btn.appendChild(badge);
+        }
         btn.dataset.resumeId = r.id;
         btn.addEventListener('click', async () => {
             state.resumeSource = 'account';
@@ -603,46 +614,84 @@ async function loadLoggedInState() {
     renderLoggedIn(user, profile);
     await setExtensionIconFromProfile(profile?.profile_image_url ?? null);
 }
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-    if (!email || !password) {
-        setStatus('Email and password required.', 'error');
+if (createAccountLink)
+    createAccountLink.href = `${FRONTEND_BASE}/signup`;
+async function completePortalLogin(user) {
+    await chrome.storage.local.set({ userId: user.id, user });
+    setStatus('Connected.', 'success');
+    const profileRes = await apiFetch('/api/profile', { token: user.id });
+    const profile = profileRes.ok ? profileRes.data ?? null : null;
+    showView('loggedIn');
+    renderLoggedIn(user, profile);
+    await setExtensionIconFromProfile(profile?.profile_image_url ?? null);
+}
+oauthLoginBtn?.addEventListener('click', async () => {
+    if (!chrome.identity?.launchWebAuthFlow || !chrome.identity.getRedirectURL) {
+        setStatus('This browser cannot open the portal login window.', 'error');
         return;
     }
-    submitBtn.disabled = true;
-    setStatus('Signing in…', '');
-    const res = await apiFetch('/api/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-    });
-    if (res.ok && res.data?.success && res.data.user?.id) {
-        const user = {
-            id: res.data.user.id,
-            name: res.data.user.name ?? '',
-            email: res.data.user.email ?? email,
-        };
-        await chrome.storage.local.set({ userId: res.data.user.id, user });
-        setStatus('Logged in.', 'success');
-        const profileRes = await apiFetch('/api/profile', { token: res.data.user.id });
-        const profile = profileRes.ok ? profileRes.data ?? null : null;
-        showView('loggedIn');
-        renderLoggedIn(user, profile);
-        await setExtensionIconFromProfile(profile?.profile_image_url ?? null);
+    const state = crypto.randomUUID();
+    const redirectUri = chrome.identity.getRedirectURL('oauth');
+    const authUrl = new URL('/oauth/extension', FRONTEND_BASE);
+    authUrl.searchParams.set('client_id', EXTENSION_CLIENT_ID);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('state', state);
+    authUrl.searchParams.set('redirect_uri', redirectUri);
+    oauthLoginBtn.disabled = true;
+    setStatus('Opening the portal to approve access…', '');
+    try {
+        const responseUrl = await chrome.identity.launchWebAuthFlow({
+            url: authUrl.toString(),
+            interactive: true,
+        });
+        if (!responseUrl) {
+            setStatus('Sign-in was cancelled.', 'error');
+            return;
+        }
+        const result = new URL(responseUrl);
+        if (result.searchParams.get('error') === 'access_denied') {
+            setStatus('Access was denied on the portal.', 'error');
+            return;
+        }
+        const code = result.searchParams.get('code');
+        const returnedState = result.searchParams.get('state');
+        if (!code || returnedState !== state) {
+            setStatus('The portal did not return a valid approval.', 'error');
+            return;
+        }
+        const tokenRes = await apiFetch('/api/oauth/extension/token', {
+            method: 'POST',
+            body: JSON.stringify({ code, state }),
+        });
+        if (!tokenRes.ok || !tokenRes.data?.user?.id) {
+            setStatus(tokenRes.error || 'Could not finish connecting the extension.', 'error');
+            return;
+        }
+        await completePortalLogin({
+            id: tokenRes.data.user.id,
+            name: tokenRes.data.user.name ?? '',
+            email: tokenRes.data.user.email ?? '',
+        });
     }
-    else {
-        setStatus(res.error || 'Invalid email or password.', 'error');
+    catch (err) {
+        const message = err instanceof Error ? err.message : '';
+        setStatus(message.includes('canceled') || message.includes('The user did not')
+            ? 'Sign-in was cancelled.'
+            : 'Could not open the portal approval window.', 'error');
     }
-    submitBtn.disabled = false;
+    finally {
+        oauthLoginBtn.disabled = false;
+    }
 });
 logoutBtn.addEventListener('click', async () => {
     await chrome.storage.local.remove(['userId', 'user']);
+    state.storedResumes = [];
+    state.storedKeys = [];
+    state.autofillResumes = [];
+    state.autofillCoverLetters = [];
     setDefaultExtensionIcon();
     showView('login');
     setStatus('', '');
-    emailInput.value = '';
-    passwordInput.value = '';
 });
 // --- Settings ---
 async function loadStoredKeys() {
@@ -943,13 +992,24 @@ async function generateCoverLetter() {
             showToast('Generated.');
             return;
         }
+        let customResumeText = state.resume;
+        if (state.resumeView === 'list' && state.resumeSource === 'account') {
+            const stored = await chrome.storage.local.get(['userId']);
+            const uid = stored.userId;
+            const picked = uid ? (await getCurrentResumeText(uid)).text : null;
+            if (!picked) {
+                showToast('Could not load the selected resume. Log in, or paste a custom resume.', true);
+                return;
+            }
+            customResumeText = picked;
+        }
         const jobInfo = state.jobMeta.title
             ? `Job: ${state.jobMeta.title}\nCompany: ${state.jobMeta.company}\nLocation: ${state.jobMeta.location}\n\n`
             : '';
         const prompt = `You are an expert career coach. Write a tailored cover letter.
 
 --- RESUME ---
-${state.resume}
+${customResumeText}
 
 --- JOB DESCRIPTION ---
 ${jobInfo}${state.jobDescription}
@@ -959,9 +1019,9 @@ Tone: ${tone}
 ${additional ? `Additional: ${additional}` : ''}
 
 Write a cover letter that addresses the job requirements and maps the candidate's experience. Sound human, concise (250-350 words). No headers or labels. Output ONLY the letter.`;
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${modelToUse}:generateContent?key=${state.apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${modelToUse}:generateContent`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': state.apiKey },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: { temperature: 0.75, maxOutputTokens: 1024 },
@@ -992,9 +1052,7 @@ regenerateBtn.addEventListener('click', () => generateCoverLetter());
 // Web app (same as FRONTEND_BASE for local; change if frontend is elsewhere in prod)
 const WEB_APP_BASE = FRONTEND_BASE;
 function getResumeTextFromHtml(html) {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    return (div.textContent || div.innerText || '').trim();
+    return (new DOMParser().parseFromString(html, 'text/html').body.textContent || '').trim();
 }
 async function getCurrentResumeText(userId) {
     const hasResume = (state.resumeView === 'list' && state.resumeSource === 'account' && !!state.selectedResumeId) ||
@@ -1126,10 +1184,8 @@ resumeGenerateSidebarBtn?.addEventListener('click', async () => {
         if (!res.ok)
             throw new Error(res.error || 'Failed to generate');
         const content = res.data?.content ?? '';
-        const div = document.createElement('div');
-        div.innerHTML = content;
-        const text = (div.textContent || div.innerText || '').trim();
-        lastResumeSidebarContent = content || '';
+        const text = getResumeTextFromHtml(content);
+        lastResumeSidebarContent = text;
         if (resumeSidebarOutput)
             resumeSidebarOutput.textContent = text || '(No content)';
         if (resumeSidebarOutputWrap)
